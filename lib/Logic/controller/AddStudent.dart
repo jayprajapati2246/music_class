@@ -63,7 +63,7 @@ class Addstudentcontroller extends GetxController {
 
       clearControllers();
 
-      Get.to(() => const Student());
+      Get.off(() => const Student());
 
     } catch (e) {
       Get.snackbar(

@@ -103,13 +103,9 @@ class _StudentState extends State<Student> {
                       ),
                       const SizedBox(height: 20),
                       ElevatedButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => Addnstudent(),
-                            ),
-                          );
+                        onPressed: () async {
+                         await Get.to(() => const Addnstudent());
+                          showController.fetchStudents();
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.deepPurple,
@@ -155,11 +151,9 @@ class _StudentState extends State<Student> {
       ),
 
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Get.to(
-            () => const Addnstudent(),
-
-          );
+        onPressed: () async {
+         await Get.to(() => const Addnstudent());
+          showController.fetchStudents();
         },
         backgroundColor: Colors.deepPurple,
         shape: const CircleBorder(),
