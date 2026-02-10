@@ -1,21 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../screen/student/addnewstudent.dart';
+import '../../screen/student/student.dart';
 import '../Servisses/student.dart';
 import '../model/Student.dart';
 
+
 class Addstudentcontroller extends GetxController {
+
   final AddStudentService _service = AddStudentService();
 
   String? selectedCourse;
   String? selectedBatchType;
   String? selectedPaymentType;
-  String? selectedbatchtime;
+  String? selectedBatchTime;
 
   final List<String> courses = ['Guitar', 'Piano', 'Drums', 'Violin'];
   final List<String> batchTypes = ['Everyday', 'Alternate Days'];
   final List<String> paymentTypes = ['Per Class', 'Monthly'];
-  final List<String> batchtime = [
+  final List<String> batchTime = [
     '9:00 AM - 10:00 AM',
     '10:00 AM - 11:00 AM',
     '11:00 AM - 12:00 PM',
@@ -28,16 +30,57 @@ class Addstudentcontroller extends GetxController {
 
   DateTime? joinDate;
 
-  final TextEditingController joinDateController = TextEditingController();
-  final TextEditingController amountController = TextEditingController();
   final TextEditingController nameController = TextEditingController();
   final TextEditingController phoneController = TextEditingController();
+  final TextEditingController amountController = TextEditingController();
+  final TextEditingController joinDateController = TextEditingController();
 
   Future<void> addStudent() async {
+
+    if (!_validate()) return;
+
+    final student = StudentModel(
+      name: nameController.text.trim(),
+      phone: phoneController.text.trim(),
+      course: selectedCourse!,
+      batchTime: selectedBatchTime!,
+      batchType: selectedBatchType!,
+      paymentType: selectedPaymentType!,
+      monthlyFee: double.parse(amountController.text.trim()),
+      joinDate: joinDate!,
+    );
+
+    try {
+      await _service.addStudent(student);
+
+      Get.snackbar(
+        "Success",
+        "Student added successfully",
+        snackPosition: SnackPosition.TOP,
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
+      );
+
+      clearControllers();
+
+      Get.to(() => const Student());
+
+    } catch (e) {
+      Get.snackbar(
+        "Error",
+        "Failed to add student",
+        snackPosition: SnackPosition.TOP,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    }
+  }
+
+  bool _validate() {
     if (nameController.text.trim().isEmpty ||
         phoneController.text.trim().isEmpty ||
         selectedCourse == null ||
-        selectedbatchtime == null ||
+        selectedBatchTime == null ||
         selectedBatchType == null ||
         selectedPaymentType == null ||
         amountController.text.trim().isEmpty ||
@@ -49,33 +92,9 @@ class Addstudentcontroller extends GetxController {
         backgroundColor: Colors.red,
         colorText: Colors.white,
       );
-      return;
+      return false;
     }
-
-    final student = StudentModel(
-      name: nameController.text.trim(),
-      phone: phoneController.text.trim(),
-      course: selectedCourse!,
-      batchTime: selectedbatchtime!,
-      batchType: selectedBatchType!,
-      paymentType: selectedPaymentType!,
-      monthlyFee: double.parse(amountController.text.trim()),
-      joinDate: joinDate!,
-    );
-
-    await _service.addStudent(student);
-
-    Get.snackbar(
-      "Success",
-      "Student added successfully",
-      snackPosition: SnackPosition.TOP,
-      backgroundColor: Colors.green,
-      colorText: Colors.white,
-    );
-    // Get.back();
-    clearControllers();
-
-    Get.offAll(() => const Addnstudent());
+    return true;
   }
 
   void clearControllers() {
@@ -85,7 +104,7 @@ class Addstudentcontroller extends GetxController {
     joinDateController.clear();
 
     selectedCourse = null;
-    selectedbatchtime = null;
+    selectedBatchTime = null;
     selectedBatchType = null;
     selectedPaymentType = null;
     joinDate = null;

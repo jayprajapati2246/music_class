@@ -79,11 +79,11 @@ class _AddnstudentState extends State<Addnstudent> {
             _label("Batch Time"),
             commonDropdown<String>(
               hintText: "Select batch time",
-              items: controller.batchtime,
-              value: controller.selectedbatchtime,
+              items: controller.batchTime,
+              value: controller.selectedBatchTime,
               itemLabel: (e) => e,
               onChanged: (value) {
-                setState(() => controller.selectedbatchtime = value);
+                setState(() => controller.selectedBatchTime = value);
               },
             ),
 
