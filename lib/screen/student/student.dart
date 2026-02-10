@@ -62,7 +62,6 @@ class _StudentState extends State<Student> {
                 );
               }
 
-
               if (showController.students.isEmpty) {
                 return Center(
                   child: Column(
@@ -131,7 +130,6 @@ class _StudentState extends State<Student> {
                 );
               }
 
-
               return ListView.builder(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
@@ -141,10 +139,8 @@ class _StudentState extends State<Student> {
                   return studentListItem(student);
                 },
               );
+
             }),
-
-
-
 
           ],
         ),

@@ -52,6 +52,7 @@ class Addstudentcontroller extends GetxController {
 
     try {
       await _service.addStudent(student);
+      Get.back();
 
       Get.snackbar(
         "Success",
@@ -61,9 +62,7 @@ class Addstudentcontroller extends GetxController {
         colorText: Colors.white,
       );
 
-      clearControllers();
-
-      Get.off(() => const Student());
+       clearControllers();
 
     } catch (e) {
       Get.snackbar(
@@ -108,6 +107,7 @@ class Addstudentcontroller extends GetxController {
     selectedBatchType = null;
     selectedPaymentType = null;
     joinDate = null;
+
   }
 
   @override

@@ -244,7 +244,6 @@ class _AddnstudentState extends State<Addnstudent> {
           .toList(),
     );
   }
-
   Widget commonDateField({
     required String label,
     required TextEditingController controller,
@@ -254,6 +253,7 @@ class _AddnstudentState extends State<Addnstudent> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _label(label),
+        const SizedBox(height: 6),
         GestureDetector(
           onTap: () async {
             final picked = await showDatePicker(
@@ -262,6 +262,7 @@ class _AddnstudentState extends State<Addnstudent> {
               firstDate: DateTime(2000),
               lastDate: DateTime(2100),
             );
+
             if (picked != null) {
               controller.text =
               "${picked.day.toString().padLeft(2, '0')}/"
@@ -273,11 +274,38 @@ class _AddnstudentState extends State<Addnstudent> {
           child: AbsorbPointer(
             child: TextField(
               controller: controller,
+              readOnly: true,
               decoration: InputDecoration(
-                suffixIcon:
-                const Icon(Icons.calendar_today_outlined),
+                hintText: "Select date",
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 14,
+                ),
+                suffixIcon: Padding(
+                  padding: const EdgeInsets.only(right: 14),
+                  child: const Icon(
+                    Icons.calendar_today_outlined,
+                    size: 20,
+                    color: Colors.grey,
+                  ),
+                ),
+                suffixIconConstraints: const BoxConstraints(
+                  minWidth: 48,
+                  minHeight: 48,
+                ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(20),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(20),
+                  borderSide: const BorderSide(color: Colors.black12),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(20),
+                  borderSide: const BorderSide(
+                    color: Colors.deepPurple,
+                    width: 2,
+                  ),
                 ),
               ),
             ),
@@ -286,4 +314,5 @@ class _AddnstudentState extends State<Addnstudent> {
       ],
     );
   }
+
 }
