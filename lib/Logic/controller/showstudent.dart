@@ -13,6 +13,8 @@ class Showstudent extends GetxController {
   final AddStudentService _service = AddStudentService();
 
   RxList<StudentModel> students = <StudentModel>[].obs;
+  RxList<StudentModel> students_search = <StudentModel>[].obs;
+
   RxBool isLoading = true.obs;
 
   @override
@@ -25,6 +27,12 @@ class Showstudent extends GetxController {
     try {
       isLoading.value = true;
       students.value = await _service.getStudents();
+
+      //students_search.value = students;
+
+      students_search.assignAll(students.value);
+      students.assignAll(students.value);
+
     } catch (e) {
       Get.snackbar(
         "Error",
@@ -37,4 +45,24 @@ class Showstudent extends GetxController {
       isLoading.value = false;
     }
   }
+
+  void searchStudents(String query) {
+    if (query.isEmpty) {
+      students.assignAll(students_search);
+      return;
+    }
+
+    final result = students_search.where((student) {
+      final name = student.name.toLowerCase();
+      final course = student.course.toLowerCase();
+      final search = query.toLowerCase();
+
+      return name.contains(search) || course.contains(search);
+    }).toList();
+
+    students.assignAll(result);
+  }
+
 }
+
+

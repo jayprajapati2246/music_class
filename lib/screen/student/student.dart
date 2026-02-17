@@ -25,6 +25,9 @@ class _StudentState extends State<Student> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               child: TextField(
+                onChanged: (value) {
+                  showController.searchStudents(value);
+                },
                 decoration: InputDecoration(
                   hintText: "Search students...",
                   prefixIcon: Padding(
@@ -45,10 +48,14 @@ class _StudentState extends State<Student> {
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(32),
-                    borderSide: const BorderSide(color: Colors.deepPurple, width: 2.5),
+                    borderSide: const BorderSide(
+                      color: Colors.deepPurple,
+                      width: 2.5,
+                    ),
                   ),
                 ),
               ),
+
             ),
 
             Obx(() {
