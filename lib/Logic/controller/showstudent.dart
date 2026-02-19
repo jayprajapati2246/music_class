@@ -26,12 +26,12 @@ class Showstudent extends GetxController {
   Future<void> fetchStudents() async {
     try {
       isLoading.value = true;
-      students.value = await _service.getStudents();
 
-      //students_search.value = students;
+     final data = await _service.getStudents();
 
-      students_search.assignAll(students.value);
-      students.assignAll(students.value);
+      students_search.assignAll(data);
+      students.assignAll(data);
+
 
     } catch (e) {
       Get.snackbar(
@@ -51,7 +51,7 @@ class Showstudent extends GetxController {
       students.assignAll(students_search);
       return;
     }
-
+    else{
     final result = students_search.where((student) {
       final name = student.name.toLowerCase();
       final course = student.course.toLowerCase();
@@ -61,6 +61,7 @@ class Showstudent extends GetxController {
     }).toList();
 
     students.assignAll(result);
+    }
   }
 
 }

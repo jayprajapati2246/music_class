@@ -131,21 +131,21 @@ class _AddnstudentState extends State<Addnstudent> {
 
             SizedBox(height: height * 0.02),
 
-            _label("Monthly Fee"),
-            commonTextField(
-              hintText: "Enter amount",
-              controller: controller.amountController,
-              keyboardType: TextInputType.number,
-            ),
-
-            SizedBox(height: height * 0.02),
-
             commonDateField(
               label: "Join Date",
               controller: controller.joinDateController,
               onDateSelected: (date) {
                 setState(() => controller.joinDate = date);
               },
+            ),
+
+            SizedBox(height: height * 0.02),
+
+            _label("Monthly Fee"),
+            commonTextField(
+              hintText: "Enter amount",
+              controller: controller.amountController,
+              keyboardType: TextInputType.number,
             ),
 
             SizedBox(height: height * 0.03),

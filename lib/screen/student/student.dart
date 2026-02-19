@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import '../../Logic/controller/showstudent.dart';
 import '../../Logic/model/Student.dart';
 import 'addnewstudent.dart';
+import 'edit.dart';
 
 class Student extends StatefulWidget {
   const Student({super.key});
@@ -22,12 +23,12 @@ class _StudentState extends State<Student> {
       body: SingleChildScrollView(
         child: Column(
           children: [
+
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               child: TextField(
-                onChanged: (value) {
-                  showController.searchStudents(value);
-                },
+                onChanged: (value) =>
+                  showController.searchStudents(value),
                 decoration: InputDecoration(
                   hintText: "Search students...",
                   prefixIcon: Padding(
@@ -55,7 +56,6 @@ class _StudentState extends State<Student> {
                   ),
                 ),
               ),
-
             ),
 
             Obx(() {
@@ -167,111 +167,114 @@ class _StudentState extends State<Student> {
   }
 
   Widget studentListItem(StudentModel student) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-
-          CircleAvatar(
-            radius: 22,
-            backgroundColor: Colors.red.shade50,
-            child: const Icon(
-              Icons.person_outline,
-              color: Colors.red,
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: () {
+            Get.to(() => editdetail(student: student));
+          },
+          child: Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
             ),
-          ),
-
-          const SizedBox(width: 12),
-
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            child: Row(
               children: [
-                Text(
-                  student.name,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
+                CircleAvatar(
+                  radius: 22,
+                  backgroundColor: Colors.red.shade50,
+                  child: const Icon(
+                    Icons.person_outline,
+                    color: Colors.red,
                   ),
                 ),
-
-                const SizedBox(height: 4),
-
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 4,
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  children: [
-                    const Icon(Icons.music_note,
-                        size: 14, color: Colors.grey),
-                    Text(
-                      student.course,
-                      style: const TextStyle(
-                          color: Colors.grey, fontSize: 13),
-                    ),
-                    Row(
-                      children: [
-                        const Icon(Icons.access_time,
-                            size: 14, color: Colors.grey),
-                        const SizedBox(width: 4),
-                        Text(
-                          student.batchTime,
-                          style: const TextStyle(
-                              color: Colors.grey, fontSize: 13),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        student.name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
                         ),
-                      ],
+                      ),
+                      const SizedBox(height: 4),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 4,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        children: [
+                          const Icon(Icons.music_note,
+                              size: 14, color: Colors.grey),
+                          Text(
+                            student.course,
+                            style: const TextStyle(
+                                color: Colors.grey, fontSize: 13),
+                          ),
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.access_time,
+                                  size: 14, color: Colors.grey),
+                              const SizedBox(width: 4),
+                              Text(
+                                student.batchTime,
+                                style: const TextStyle(
+                                    color: Colors.grey, fontSize: 13),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.redAccent.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Text(
+                        "₹ due",
+                        style: TextStyle(
+                          color: Colors.red,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                     ),
-
+                    const Icon(
+                      Icons.chevron_right,
+                      color: Colors.grey,
+                    ),
                   ],
                 ),
               ],
             ),
           ),
-
-          const SizedBox(width: 8),
-
-          Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                padding:
-                const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: Colors.redAccent.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Text(
-                  "₹ due",
-                  style: const TextStyle(
-                    color: Colors.red,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-              const Icon(
-                Icons.chevron_right,
-                color: Colors.grey,
-              ),
-            ],
-          ),
-        ],
+        ),
       ),
     );
   }
-
 }

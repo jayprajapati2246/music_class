@@ -48,35 +48,32 @@ class _MainscreenState extends State<Mainscreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white70,
-        elevation: 0,
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              titles[selectedIndex],
-              style: const TextStyle(
-                fontSize: 18,
-                color: Colors.black,
-                fontWeight: FontWeight.bold,
+      appBar: selectedIndex == 0
+          ? null
+          : AppBar(
+              backgroundColor: Colors.white70,
+              elevation: 0,
+              title: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    titles[selectedIndex],
+                    style: const TextStyle(
+                      fontSize: 18,
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitles[selectedIndex],
+                    style: const TextStyle(fontSize: 12, color: Colors.black),
+                  ),
+                ],
               ),
             ),
-            const SizedBox(height: 2),
-            Text(
-              subtitles[selectedIndex],
-              style: const TextStyle(
-                fontSize: 12,
-                color: Colors.black,
-              ),
-            ),
-          ],
-        ),
-      ),
-
 
       body: _pages[selectedIndex],
-
 
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: selectedIndex,
@@ -97,10 +94,7 @@ class _MainscreenState extends State<Mainscreen> {
             icon: Icon(Icons.calendar_today_outlined),
             label: "Attendance",
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.payment),
-            label: "Payment",
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.payment), label: "Payment"),
           BottomNavigationBarItem(
             icon: Icon(Icons.error_outline),
             label: "Dues",
