@@ -26,7 +26,7 @@ class _MainscreenState extends State<Mainscreen> {
   final List<String> titles = [
     "Home",
     "Student",
-    "Attendance",
+   "Attendance",
     "Payment",
     "Dues",
   ];
@@ -34,7 +34,7 @@ class _MainscreenState extends State<Mainscreen> {
   final List<String> subtitles = [
     "Music Class Dashboard",
     "0 enrolled",
-    "Mark daily attendance",
+     "Mark daily attendance",
     "₹0 collected today",
     "All payments cleared",
   ];
