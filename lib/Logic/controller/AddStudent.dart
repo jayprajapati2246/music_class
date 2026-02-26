@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../screen/student/student.dart';
+import 'package:music_class/screen/student/student.dart';
 import '../Servisses/student.dart';
 import '../model/Student.dart';
 
-
 class Addstudentcontroller extends GetxController {
-
   final AddStudentService _service = AddStudentService();
 
   String? selectedCourse;
@@ -18,9 +16,13 @@ class Addstudentcontroller extends GetxController {
   final List<String> batchTypes = ['Everyday', 'Alternate Days'];
   final List<String> paymentTypes = ['Per Class', 'Monthly'];
   final List<String> batchTime = [
+    '7:00 AM - 8:00 AM',
+    '8:00 AM - 9:00 AM',
     '9:00 AM - 10:00 AM',
     '10:00 AM - 11:00 AM',
     '11:00 AM - 12:00 PM',
+    '12:00 PM - 1:00 PM',
+    '1:00 PM - 2:00 PM',
     '2:00 PM - 3:00 PM',
     '3:00 PM - 4:00 PM',
     '4:00 PM - 5:00 PM',
@@ -29,6 +31,7 @@ class Addstudentcontroller extends GetxController {
   ];
 
   DateTime? joinDate;
+  DateTime? get initialDate => joinDate;
 
   final TextEditingController nameController = TextEditingController();
   final TextEditingController phoneController = TextEditingController();
@@ -36,7 +39,6 @@ class Addstudentcontroller extends GetxController {
   final TextEditingController joinDateController = TextEditingController();
 
   Future<void> addStudent() async {
-
     if (!_validate()) return;
 
     final student = StudentModel(
@@ -52,7 +54,7 @@ class Addstudentcontroller extends GetxController {
 
     try {
       await _service.addStudent(student);
-      Get.back();
+      Get.back(result: true);
 
       Get.snackbar(
         "Success",
@@ -62,12 +64,50 @@ class Addstudentcontroller extends GetxController {
         colorText: Colors.white,
       );
 
-       clearControllers();
-
+      clearControllers();
     } catch (e) {
       Get.snackbar(
         "Error",
-        "Failed to add student",
+        "Failed to add student: ${e.toString()}",
+        snackPosition: SnackPosition.TOP,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    }
+  }
+
+  Future<void> updateStudent(String studentId) async {
+    if (!_validate()) return;
+
+    final student = StudentModel(
+      id: studentId,
+      name: nameController.text.trim(),
+      phone: phoneController.text.trim(),
+      course: selectedCourse!,
+      batchTime: selectedBatchTime!,
+      batchType: selectedBatchType!,
+      paymentType: selectedPaymentType!,
+      monthlyFee: double.parse(amountController.text.trim()),
+      joinDate: joinDate!,
+    );
+
+    try {
+      await _service.updateStudent(student);
+      Get.back(result: true);
+
+      Get.snackbar(
+        "Success",
+        "Student updated successfully",
+        snackPosition: SnackPosition.TOP,
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
+      );
+
+      clearControllers();
+    } catch (e) {
+      Get.snackbar(
+        "Error",
+        "Failed to update student: ${e.toString()}",
         snackPosition: SnackPosition.TOP,
         backgroundColor: Colors.red,
         colorText: Colors.white,
@@ -107,7 +147,6 @@ class Addstudentcontroller extends GetxController {
     selectedBatchType = null;
     selectedPaymentType = null;
     joinDate = null;
-
   }
 
   @override

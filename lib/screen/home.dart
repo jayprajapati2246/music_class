@@ -1,12 +1,35 @@
 import 'package:flutter/material.dart';
-import 'package:get/get_core/src/get_main.dart';
-import 'package:get/get_navigation/src/extension_navigation.dart';
-import 'package:music_class/screen/student/addnewstudent.dart';
+import 'package:get/get.dart';
+import 'package:intl/intl.dart';
+import 'package:music_class/Logic/controller/home_controller.dart';
 
-import 'attendance.dart';
+class HomePage extends StatefulWidget {
+  final VoidCallback onNavigateToPayments;
+  final VoidCallback onNavigateToDues;
+  final VoidCallback onNavigateToStudent;
+  final VoidCallback onNavigateToAttendance;
 
-class HomePage extends StatelessWidget {
-  const HomePage({super.key});
+  const HomePage({
+    super.key,
+    required this.onNavigateToPayments,
+    required this.onNavigateToDues,
+    required this.onNavigateToStudent,
+    required this.onNavigateToAttendance,
+  });
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+
+  late HomeController controller;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = Get.put(HomeController());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -19,10 +42,7 @@ class HomePage extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(20, 50, 20, 30),
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [
-                    Color(0xff6A5AE0),
-                    Color(0xff8E54E9),
-                  ],
+                  colors: [Color(0xff6A5AE0), Color(0xff8E54E9)],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
@@ -35,16 +55,16 @@ class HomePage extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
-                    children: const [
-                      CircleAvatar(
+                    children: [
+                      const CircleAvatar(
                         backgroundColor: Colors.white24,
                         child: Icon(Icons.music_note, color: Colors.white),
                       ),
-                      SizedBox(width: 12),
+                      const SizedBox(width: 12),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
+                          const Text(
                             "Music Class",
                             style: TextStyle(
                               color: Colors.white,
@@ -52,10 +72,11 @@ class HomePage extends StatelessWidget {
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          SizedBox(height: 4),
+                          const SizedBox(height: 4),
                           Text(
-                            "Thursday, Feb 5",
-                            style: TextStyle(
+                            DateFormat('EEEE, MMM d')
+                                .format(DateTime.now()),
+                            style: const TextStyle(
                               color: Colors.white70,
                               fontSize: 12,
                             ),
@@ -64,15 +85,57 @@ class HomePage extends StatelessWidget {
                       )
                     ],
                   ),
-
                   const SizedBox(height: 25),
 
-                  Row(
+                  /// Reactive Cards
+                  Obx(() => Row(
                     children: [
-                      Expanded(child: topCard("0", "Total Students", Icons.people)),
+                      Expanded(
+                        child: topCard(
+                          controller.totalStudents.toString(),
+                          "Total Students",
+                          Icons.people,
+                          onTap: widget.onNavigateToStudent,
+                        ),
+                      ),
                       const SizedBox(width: 12),
-                      Expanded(child: topCard("0/0", "Today's Attendance", Icons.calendar_today)),
+                      Expanded(
+                        child: topCard(
+                          "${controller.todaysPresent}/${controller.totalStudents}",
+                          "Today's Attendance",
+                          Icons.calendar_today,
+                          onTap: widget.onNavigateToAttendance,
+                        ),
+                      ),
                     ],
+                  )),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 20),
+
+            /// Payment Section
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: paymentCard(
+                      "₹0",
+                      "Payments Today",
+                      Colors.green,
+                      widget.onNavigateToPayments,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: paymentCard(
+                      "₹0",
+                      "Pending Dues",
+                      Colors.grey,
+                      widget.onNavigateToDues,
+                    ),
                   ),
                 ],
               ),
@@ -80,19 +143,7 @@ class HomePage extends StatelessWidget {
 
             const SizedBox(height: 20),
 
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Row(
-                children: [
-                  Expanded(child: paymentCard("₹0", "Payments Today", Colors.green)),
-                  const SizedBox(width: 12),
-                  Expanded(child: paymentCard("₹0", "Pending Dues", Colors.grey)),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 20),
-
+            /// Quick Actions
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Container(
@@ -116,12 +167,20 @@ class HomePage extends StatelessWidget {
                       children: [
                         Expanded(
                           child: actionButton(
-                              "Add Student", Icons.person_add, Colors.deepPurple,Addnstudent()),
+                            "Add Student",
+                            Icons.people,
+                            Colors.deepPurple,
+                            widget.onNavigateToStudent,
+                          ),
                         ),
                         const SizedBox(width: 12),
                         Expanded(
                           child: actionButton(
-                              "Mark Attendance", Icons.event, Colors.orange,Attendance()),
+                            "Mark Attendance",
+                            Icons.event,
+                            Colors.orange,
+                            widget.onNavigateToAttendance,
+                          ),
                         ),
                       ],
                     )
@@ -129,7 +188,6 @@ class HomePage extends StatelessWidget {
                 ),
               ),
             ),
-
             const SizedBox(height: 30),
           ],
         ),
@@ -137,78 +195,84 @@ class HomePage extends StatelessWidget {
     );
   }
 
-
-  Widget topCard(String value, String title, IconData icon) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.15),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Column(
-        children: [
-          Icon(icon, color: Colors.white),
-          const SizedBox(height: 10),
-          Text(
-            value,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            title,
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              color: Colors.white70,
-              fontSize: 12,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-
-  Widget paymentCard(String amount, String title, Color iconColor) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
-      ),
-      child: Column(
-        children: [
-          Icon(Icons.account_balance_wallet, color: iconColor),
-          const SizedBox(height: 10),
-          Text(
-            amount,
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: 12,
-              color: Colors.grey,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-
-  Widget actionButton(String title, IconData icon, Color color,  Widget page) {
+  Widget topCard(String value, String title, IconData icon,
+      {VoidCallback? onTap}) {
     return InkWell(
-      onTap: () {
-        Get.to(() => page);
-      },
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(20),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.15),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Column(
+          children: [
+            Icon(icon, color: Colors.white),
+            const SizedBox(height: 10),
+            Text(
+              value,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                color: Colors.white70,
+                fontSize: 12,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget paymentCard(
+      String amount, String title, Color iconColor, VoidCallback onTap) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(18),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(18),
+        ),
+        child: Column(
+          children: [
+            Icon(Icons.account_balance_wallet, color: iconColor),
+            const SizedBox(height: 10),
+            Text(
+              amount,
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              title,
+              style: const TextStyle(
+                fontSize: 12,
+                color: Colors.grey,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget actionButton(
+      String title, IconData icon, Color color, VoidCallback onTap) {
+    return InkWell(
+      onTap: onTap,
       borderRadius: BorderRadius.circular(14),
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 14),

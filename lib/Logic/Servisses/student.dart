@@ -22,17 +22,15 @@ class AddStudentService {
     )
         .toList();
   }
-  //
-  // /// 🔹 Update student
-  // Future<void> updateStudent(StudentModel student) async {
-  //   await _firestore
-  //       .collection('students')
-  //       .doc(student.id)
-  //       .update(student.toMap());
-  // }
-  //
-  // /// 🔹 Delete student
-  // Future<void> deleteStudent(String studentId) async {
-  //   await _firestore.collection('students').doc(studentId).delete();
-  // }
+
+  Future<void> updateStudent(StudentModel student) async {
+    await _firestore
+        .collection('students')
+        .doc(student.id)
+        .update(student.toMap());
+  }
+
+  Future<void> deleteStudent(String studentId) async {
+    await _firestore.collection('students').doc(studentId).delete();
+  }
 }

@@ -12,23 +12,30 @@ class Student extends StatefulWidget {
   State<Student> createState() => _StudentState();
 }
 
-
 class _StudentState extends State<Student> {
-
   final Showstudent showController = Get.put(Showstudent());
 
   @override
- Widget build(BuildContext context) {
+  Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        title: Column(
+          children: [
+            const Text("Students",style: TextStyle(color: Colors.black,fontWeight: FontWeight.bold,fontSize: 18),),
+            const SizedBox(height: 2,),
+            Text("${showController.students.length} enrolled",style: const TextStyle(color: Colors.grey,fontSize: 15)),
+          ],
+        )
+      ),
       body: SingleChildScrollView(
         child: Column(
           children: [
-
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               child: TextField(
-                onChanged: (value) =>
-                  showController.searchStudents(value),
+                onChanged: (value) => showController.searchStudents(value),
                 decoration: InputDecoration(
                   hintText: "Search students...",
                   prefixIcon: Padding(
@@ -59,13 +66,10 @@ class _StudentState extends State<Student> {
             ),
 
             Obx(() {
-
               if (showController.isLoading.value) {
                 return const Padding(
                   padding: EdgeInsets.only(top: 80),
-                  child: Center(
-                    child: CircularProgressIndicator(),
-                  ),
+                  child: Center(child: CircularProgressIndicator()),
                 );
               }
 
@@ -101,16 +105,13 @@ class _StudentState extends State<Student> {
                         child: Text(
                           "Add your first student to get started with managing your music classes",
                           textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: Colors.grey,
-                            fontSize: 14,
-                          ),
+                          style: TextStyle(color: Colors.grey, fontSize: 14),
                         ),
                       ),
                       const SizedBox(height: 20),
                       ElevatedButton(
                         onPressed: () async {
-                         await Get.to(() => const Addnstudent());
+                          await Get.to(() => const Addnstudent());
                           showController.fetchStudents();
                         },
                         style: ElevatedButton.styleFrom(
@@ -146,23 +147,20 @@ class _StudentState extends State<Student> {
                   return studentListItem(student);
                 },
               );
-
             }),
-
           ],
         ),
       ),
 
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-         await Get.to(() => const Addnstudent());
+          await Get.to(() => const Addnstudent());
           showController.fetchStudents();
         },
         backgroundColor: Colors.deepPurple,
         shape: const CircleBorder(),
         child: const Icon(Icons.add, color: Colors.white, size: 28),
       ),
-
     );
   }
 
@@ -174,7 +172,7 @@ class _StudentState extends State<Student> {
         child: InkWell(
           borderRadius: BorderRadius.circular(16),
           onTap: () {
-            Get.to(() => editdetail(student: student));
+            Get.to(() => EditDetail(student: student));
           },
           child: Container(
             padding: const EdgeInsets.all(12),
@@ -194,10 +192,7 @@ class _StudentState extends State<Student> {
                 CircleAvatar(
                   radius: 22,
                   backgroundColor: Colors.red.shade50,
-                  child: const Icon(
-                    Icons.person_outline,
-                    color: Colors.red,
-                  ),
+                  child: const Icon(Icons.person_outline, color: Colors.red),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -219,23 +214,33 @@ class _StudentState extends State<Student> {
                         runSpacing: 4,
                         crossAxisAlignment: WrapCrossAlignment.center,
                         children: [
-                          const Icon(Icons.music_note,
-                              size: 14, color: Colors.grey),
+                          const Icon(
+                            Icons.music_note,
+                            size: 14,
+                            color: Colors.grey,
+                          ),
                           Text(
                             student.course,
                             style: const TextStyle(
-                                color: Colors.grey, fontSize: 13),
+                              color: Colors.grey,
+                              fontSize: 13,
+                            ),
                           ),
                           Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const Icon(Icons.access_time,
-                                  size: 14, color: Colors.grey),
+                              const Icon(
+                                Icons.access_time,
+                                size: 14,
+                                color: Colors.grey,
+                              ),
                               const SizedBox(width: 4),
                               Text(
                                 student.batchTime,
                                 style: const TextStyle(
-                                    color: Colors.grey, fontSize: 13),
+                                  color: Colors.grey,
+                                  fontSize: 11,
+                                ),
                               ),
                             ],
                           ),
@@ -250,24 +255,23 @@ class _StudentState extends State<Student> {
                   children: [
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 4),
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.redAccent.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: const Text(
-                        "₹ due",
-                        style: TextStyle(
+                      child: Text(
+                        "₹${student.monthlyFee}due",
+                        style: const TextStyle(
                           color: Colors.red,
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
                     ),
-                    const Icon(
-                      Icons.chevron_right,
-                      color: Colors.grey,
-                    ),
+                    const Icon(Icons.chevron_right, color: Colors.grey),
                   ],
                 ),
               ],

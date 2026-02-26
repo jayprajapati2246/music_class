@@ -1,18 +1,39 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
+import 'package:music_class/Logic/model/Student.dart';
 
 import '../../Logic/controller/AddStudent.dart';
 
 class Addnstudent extends StatefulWidget {
-  const Addnstudent({super.key});
+  final StudentModel? student;
+
+  const Addnstudent({super.key, this.student});
 
   @override
   State<Addnstudent> createState() => _AddnstudentState();
 }
 
 class _AddnstudentState extends State<Addnstudent> {
-  final Addstudentcontroller controller =
-  Get.put(Addstudentcontroller());
+  late final Addstudentcontroller controller;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = Get.put(Addstudentcontroller());
+    if (widget.student != null) {
+      controller.nameController.text = widget.student!.name;
+      controller.phoneController.text = widget.student!.phone;
+      controller.selectedCourse = widget.student!.course;
+      controller.selectedBatchTime = widget.student!.batchTime;
+      controller.selectedBatchType = widget.student!.batchType;
+      controller.selectedPaymentType = widget.student!.paymentType;
+      controller.joinDate = widget.student!.joinDate;
+      controller.joinDateController.text =
+          DateFormat('dd/MM/yyyy').format(widget.student!.joinDate);
+      controller.amountController.text = widget.student!.monthlyFee.toString();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,9 +45,9 @@ class _AddnstudentState extends State<Addnstudent> {
         backgroundColor: Colors.white70,
         elevation: 0,
         title: Column(
-          children: const [
+          children: [
             Text(
-              "Add New Student",
+              widget.student == null ? "Add New Student" : "Edit Student",
               style: TextStyle(
                 fontSize: 18,
                 color: Colors.black,
@@ -51,18 +72,14 @@ class _AddnstudentState extends State<Addnstudent> {
               hintText: "Enter student name",
               controller: controller.nameController,
             ),
-
             SizedBox(height: height * 0.02),
-
             _label("Phone Number"),
             commonTextField(
               hintText: "Enter phone number",
               controller: controller.phoneController,
               keyboardType: TextInputType.phone,
             ),
-
             SizedBox(height: height * 0.02),
-
             _label("Course"),
             commonDropdown<String>(
               hintText: "Select course",
@@ -73,9 +90,7 @@ class _AddnstudentState extends State<Addnstudent> {
                 setState(() => controller.selectedCourse = value);
               },
             ),
-
             SizedBox(height: height * 0.02),
-
             _label("Batch Time"),
             commonDropdown<String>(
               hintText: "Select batch time",
@@ -86,9 +101,7 @@ class _AddnstudentState extends State<Addnstudent> {
                 setState(() => controller.selectedBatchTime = value);
               },
             ),
-
             SizedBox(height: height * 0.02),
-
             Row(
               children: [
                 Expanded(
@@ -128,9 +141,7 @@ class _AddnstudentState extends State<Addnstudent> {
                 ),
               ],
             ),
-
             SizedBox(height: height * 0.02),
-
             commonDateField(
               label: "Join Date",
               controller: controller.joinDateController,
@@ -138,33 +149,34 @@ class _AddnstudentState extends State<Addnstudent> {
                 setState(() => controller.joinDate = date);
               },
             ),
-
             SizedBox(height: height * 0.02),
-
             _label("Monthly Fee"),
             commonTextField(
               hintText: "Enter amount",
               controller: controller.amountController,
               keyboardType: TextInputType.number,
             ),
-
             SizedBox(height: height * 0.03),
-
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.deepPurple,
                 minimumSize: const Size(double.infinity, 48),
               ),
-              onPressed: controller.addStudent,
-              child: const Text(
-                "Add Student",
+              onPressed: () {
+                if (widget.student == null) {
+                  controller.addStudent();
+                } else {
+                  controller.updateStudent(widget.student!.id!);
+                }
+              },
+              child: Text(
+                widget.student == null ? "Add Student" : "Update Student",
                 style: TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.w600,
                 ),
               ),
             ),
-
             SizedBox(height: height * 0.03),
           ],
         ),
@@ -173,15 +185,15 @@ class _AddnstudentState extends State<Addnstudent> {
   }
 
   Widget _label(String text) => Padding(
-    padding: const EdgeInsets.only(bottom: 5),
-    child: Text(
-      text,
-      style: const TextStyle(
-        fontSize: 15,
-        fontWeight: FontWeight.w500,
-      ),
-    ),
-  );
+        padding: const EdgeInsets.only(bottom: 5),
+        child: Text(
+          text,
+          style: const TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      );
 
   Widget commonTextField({
     required String hintText,
@@ -194,7 +206,7 @@ class _AddnstudentState extends State<Addnstudent> {
       decoration: InputDecoration(
         hintText: hintText,
         contentPadding:
-        const EdgeInsets.symmetric(vertical: 14, horizontal: 14),
+            const EdgeInsets.symmetric(vertical: 14, horizontal: 14),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(20)),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(20),
@@ -203,7 +215,7 @@ class _AddnstudentState extends State<Addnstudent> {
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(20),
           borderSide:
-          const BorderSide(color: Colors.deepPurple, width: 2.5),
+              const BorderSide(color: Colors.deepPurple, width: 2.5),
         ),
       ),
     );
@@ -223,7 +235,7 @@ class _AddnstudentState extends State<Addnstudent> {
       decoration: InputDecoration(
         hintText: hintText,
         contentPadding:
-        const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+            const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(20),
           borderSide: const BorderSide(color: Colors.black),
@@ -231,7 +243,7 @@ class _AddnstudentState extends State<Addnstudent> {
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(20),
           borderSide:
-          const BorderSide(color: Colors.deepPurple, width: 2.5),
+              const BorderSide(color: Colors.deepPurple, width: 2.5),
         ),
       ),
       items: items
@@ -244,6 +256,7 @@ class _AddnstudentState extends State<Addnstudent> {
           .toList(),
     );
   }
+
   Widget commonDateField({
     required String label,
     required TextEditingController controller,
@@ -258,14 +271,14 @@ class _AddnstudentState extends State<Addnstudent> {
           onTap: () async {
             final picked = await showDatePicker(
               context: context,
-              initialDate: DateTime.now(),
+              initialDate: this.controller.joinDate ?? DateTime.now(),
               firstDate: DateTime(2000),
               lastDate: DateTime(2100),
             );
 
             if (picked != null) {
               controller.text =
-              "${picked.day.toString().padLeft(2, '0')}/"
+                  "${picked.day.toString().padLeft(2, '0')}/"
                   "${picked.month.toString().padLeft(2, '0')}/"
                   "${picked.year}";
               onDateSelected(picked);
@@ -314,5 +327,4 @@ class _AddnstudentState extends State<Addnstudent> {
       ],
     );
   }
-
 }

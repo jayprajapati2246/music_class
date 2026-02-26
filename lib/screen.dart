@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:music_class/screen/Payment.dart';
+import 'package:music_class/screen/Payment/Payment.dart';
 import 'package:music_class/screen/attendance.dart';
 import 'package:music_class/screen/dues.dart';
 import 'package:music_class/screen/home.dart';
@@ -15,30 +15,6 @@ class Mainscreen extends StatefulWidget {
 class _MainscreenState extends State<Mainscreen> {
   int selectedIndex = 0;
 
-  final List<Widget> _pages = const [
-    HomePage(),
-    Student(),
-    Attendance(),
-    Payment(),
-    Dues(),
-  ];
-
-  final List<String> titles = [
-    "Home",
-    "Student",
-   "Attendance",
-    "Payment",
-    "Dues",
-  ];
-
-  final List<String> subtitles = [
-    "Music Class Dashboard",
-    "0 enrolled",
-     "Mark daily attendance",
-    "₹0 collected today",
-    "All payments cleared",
-  ];
-
   void onItemTapped(int index) {
     setState(() {
       selectedIndex = index;
@@ -47,34 +23,21 @@ class _MainscreenState extends State<Mainscreen> {
 
   @override
   Widget build(BuildContext context) {
+    final List<Widget> pages = [
+      HomePage(
+        onNavigateToStudent: () => onItemTapped(1),
+        onNavigateToAttendance: () => onItemTapped(2),
+        onNavigateToPayments: () => onItemTapped(3),
+        onNavigateToDues: () => onItemTapped(4),
+      ),
+      const Student(),
+      const Attendance(),
+      const Payment(),
+      const Dues(),
+    ];
+
     return Scaffold(
-      appBar: selectedIndex == 0
-          ? null
-          : AppBar(
-              backgroundColor: Colors.white70,
-              elevation: 0,
-              title: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    titles[selectedIndex],
-                    style: const TextStyle(
-                      fontSize: 18,
-                      color: Colors.black,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    subtitles[selectedIndex],
-                    style: const TextStyle(fontSize: 12, color: Colors.black),
-                  ),
-                ],
-              ),
-            ),
-
-      body: _pages[selectedIndex],
-
+      body: pages[selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: selectedIndex,
         selectedItemColor: Colors.deepPurple,
