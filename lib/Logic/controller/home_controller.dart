@@ -12,6 +12,7 @@ class HomeController extends GetxController {
   final RxInt todaysPresent = 0.obs;
   final RxDouble totalDues = 0.0.obs;
   final RxDouble paymentsToday = 0.0.obs;
+  final RxInt studentsWithDues = 0.obs;
 
   @override
   void onInit() {
@@ -50,12 +51,30 @@ class HomeController extends GetxController {
     });
   }
 
+  // Future<void> refreshDues() async {
+  //   final duesList = await _dueController.calculateDues();
+  //   double total = 0;
+  //   for (var item in duesList) {
+  //     total += item['dueAmount'];
+  //   }
+  //   totalDues.value = total;
+  // }
+
   Future<void> refreshDues() async {
     final duesList = await _dueController.calculateDues();
+
     double total = 0;
+    int count = 0;
+
     for (var item in duesList) {
       total += item['dueAmount'];
+      if (item['dueAmount'] > 0) {
+        count++;
+      }
     }
+
     totalDues.value = total;
+    studentsWithDues.value = count;
   }
+
 }

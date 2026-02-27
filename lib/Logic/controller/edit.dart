@@ -7,6 +7,7 @@ import 'package:music_class/Logic/model/payment.dart';
 import 'package:music_class/Logic/Servisses/attendance.dart';
 import 'package:music_class/Logic/Servisses/payment_service.dart';
 import 'package:music_class/Logic/controller/student_controller.dart';
+import 'package:music_class/Logic/controller/due.dart';
 
 class StudentDetailController extends GetxController {
   late Rx<StudentModel> student;
@@ -18,10 +19,11 @@ class StudentDetailController extends GetxController {
   final StudentController studentController = Get.find<StudentController>();
   final PaymentService _paymentService = PaymentService();
   final AttendanceService _attendanceService = AttendanceService();
+  final DueController _dueController = DueController();
 
   RxInt selectedTab = 0.obs;
   RxBool isLoading = false.obs;
-  RxDouble balance = 800.0.obs;
+  RxDouble balance = 0.0.obs;
 
   final TextEditingController paymentAmountController = TextEditingController();
 
@@ -34,16 +36,28 @@ class StudentDetailController extends GetxController {
   Stream<List<PaymentModel>> get paymentStream =>
       _paymentService.getPaymentsForStudent(student.value.id!);
 
+  @override
+  void onInit() {
+    super.onInit();
+    calculateBalance();
+  }
+
   void changeTab(int index) {
     selectedTab.value = index;
   }
 
-  void refreshStudent() {
+  Future<void> calculateBalance() async {
+    final dueData = await _dueController.calculateStudentDue(student.value);
+    balance.value = dueData['dueAmount'];
+  }
+
+  void refreshStudent() async {
     final updatedStudent = studentController.students.firstWhereOrNull(
           (s) => s.id == student.value.id,
     );
     if (updatedStudent != null) {
       student.value = updatedStudent;
+      await calculateBalance();
     }
   }
 
@@ -76,6 +90,7 @@ class StudentDetailController extends GetxController {
     try {
       await _paymentService.addPayment(payment);
       paymentAmountController.clear();
+      await calculateBalance();
       selectedTab.value = 1;
       Get.snackbar("Success", "Payment recorded successfully", backgroundColor: Colors.green, colorText: Colors.white);
     } catch (e) {

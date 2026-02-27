@@ -80,33 +80,34 @@ class _HomePageState extends State<HomePage> {
                             ),
                           ),
                         ],
-                      )
+                      ),
                     ],
                   ),
                   const SizedBox(height: 25),
 
-                  /// Reactive Cards
-                  Obx(() => Row(
-                        children: [
-                          Expanded(
-                            child: topCard(
-                              controller.totalStudents.toString(),
-                              "Total Students",
-                              Icons.people,
-                              onTap: widget.onNavigateToStudent,
-                            ),
+                  Obx(
+                    () => Row(
+                      children: [
+                        Expanded(
+                          child: topCard(
+                            controller.totalStudents.toString(),
+                            "Total Students",
+                            Icons.people,
+                            onTap: widget.onNavigateToStudent,
                           ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: topCard(
-                              "${controller.todaysPresent}/${controller.totalStudents}",
-                              "Today's Attendance",
-                              Icons.calendar_today,
-                              onTap: widget.onNavigateToAttendance,
-                            ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: topCard(
+                            "${controller.todaysPresent}/${controller.totalStudents}",
+                            "Today's Attendance",
+                            Icons.calendar_today,
+                            onTap: widget.onNavigateToAttendance,
                           ),
-                        ],
-                      )),
+                        ),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -116,32 +117,33 @@ class _HomePageState extends State<HomePage> {
             /// Payment Section
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Obx(() => Row(
-                    children: [
-                      Expanded(
-                        child: paymentCard(
-                          "₹${controller.paymentsToday.value.toStringAsFixed(0)}",
-                          "Payments Today",
-                          Colors.green,
-                          widget.onNavigateToPayments,
-                        ),
+              child: Obx(
+                () => Row(
+                  children: [
+                    Expanded(
+                      child: paymentCard(
+                        "₹${controller.paymentsToday.value.toStringAsFixed(0)}",
+                        "Payments Today",
+                        Colors.green,
+                        widget.onNavigateToPayments,
                       ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: paymentCard(
-                          "₹${controller.totalDues.value.toStringAsFixed(0)}",
-                          "Pending Dues",
-                          Colors.redAccent,
-                          widget.onNavigateToDues,
-                        ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: paymentCard(
+                        "₹${controller.totalDues.value.toStringAsFixed(0)}",
+                        "Pending Dues",
+                        Colors.redAccent,
+                        widget.onNavigateToDues,
                       ),
-                    ],
-                  )),
+                    ),
+                  ],
+                ),
+              ),
             ),
 
             const SizedBox(height: 20),
 
-            /// Quick Actions
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Container(
@@ -181,20 +183,93 @@ class _HomePageState extends State<HomePage> {
                           ),
                         ),
                       ],
-                    )
+                    ),
                   ],
                 ),
               ),
             ),
             const SizedBox(height: 30),
+
+            /// ================= DUE SUMMARY BOX =================
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Obx(() {
+                if (controller.totalDues.value <= 0) {
+                  return const SizedBox(); // hide if no dues
+                }
+
+                return InkWell(
+                  onTap: widget.onNavigateToDues,
+                  borderRadius: BorderRadius.circular(16),
+                  child: Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: const Color(0xffffebee),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: Colors.red.shade200),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        /// Title Row
+                        Row(
+                          children: const [
+                            Icon(
+                              Icons.error_outline,
+                              color: Colors.red,
+                              size: 18,
+                            ),
+                            SizedBox(width: 6),
+                            Text(
+                              "Due Payments",
+                              style: TextStyle(
+                                color: Colors.red,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 15,
+                              ),
+                            ),
+                          ],
+                        ),
+
+                        const SizedBox(height: 8),
+
+
+                        Text(
+                          "${controller.studentsWithDues.value} students have pending payments totaling ₹${controller.totalDues.value.toStringAsFixed(0)}",
+                          style: const TextStyle(
+                            fontSize: 13,
+                            color: Colors.black87,
+                          ),
+                        ),
+
+                        const SizedBox(height: 10),
+
+                        const Text(
+                          "View all dues →",
+                          style: TextStyle(
+                            color: Colors.red,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 13,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }),
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget topCard(String value, String title, IconData icon,
-      {VoidCallback? onTap}) {
+  Widget topCard(
+    String value,
+    String title,
+    IconData icon, {
+    VoidCallback? onTap,
+  }) {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(20),
@@ -220,10 +295,7 @@ class _HomePageState extends State<HomePage> {
             Text(
               title,
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                color: Colors.white70,
-                fontSize: 12,
-              ),
+              style: const TextStyle(color: Colors.white70, fontSize: 12),
             ),
           ],
         ),
@@ -232,7 +304,11 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget paymentCard(
-      String amount, String title, Color iconColor, VoidCallback onTap) {
+    String amount,
+    String title,
+    Color iconColor,
+    VoidCallback onTap,
+  ) {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(18),
@@ -248,18 +324,12 @@ class _HomePageState extends State<HomePage> {
             const SizedBox(height: 10),
             Text(
               amount,
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 4),
             Text(
               title,
-              style: const TextStyle(
-                fontSize: 12,
-                color: Colors.grey,
-              ),
+              style: const TextStyle(fontSize: 12, color: Colors.grey),
             ),
           ],
         ),
@@ -268,7 +338,11 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget actionButton(
-      String title, IconData icon, Color color, VoidCallback onTap) {
+    String title,
+    IconData icon,
+    Color color,
+    VoidCallback onTap,
+  ) {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(14),

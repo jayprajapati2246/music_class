@@ -1,19 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:get/get_core/src/get_main.dart';
-import 'package:get/get_navigation/src/extension_navigation.dart';
-import 'package:get/get_navigation/src/snackbar/snackbar.dart';
-import 'package:get/get_rx/src/rx_types/rx_types.dart';
-import 'package:get/get_state_manager/src/simple/get_controllers.dart';
-
+import 'package:get/get.dart';
 import '../Servisses/student.dart';
 import '../model/Student.dart';
+import 'due.dart';
 
 class Showstudent extends GetxController {
-
   final AddStudentService _service = AddStudentService();
+  final DueController _dueController = DueController();
 
   RxList<StudentModel> students = <StudentModel>[].obs;
   RxList<StudentModel> students_search = <StudentModel>[].obs;
+  RxMap<String, double> duesMap = <String, double>{}.obs;
 
   RxBool isLoading = true.obs;
 
@@ -27,16 +24,25 @@ class Showstudent extends GetxController {
     try {
       isLoading.value = true;
 
-     final data = await _service.getStudents();
-
+      final data = await _service.getStudents();
       students_search.assignAll(data);
       students.assignAll(data);
 
+      // Fetch and calculate dues
+      final duesList = await _dueController.calculateDues();
+      Map<String, double> tempDues = {};
+      for (var item in duesList) {
+        final student = item['student'] as StudentModel;
+        if (student.id != null) {
+          tempDues[student.id!] = item['dueAmount'];
+        }
+      }
+      duesMap.assignAll(tempDues);
 
     } catch (e) {
       Get.snackbar(
         "Error",
-        "Failed to fetch students",
+        "Failed to fetch students: $e",
         snackPosition: SnackPosition.TOP,
         backgroundColor: Colors.red,
         colorText: Colors.white,
@@ -50,20 +56,21 @@ class Showstudent extends GetxController {
     if (query.isEmpty) {
       students.assignAll(students_search);
       return;
-    }
-    else{
-    final result = students_search.where((student) {
-      final name = student.name.toLowerCase();
-      final course = student.course.toLowerCase();
-      final search = query.toLowerCase();
+    } else {
+      final result = students_search.where((student) {
+        final name = student.name.toLowerCase();
+        final course = student.course.toLowerCase();
+        final search = query.toLowerCase();
 
-      return name.contains(search) || course.contains(search);
-    }).toList();
+        return name.contains(search) || course.contains(search);
+      }).toList();
 
-    students.assignAll(result);
+      students.assignAll(result);
     }
   }
 
+  double getDueAmount(String? studentId) {
+    if (studentId == null) return 0.0;
+    return duesMap[studentId] ?? 0.0;
+  }
 }
-
-

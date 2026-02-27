@@ -19,58 +19,62 @@ class _StudentState extends State<Student> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        title: Column(
-          children: [
-            const Text("Students",style: TextStyle(color: Colors.black,fontWeight: FontWeight.bold,fontSize: 18),),
-            const SizedBox(height: 2,),
-            Text("${showController.students.length} enrolled",style: const TextStyle(color: Colors.grey,fontSize: 15)),
-          ],
-        )
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              child: TextField(
-                onChanged: (value) => showController.searchStudents(value),
-                decoration: InputDecoration(
-                  hintText: "Search students...",
-                  prefixIcon: Padding(
-                    padding: const EdgeInsets.only(left: 16, right: 8),
-                    child: Icon(Icons.search, color: Colors.grey),
+          backgroundColor: Colors.white,
+          elevation: 0,
+          title: Obx(() => Column(
+                children: [
+                  const Text(
+                    "Students",
+                    style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18),
                   ),
-                  prefixIconConstraints: const BoxConstraints(
-                    minWidth: 0,
-                    minHeight: 0,
+                  const SizedBox(
+                    height: 2,
                   ),
-                  contentPadding: const EdgeInsets.symmetric(vertical: 14),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(32),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(32),
-                    borderSide: const BorderSide(color: Colors.black12),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(32),
-                    borderSide: const BorderSide(
-                      color: Colors.deepPurple,
-                      width: 2.5,
-                    ),
+                  Text("${showController.students.length} enrolled",
+                      style: const TextStyle(color: Colors.grey, fontSize: 15)),
+                ],
+              ))),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            child: TextField(
+              onChanged: (value) => showController.searchStudents(value),
+              decoration: InputDecoration(
+                hintText: "Search students...",
+                prefixIcon: const Padding(
+                  padding: EdgeInsets.only(left: 16, right: 8),
+                  child: Icon(Icons.search, color: Colors.grey),
+                ),
+                prefixIconConstraints: const BoxConstraints(
+                  minWidth: 0,
+                  minHeight: 0,
+                ),
+                contentPadding: const EdgeInsets.symmetric(vertical: 14),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(32),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(32),
+                  borderSide: const BorderSide(color: Colors.black12),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(32),
+                  borderSide: const BorderSide(
+                    color: Colors.deepPurple,
+                    width: 2.5,
                   ),
                 ),
               ),
             ),
-
-            Obx(() {
+          ),
+          Expanded(
+            child: Obx(() {
               if (showController.isLoading.value) {
-                return const Padding(
-                  padding: EdgeInsets.only(top: 80),
-                  child: Center(child: CircularProgressIndicator()),
-                );
+                return const Center(child: CircularProgressIndicator());
               }
 
               if (showController.students.isEmpty) {
@@ -139,19 +143,17 @@ class _StudentState extends State<Student> {
               }
 
               return ListView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
                 itemCount: showController.students.length,
+                padding: const EdgeInsets.only(bottom: 80),
                 itemBuilder: (context, index) {
                   final StudentModel student = showController.students[index];
                   return studentListItem(student);
                 },
               );
             }),
-          ],
-        ),
+          ),
+        ],
       ),
-
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           await Get.to(() => const Addnstudent());
@@ -165,14 +167,18 @@ class _StudentState extends State<Student> {
   }
 
   Widget studentListItem(StudentModel student) {
+    final double dueAmount = showController.getDueAmount(student.id);
+    final bool hasDue = dueAmount > 0;
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
           borderRadius: BorderRadius.circular(16),
-          onTap: () {
-            Get.to(() => EditDetail(student: student));
+          onTap: () async {
+            await Get.to(() => EditDetail(student: student));
+            showController.fetchStudents(); // Refresh after coming back from details
           },
           child: Container(
             padding: const EdgeInsets.all(12),
@@ -191,8 +197,8 @@ class _StudentState extends State<Student> {
               children: [
                 CircleAvatar(
                   radius: 22,
-                  backgroundColor: Colors.red.shade50,
-                  child: const Icon(Icons.person_outline, color: Colors.red),
+                  backgroundColor: Colors.deepPurple.shade50,
+                  child: const Icon(Icons.person_outline, color: Colors.deepPurple),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -251,6 +257,7 @@ class _StudentState extends State<Student> {
                 ),
                 const SizedBox(width: 8),
                 Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Container(
@@ -259,19 +266,21 @@ class _StudentState extends State<Student> {
                         vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.redAccent.withOpacity(0.1),
+                        color: hasDue 
+                            ? Colors.redAccent.withOpacity(0.1)
+                            : Colors.green.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
-                        "₹${student.monthlyFee}due",
-                        style: const TextStyle(
-                          color: Colors.red,
-                          fontSize: 12,
+                        hasDue ? "₹${dueAmount.toStringAsFixed(0)} due" : "Paid",
+                        style: TextStyle(
+                          color: hasDue ? Colors.red : Colors.green,
+                          fontSize: 11,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
                     ),
-                    const Icon(Icons.chevron_right, color: Colors.grey),
+                    const Icon(Icons.chevron_right, color: Colors.grey, size: 20),
                   ],
                 ),
               ],

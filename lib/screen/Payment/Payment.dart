@@ -24,7 +24,6 @@ class _PaymentState extends State<Payment> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        centerTitle: true,
         title: StreamBuilder<List<PaymentModel>>(
           stream: _paymentController.getAllPayments(),
           builder: (context, snapshot) {
@@ -84,7 +83,7 @@ class _PaymentState extends State<Payment> {
                 child: ListTile(
                   leading: const CircleAvatar(
                     backgroundColor: Colors.greenAccent,
-                    child: Icon(Icons.currency_rupee, color: Colors.green),
+                    child: Icon(Icons.person, color: Colors.blue),
                   ),
                   title: FutureBuilder<String>(
                     future: _getStudentName(payment.studentId),
