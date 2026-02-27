@@ -64,6 +64,7 @@ class StudentDetailController extends GetxController {
   Future<void> deleteStudent() async {
     await studentController.deleteStudent(student.value.id!);
     Get.back(result: true);
+    // Get.off(() => const StudentPage());
   }
 
   Future<void> recordPayment() async {
