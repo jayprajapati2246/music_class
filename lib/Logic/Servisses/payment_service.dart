@@ -9,10 +9,10 @@ class PaymentService {
     await _firestore.collection(_collectionPath).add(payment.toMap());
   }
 
-  Stream<List<PaymentModel>> getPaymentsForStudent(String studentName) {
+  Stream<List<PaymentModel>> getPaymentsForStudent(String studentId) {
     return _firestore
         .collection(_collectionPath)
-        .where('studentName', isEqualTo: studentName)
+        .where('studentId', isEqualTo: studentId)
         .snapshots()
         .map((snapshot) => snapshot.docs
             .map((doc) => PaymentModel.fromMap(doc.data(), doc.id))

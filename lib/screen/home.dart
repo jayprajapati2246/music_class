@@ -22,7 +22,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-
   late HomeController controller;
 
   @override
@@ -74,8 +73,7 @@ class _HomePageState extends State<HomePage> {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            DateFormat('EEEE, MMM d')
-                                .format(DateTime.now()),
+                            DateFormat('EEEE, MMM d').format(DateTime.now()),
                             style: const TextStyle(
                               color: Colors.white70,
                               fontSize: 12,
@@ -89,26 +87,26 @@ class _HomePageState extends State<HomePage> {
 
                   /// Reactive Cards
                   Obx(() => Row(
-                    children: [
-                      Expanded(
-                        child: topCard(
-                          controller.totalStudents.toString(),
-                          "Total Students",
-                          Icons.people,
-                          onTap: widget.onNavigateToStudent,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: topCard(
-                          "${controller.todaysPresent}/${controller.totalStudents}",
-                          "Today's Attendance",
-                          Icons.calendar_today,
-                          onTap: widget.onNavigateToAttendance,
-                        ),
-                      ),
-                    ],
-                  )),
+                        children: [
+                          Expanded(
+                            child: topCard(
+                              controller.totalStudents.toString(),
+                              "Total Students",
+                              Icons.people,
+                              onTap: widget.onNavigateToStudent,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: topCard(
+                              "${controller.todaysPresent}/${controller.totalStudents}",
+                              "Today's Attendance",
+                              Icons.calendar_today,
+                              onTap: widget.onNavigateToAttendance,
+                            ),
+                          ),
+                        ],
+                      )),
                 ],
               ),
             ),
@@ -118,27 +116,27 @@ class _HomePageState extends State<HomePage> {
             /// Payment Section
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: paymentCard(
-                      "₹0",
-                      "Payments Today",
-                      Colors.green,
-                      widget.onNavigateToPayments,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: paymentCard(
-                      "₹0",
-                      "Pending Dues",
-                      Colors.grey,
-                      widget.onNavigateToDues,
-                    ),
-                  ),
-                ],
-              ),
+              child: Obx(() => Row(
+                    children: [
+                      Expanded(
+                        child: paymentCard(
+                          "₹${controller.paymentsToday.value.toStringAsFixed(0)}",
+                          "Payments Today",
+                          Colors.green,
+                          widget.onNavigateToPayments,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: paymentCard(
+                          "₹${controller.totalDues.value.toStringAsFixed(0)}",
+                          "Pending Dues",
+                          Colors.redAccent,
+                          widget.onNavigateToDues,
+                        ),
+                      ),
+                    ],
+                  )),
             ),
 
             const SizedBox(height: 20),

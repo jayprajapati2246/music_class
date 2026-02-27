@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:music_class/Logic/model/Student.dart';
 import 'package:music_class/Logic/model/attundance.dart';
 import 'package:music_class/Logic/model/payment.dart';
@@ -31,7 +32,7 @@ class StudentDetailController extends GetxController {
       _attendanceService.getStudentAttendanceStream(student.value.id!);
 
   Stream<List<PaymentModel>> get paymentStream =>
-      _paymentService.getPaymentsForStudent(student.value.name);
+      _paymentService.getPaymentsForStudent(student.value.id!);
 
   void changeTab(int index) {
     selectedTab.value = index;
@@ -65,9 +66,11 @@ class StudentDetailController extends GetxController {
     }
 
     final payment = PaymentModel(
-      studentName: student.value.name,
+      studentId: student.value.id!,
       amount: amount,
       date: DateTime.now(),
+      month: DateFormat('MMMM yyyy').format(DateTime.now()),
+      note: "Paid from detail screen",
     );
 
     try {
