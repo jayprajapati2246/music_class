@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:music_class/Logic/controller/home_controller.dart';
 import 'package:music_class/screen/Payment/Payment.dart';
 import 'package:music_class/screen/attendance.dart';
 import 'package:music_class/screen/dues.dart';
@@ -19,6 +21,17 @@ class _MainscreenState extends State<Mainscreen> {
     setState(() {
       selectedIndex = index;
     });
+    
+    // Refresh Home data if Home tab is selected
+    if (index == 0) {
+      try {
+        if (Get.isRegistered<HomeController>()) {
+          Get.find<HomeController>().refreshData();
+        }
+      } catch (e) {
+        // Controller might not be initialized yet, which is fine
+      }
+    }
   }
 
   @override

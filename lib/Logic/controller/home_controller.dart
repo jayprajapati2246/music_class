@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:get/get.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:music_class/Logic/Servisses/attendance.dart';
@@ -8,29 +9,40 @@ class HomeController extends GetxController {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final DueController _dueController = DueController();
 
+  // Reactive Variables
   final RxInt totalStudents = 0.obs;
   final RxInt todaysPresent = 0.obs;
   final RxDouble totalDues = 0.0.obs;
   final RxDouble paymentsToday = 0.0.obs;
   final RxInt studentsWithDues = 0.obs;
 
+  // Stream Subscriptions
+  StreamSubscription? _studentsSub;
+  StreamSubscription? _todayPaymentsSub;
+
   @override
   void onInit() {
     super.onInit();
-    
-    // Stream for total students
-    _firestore.collection('students').snapshots().listen((snapshot) {
+
+    // Listen total students - simple count update doesn't cause "random refresh" issues usually
+    _studentsSub = _firestore
+        .collection('students')
+        .snapshots()
+        .listen((snapshot) {
       totalStudents.value = snapshot.docs.length;
-      refreshDues(); // Recalculate dues when students change
     });
 
-    // Stream for today's present count
-    todaysPresent.bindStream(_attendanceService.getTodaysPresentCountStream());
+    // Bind today's attendance stream
+    todaysPresent.bindStream(
+      _attendanceService.getTodaysPresentCountStream(),
+    );
 
-    // Stream for today's payments
+    // Listen today's payments
     _listenToTodaysPayments();
+
+    // We removed the global payments listener that was triggering refreshDues() automatically.
     
-    refreshDues();
+    refreshData();
   }
 
   void _listenToTodaysPayments() {
@@ -38,7 +50,8 @@ class HomeController extends GetxController {
     DateTime startOfDay = DateTime(now.year, now.month, now.day);
     DateTime endOfDay = DateTime(now.year, now.month, now.day, 23, 59, 59);
 
-    _firestore.collection('payments')
+    _todayPaymentsSub = _firestore
+        .collection('payments')
         .where('date', isGreaterThanOrEqualTo: Timestamp.fromDate(startOfDay))
         .where('date', isLessThanOrEqualTo: Timestamp.fromDate(endOfDay))
         .snapshots()
@@ -51,14 +64,11 @@ class HomeController extends GetxController {
     });
   }
 
-  // Future<void> refreshDues() async {
-  //   final duesList = await _dueController.calculateDues();
-  //   double total = 0;
-  //   for (var item in duesList) {
-  //     total += item['dueAmount'];
-  //   }
-  //   totalDues.value = total;
-  // }
+  // Combined refresh method
+  Future<void> refreshData() async {
+    await refreshDues();
+    // You can add other manual refresh logic here if needed
+  }
 
   Future<void> refreshDues() async {
     final duesList = await _dueController.calculateDues();
@@ -77,4 +87,10 @@ class HomeController extends GetxController {
     studentsWithDues.value = count;
   }
 
+  @override
+  void onClose() {
+    _studentsSub?.cancel();
+    _todayPaymentsSub?.cancel();
+    super.onClose();
+  }
 }

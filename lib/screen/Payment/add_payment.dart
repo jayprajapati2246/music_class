@@ -209,12 +209,12 @@ class _AddPaymentPageState extends State<AddPaymentPage> {
                 child: ElevatedButton(
                   onPressed: () async {
                     if (selectedStudent == null) {
-                      Get.snackbar("Error", "Please select a student");
+                      Get.snackbar("Error", "Please select a student", backgroundColor: Colors.red, colorText: Colors.white);
                       return;
                     }
                     final double amount = double.tryParse(amountController.text) ?? 0;
                     if (amount <= 0) {
-                      Get.snackbar("Error", "Please enter a valid amount");
+                      Get.snackbar("Error", "Please enter a valid amount", backgroundColor: Colors.red, colorText: Colors.white);
                       return;
                     }
 
@@ -229,9 +229,9 @@ class _AddPaymentPageState extends State<AddPaymentPage> {
                     try {
                       await _paymentController.addPayment(payment);
                       Get.back();
-                      Get.snackbar("Success", "Payment recorded successfully");
+                      Get.snackbar("Success", "Payment recorded successfully", backgroundColor: Colors.green, colorText: Colors.white);
                     } catch (e) {
-                      Get.snackbar("Error", "Failed to record payment");
+                      Get.snackbar("Error", "Failed to record payment", backgroundColor: Colors.red, colorText: Colors.white);
                     }
                   },
                   style: ElevatedButton.styleFrom(

@@ -114,7 +114,6 @@ class _HomePageState extends State<HomePage> {
 
             const SizedBox(height: 20),
 
-            /// Payment Section
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Obx(
@@ -190,12 +189,11 @@ class _HomePageState extends State<HomePage> {
             ),
             const SizedBox(height: 30),
 
-            /// ================= DUE SUMMARY BOX =================
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Obx(() {
                 if (controller.totalDues.value <= 0) {
-                  return const SizedBox(); // hide if no dues
+                  return const SizedBox();
                 }
 
                 return InkWell(
@@ -211,7 +209,6 @@ class _HomePageState extends State<HomePage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        /// Title Row
                         Row(
                           children: const [
                             Icon(
@@ -232,7 +229,6 @@ class _HomePageState extends State<HomePage> {
                         ),
 
                         const SizedBox(height: 8),
-
 
                         Text(
                           "${controller.studentsWithDues.value} students have pending payments totaling ₹${controller.totalDues.value.toStringAsFixed(0)}",

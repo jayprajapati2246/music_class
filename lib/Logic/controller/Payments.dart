@@ -21,9 +21,11 @@ class PaymentController {
         .where('studentId', isEqualTo: studentId)
         .orderBy('date', descending: true)
         .snapshots()
-        .map((snapshot) => snapshot.docs
-            .map((doc) => PaymentModel.fromMap(doc.data(), doc.id))
-            .toList());
+        .map(
+          (snapshot) => snapshot.docs
+              .map((doc) => PaymentModel.fromMap(doc.data(), doc.id))
+              .toList(),
+        );
   }
 
   // Get all payments
@@ -32,8 +34,10 @@ class PaymentController {
         .collection('payments')
         .orderBy('date', descending: true)
         .snapshots()
-        .map((snapshot) => snapshot.docs
-            .map((doc) => PaymentModel.fromMap(doc.data(), doc.id))
-            .toList());
+        .map(
+          (snapshot) => snapshot.docs
+              .map((doc) => PaymentModel.fromMap(doc.data(), doc.id))
+              .toList(),
+        );
   }
 }
