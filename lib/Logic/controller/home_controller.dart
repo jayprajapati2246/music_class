@@ -19,12 +19,18 @@ class HomeController extends GetxController {
   // Stream Subscriptions
   StreamSubscription? _studentsSub;
   StreamSubscription? _todayPaymentsSub;
+  StreamSubscription? _attendanceSub;
 
   @override
   void onInit() {
     super.onInit();
+    _setupListeners();
+    refreshData();
+  }
 
-    // Listen total students - simple count update doesn't cause "random refresh" issues usually
+  void _setupListeners() {
+    // Listen total students
+    _studentsSub?.cancel();
     _studentsSub = _firestore
         .collection('students')
         .snapshots()
@@ -33,19 +39,19 @@ class HomeController extends GetxController {
     });
 
     // Bind today's attendance stream
-    todaysPresent.bindStream(
-      _attendanceService.getTodaysPresentCountStream(),
-    );
+    _attendanceSub?.cancel();
+    _attendanceSub = _attendanceService
+        .getTodaysPresentCountStream()
+        .listen((count) {
+      todaysPresent.value = count;
+    });
 
     // Listen today's payments
     _listenToTodaysPayments();
-
-    // We removed the global payments listener that was triggering refreshDues() automatically.
-    
-    refreshData();
   }
 
   void _listenToTodaysPayments() {
+    _todayPaymentsSub?.cancel();
     DateTime now = DateTime.now();
     DateTime startOfDay = DateTime(now.year, now.month, now.day);
     DateTime endOfDay = DateTime(now.year, now.month, now.day, 23, 59, 59);
@@ -66,8 +72,44 @@ class HomeController extends GetxController {
 
   // Combined refresh method
   Future<void> refreshData() async {
+    // Re-trigger listeners to ensure we have fresh stream connections
+    _setupListeners();
+    
+    // Manually refresh the calculated data
     await refreshDues();
-    // You can add other manual refresh logic here if needed
+    
+    // Fetch non-stream data if any
+    await _manualFetchStats();
+  }
+
+  Future<void> _manualFetchStats() async {
+    // Manually fetch counts to ensure UI updates immediately even if stream is slow
+    try {
+      final students = await _firestore.collection('students').get();
+      totalStudents.value = students.docs.length;
+
+      final attendanceCount = await _attendanceService.getTodaysAttendance();
+      todaysPresent.value = attendanceCount;
+
+      // Payments today manual fetch
+      DateTime now = DateTime.now();
+      DateTime startOfDay = DateTime(now.year, now.month, now.day);
+      DateTime endOfDay = DateTime(now.year, now.month, now.day, 23, 59, 59);
+      
+      final payments = await _firestore
+          .collection('payments')
+          .where('date', isGreaterThanOrEqualTo: Timestamp.fromDate(startOfDay))
+          .where('date', isLessThanOrEqualTo: Timestamp.fromDate(endOfDay))
+          .get();
+      
+      double total = 0;
+      for (var doc in payments.docs) {
+        total += (doc.data()['amount'] ?? 0).toDouble();
+      }
+      paymentsToday.value = total;
+    } catch (e) {
+      print("Error refreshing stats: $e");
+    }
   }
 
   Future<void> refreshDues() async {
@@ -91,6 +133,7 @@ class HomeController extends GetxController {
   void onClose() {
     _studentsSub?.cancel();
     _todayPaymentsSub?.cancel();
+    _attendanceSub?.cancel();
     super.onClose();
   }
 }

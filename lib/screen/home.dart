@@ -34,227 +34,224 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xfff5f5f7),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.fromLTRB(20, 50, 20, 30),
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Color(0xff6A5AE0), Color(0xff8E54E9)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
+      body: RefreshIndicator(
+        onRefresh: () async {
+          await controller.refreshData();
+        },
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: Column(
+            children: [
+              Container(
+                padding: const EdgeInsets.fromLTRB(20, 50, 20, 30),
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Color(0xff6A5AE0), Color(0xff8E54E9)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(30),
+                    bottomRight: Radius.circular(30),
+                  ),
                 ),
-                borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(30),
-                  bottomRight: Radius.circular(30),
-                ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      const CircleAvatar(
-                        backgroundColor: Colors.white24,
-                        child: Icon(Icons.music_note, color: Colors.white),
-                      ),
-                      const SizedBox(width: 12),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        const CircleAvatar(
+                          backgroundColor: Colors.white24,
+                          child: Icon(Icons.music_note, color: Colors.white),
+                        ),
+                        const SizedBox(width: 12),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              "Music Class",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              DateFormat('EEEE, MMM d').format(DateTime.now()),
+                              style: const TextStyle(
+                                color: Colors.white70,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 25),
+                    Obx(
+                      () => Row(
                         children: [
-                          const Text(
-                            "Music Class",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
+                          Expanded(
+                            child: topCard(
+                              controller.totalStudents.toString(),
+                              "Total Students",
+                              Icons.people,
+                              onTap: widget.onNavigateToStudent,
                             ),
                           ),
-                          const SizedBox(height: 4),
-                          Text(
-                            DateFormat('EEEE, MMM d').format(DateTime.now()),
-                            style: const TextStyle(
-                              color: Colors.white70,
-                              fontSize: 12,
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: topCard(
+                              "${controller.todaysPresent}/${controller.totalStudents}",
+                              "Today's Attendance",
+                              Icons.calendar_today,
+                              onTap: widget.onNavigateToAttendance,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Obx(
+                  () => Row(
+                    children: [
+                      Expanded(
+                        child: paymentCard(
+                          "₹${controller.paymentsToday.value.toStringAsFixed(0)}",
+                          "Payments Today",
+                          Colors.green,
+                          widget.onNavigateToPayments,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: paymentCard(
+                          "₹${controller.totalDues.value.toStringAsFixed(0)}",
+                          "Pending Dues",
+                          Colors.redAccent,
+                          widget.onNavigateToDues,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(18),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        "Quick Actions",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15,
+                        ),
+                      ),
+                      const SizedBox(height: 15),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: actionButton(
+                              "Add Student",
+                              Icons.people,
+                              Colors.deepPurple,
+                              widget.onNavigateToStudent,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: actionButton(
+                              "Mark Attendance",
+                              Icons.event,
+                              Colors.orange,
+                              widget.onNavigateToAttendance,
                             ),
                           ),
                         ],
                       ),
                     ],
                   ),
-                  const SizedBox(height: 25),
-
-                  Obx(
-                    () => Row(
-                      children: [
-                        Expanded(
-                          child: topCard(
-                            controller.totalStudents.toString(),
-                            "Total Students",
-                            Icons.people,
-                            onTap: widget.onNavigateToStudent,
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: topCard(
-                            "${controller.todaysPresent}/${controller.totalStudents}",
-                            "Today's Attendance",
-                            Icons.calendar_today,
-                            onTap: widget.onNavigateToAttendance,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 20),
-
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Obx(
-                () => Row(
-                  children: [
-                    Expanded(
-                      child: paymentCard(
-                        "₹${controller.paymentsToday.value.toStringAsFixed(0)}",
-                        "Payments Today",
-                        Colors.green,
-                        widget.onNavigateToPayments,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: paymentCard(
-                        "₹${controller.totalDues.value.toStringAsFixed(0)}",
-                        "Pending Dues",
-                        Colors.redAccent,
-                        widget.onNavigateToDues,
-                      ),
-                    ),
-                  ],
                 ),
               ),
-            ),
+              const SizedBox(height: 30),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Obx(() {
+                  if (controller.totalDues.value <= 0) {
+                    return const SizedBox();
+                  }
 
-            const SizedBox(height: 20),
-
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(18),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      "Quick Actions",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 15,
+                  return InkWell(
+                    onTap: widget.onNavigateToDues,
+                    borderRadius: BorderRadius.circular(16),
+                    child: Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: const Color(0xffffebee),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: Colors.red.shade200),
                       ),
-                    ),
-                    const SizedBox(height: 15),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: actionButton(
-                            "Add Student",
-                            Icons.people,
-                            Colors.deepPurple,
-                            widget.onNavigateToStudent,
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: actionButton(
-                            "Mark Attendance",
-                            Icons.event,
-                            Colors.orange,
-                            widget.onNavigateToAttendance,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 30),
-
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Obx(() {
-                if (controller.totalDues.value <= 0) {
-                  return const SizedBox();
-                }
-
-                return InkWell(
-                  onTap: widget.onNavigateToDues,
-                  borderRadius: BorderRadius.circular(16),
-                  child: Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: const Color(0xffffebee),
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: Colors.red.shade200),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: const [
-                            Icon(
-                              Icons.error_outline,
-                              color: Colors.red,
-                              size: 18,
-                            ),
-                            SizedBox(width: 6),
-                            Text(
-                              "Due Payments",
-                              style: TextStyle(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: const [
+                              Icon(
+                                Icons.error_outline,
                                 color: Colors.red,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 15,
+                                size: 18,
                               ),
+                              SizedBox(width: 6),
+                              Text(
+                                "Due Payments",
+                                style: TextStyle(
+                                  color: Colors.red,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 15,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            "${controller.studentsWithDues.value} students have pending payments totaling ₹${controller.totalDues.value.toStringAsFixed(0)}",
+                            style: const TextStyle(
+                              fontSize: 13,
+                              color: Colors.black87,
                             ),
-                          ],
-                        ),
-
-                        const SizedBox(height: 8),
-
-                        Text(
-                          "${controller.studentsWithDues.value} students have pending payments totaling ₹${controller.totalDues.value.toStringAsFixed(0)}",
-                          style: const TextStyle(
-                            fontSize: 13,
-                            color: Colors.black87,
                           ),
-                        ),
-
-                        const SizedBox(height: 10),
-
-                        const Text(
-                          "View all dues →",
-                          style: TextStyle(
-                            color: Colors.red,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 13,
+                          const SizedBox(height: 10),
+                          const Text(
+                            "View all dues →",
+                            style: TextStyle(
+                              color: Colors.red,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 13,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                );
-              }),
-            ),
-          ],
+                  );
+                }),
+              ),
+              const SizedBox(height: 20), // Added some bottom padding for better scroll feel
+            ],
+          ),
         ),
       ),
     );
