@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:music_class/Logic/controller/auth_controller.dart';
 import 'package:music_class/Logic/controller/home_controller.dart';
 import 'package:music_class/screen/user%20profile.dart';
 
@@ -60,12 +61,15 @@ class _HomePageState extends State<HomePage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      children: [
-                        CircleAvatar(
-                          backgroundColor: Colors.white24,
-                          child: IconButton(
-                            onPressed: () {
+                    Obx(() {
+                      final userData = AuthController.instance.userData.value;
+                      final profileImage = userData['profileImage'] as String?;
+                      final userName = userData['name'] as String? ?? "Music Class";
+
+                      return Row(
+                        children: [
+                          GestureDetector(
+                            onTap: () {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
@@ -73,36 +77,44 @@ class _HomePageState extends State<HomePage> {
                                 ),
                               );
                             },
-                            icon: const Icon(
-                              Icons.music_note,
-                              color: Colors.white,
+                            child: CircleAvatar(
+                              backgroundColor: Colors.white24,
+                              backgroundImage: (profileImage != null && profileImage.isNotEmpty)
+                                  ? NetworkImage(profileImage)
+                                  : null,
+                              child: (profileImage == null || profileImage.isEmpty)
+                                  ? const Icon(
+                                      Icons.person,
+                                      color: Colors.white,
+                                    )
+                                  : null,
                             ),
                           ),
-                        ),
-                        const SizedBox(width: 12),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              "Music Class",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
+                          const SizedBox(width: 12),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                userName,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              DateFormat('EEEE, MMM d').format(DateTime.now()),
-                              style: const TextStyle(
-                                color: Colors.white70,
-                                fontSize: 12,
+                              const SizedBox(height: 4),
+                              Text(
+                                DateFormat('EEEE, MMM d').format(DateTime.now()),
+                                style: const TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 12,
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
+                            ],
+                          ),
+                        ],
+                      );
+                    }),
                     const SizedBox(height: 25),
                     Obx(
                       () => Row(

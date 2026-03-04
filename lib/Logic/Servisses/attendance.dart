@@ -1,33 +1,42 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../model/attundance.dart';
 
 class AttendanceService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  // Mark attendance in a flat 'Attendance' collection for easier querying
+  String? get _userId => _auth.currentUser?.uid;
+
+  // Collection for a specific date: users/{userId}/attendance/{date}/records/{studentId}
+  CollectionReference _attendanceRecords(String dateStr) {
+    if (_userId == null) throw Exception("User not logged in");
+    return _firestore
+        .collection('users')
+        .doc(_userId)
+        .collection('attendance')
+        .doc(dateStr)
+        .collection('records');
+  }
+
+  // Mark attendance
   Future<void> markAttendance(AttendanceRecordModel record) async {
     final dateStr = "${record.date.year}-${record.date.month.toString().padLeft(2, '0')}-${record.date.day.toString().padLeft(2, '0')}";
-    final docId = "${record.studentId}_$dateStr";
     
-    await _firestore
-        .collection('Attendance')
-        .doc(docId)
+    await _attendanceRecords(dateStr)
+        .doc(record.studentId)
         .set(record.toMap());
   }
 
   // Get real-time stream of attendance for today
   Stream<List<AttendanceRecordModel>> getTodaysAttendanceStream() {
     final today = DateTime.now();
-    final startOfDay = DateTime(today.year, today.month, today.day);
-    final endOfDay = DateTime(today.year, today.month, today.day, 23, 59, 59);
+    final dateStr = "${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}";
 
-    return _firestore
-        .collection('Attendance')
-        .where('date', isGreaterThanOrEqualTo: Timestamp.fromDate(startOfDay))
-        .where('date', isLessThanOrEqualTo: Timestamp.fromDate(endOfDay))
+    return _attendanceRecords(dateStr)
         .snapshots()
         .map((snapshot) => snapshot.docs
-            .map((doc) => AttendanceRecordModel.fromMap(doc.data(), doc.id))
+            .map((doc) => AttendanceRecordModel.fromMap(doc.data() as Map<String, dynamic>, doc.id))
             .toList());
   }
 
@@ -41,27 +50,29 @@ class AttendanceService {
   // Future for count of today's present students
   Future<int> getTodaysAttendanceCount() async {
     final today = DateTime.now();
-    final startOfDay = DateTime(today.year, today.month, today.day);
-    final endOfDay = DateTime(today.year, today.month, today.day, 23, 59, 59);
+    final dateStr = "${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}";
     
-    final snapshot = await _firestore
-        .collection('Attendance')
-        .where('date', isGreaterThanOrEqualTo: Timestamp.fromDate(startOfDay))
-        .where('date', isLessThanOrEqualTo: Timestamp.fromDate(endOfDay))
+    final snapshot = await _attendanceRecords(dateStr)
         .where('status', isEqualTo: 'present')
         .get();
     return snapshot.docs.length;
   }
 
-  // Get attendance for a specific student
+  // Get attendance for a specific student across all dates
+  // Since we changed the schema to be date-centric, we need a Collection Group query 
+  // to find all 'records' where 'studentId' matches.
   Stream<List<AttendanceRecordModel>> getStudentAttendanceStream(String studentId) {
+    if (_userId == null) return Stream.value([]);
+    
+    // Note: This requires a Firestore index for collection group 'records' with 'studentId' field.
     return _firestore
-        .collection('Attendance')
+        .collectionGroup('records')
         .where('studentId', isEqualTo: studentId)
-        .orderBy('date', descending: true)
         .snapshots()
         .map((snapshot) => snapshot.docs
-            .map((doc) => AttendanceRecordModel.fromMap(doc.data(), doc.id))
-            .toList());
+            .where((doc) => doc.reference.path.contains('users/$_userId/attendance'))
+            .map((doc) => AttendanceRecordModel.fromMap(doc.data() as Map<String, dynamic>, doc.id))
+            .toList()
+            ..sort((a, b) => b.date.compareTo(a.date)));
   }
 }

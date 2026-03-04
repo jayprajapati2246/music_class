@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:music_class/Logic/model/attundance.dart';
@@ -6,11 +7,14 @@ import 'package:music_class/Logic/Servisses/attendance.dart';
 class AttendanceController extends GetxController {
   final AttendanceService _attendanceService = AttendanceService();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  String? get _userId => _auth.currentUser?.uid;
 
   final Rx<DateTime> selectedDate = DateTime.now().obs;
   final RxMap<String, String> attendanceStatus = <String, String>{}.obs;
 
-  String get formattedDate => "${selectedDate.value.year}-${selectedDate.value.month}-${selectedDate.value.day}";
+  String get formattedDate => "${selectedDate.value.year}-${selectedDate.value.month.toString().padLeft(2, '0')}-${selectedDate.value.day.toString().padLeft(2, '0')}";
 
   void changeToPreviousDay() {
     selectedDate.value = selectedDate.value.subtract(const Duration(days: 1));
@@ -23,19 +27,26 @@ class AttendanceController extends GetxController {
   }
 
   Future<void> fetchAttendanceForSelectedDate() async {
+    if (_userId == null) return;
     attendanceStatus.clear();
-    final startOfDay = DateTime(selectedDate.value.year, selectedDate.value.month, selectedDate.value.day);
-    final endOfDay = DateTime(selectedDate.value.year, selectedDate.value.month, selectedDate.value.day, 23, 59, 59);
+    
+    try {
+      final dateStr = formattedDate;
+      
+      final snapshot = await _firestore
+          .collection('users')
+          .doc(_userId)
+          .collection('attendance')
+          .doc(dateStr)
+          .collection('records')
+          .get();
 
-    final snapshot = await _firestore
-        .collection('Attendance')
-        .where('date', isGreaterThanOrEqualTo: Timestamp.fromDate(startOfDay))
-        .where('date', isLessThanOrEqualTo: Timestamp.fromDate(endOfDay))
-        .get();
-
-    for (var doc in snapshot.docs) {
-      final data = doc.data();
-      attendanceStatus[data['studentId']] = data['status'];
+      for (var doc in snapshot.docs) {
+        final data = doc.data();
+        attendanceStatus[doc.id] = data['status'];
+      }
+    } catch (e) {
+      print("Error fetching attendance: $e");
     }
   }
 

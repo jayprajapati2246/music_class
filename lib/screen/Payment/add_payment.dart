@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -18,6 +19,7 @@ class _AddPaymentPageState extends State<AddPaymentPage> {
   final TextEditingController amountController = TextEditingController();
   final TextEditingController noteController = TextEditingController();
   final PaymentController _paymentController = PaymentController();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
   
   List<StudentModel> _students = [];
   bool _isLoadingStudents = true;
@@ -31,7 +33,15 @@ class _AddPaymentPageState extends State<AddPaymentPage> {
 
   Future<void> _loadStudents() async {
     try {
-      final snapshot = await FirebaseFirestore.instance.collection('students').get();
+      final userId = _auth.currentUser?.uid;
+      if (userId == null) return;
+
+      final snapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .collection('students')
+          .get();
+          
       setState(() {
         _students = snapshot.docs
             .map((doc) => StudentModel.fromMap(doc.data(), doc.id))
@@ -228,7 +238,7 @@ class _AddPaymentPageState extends State<AddPaymentPage> {
 
                     try {
                       await _paymentController.addPayment(payment);
-                      Get.back();
+                      Get.back(result: true);
                       Get.snackbar("Success", "Payment recorded successfully", backgroundColor: Colors.green, colorText: Colors.white);
                     } catch (e) {
                       Get.snackbar("Error", "Failed to record payment", backgroundColor: Colors.red, colorText: Colors.white);

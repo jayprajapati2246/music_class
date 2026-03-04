@@ -1,21 +1,33 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../model/Student.dart';
 
 class AddStudentService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  String? get _userId => _auth.currentUser?.uid;
+
+  CollectionReference get _studentCollection {
+    if (_userId == null) throw Exception("User not logged in");
+    return _firestore
+        .collection('users')
+        .doc(_userId)
+        .collection('students');
+  }
 
   // Consistent collection name: 'students'
   Future<void> addStudent(StudentModel student) async {
-    await _firestore.collection('students').add(student.toMap());
+    await _studentCollection.add(student.toMap());
   }
 
   Future<List<StudentModel>> getStudents() async {
-    final snapshot = await _firestore.collection('students').get();
+    final snapshot = await _studentCollection.get();
 
     return snapshot.docs
         .map(
           (doc) => StudentModel.fromMap(
-        doc.data(),
+        doc.data() as Map<String, dynamic>,
         doc.id,
       ),
     )
@@ -24,13 +36,12 @@ class AddStudentService {
 
   Future<void> updateStudent(StudentModel student) async {
     if (student.id == null) return;
-    await _firestore
-        .collection('students')
+    await _studentCollection
         .doc(student.id)
         .update(student.toMap());
   }
 
   Future<void> deleteStudent(String studentId) async {
-    await _firestore.collection('students').doc(studentId).delete();
+    await _studentCollection.doc(studentId).delete();
   }
 }
