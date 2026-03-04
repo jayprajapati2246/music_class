@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:music_class/Logic/controller/home_controller.dart';
+import 'package:music_class/screen/user%20profile.dart';
+
 
 class HomePage extends StatefulWidget {
   final VoidCallback onNavigateToPayments;
@@ -60,9 +62,22 @@ class _HomePageState extends State<HomePage> {
                   children: [
                     Row(
                       children: [
-                        const CircleAvatar(
+                        CircleAvatar(
                           backgroundColor: Colors.white24,
-                          child: Icon(Icons.music_note, color: Colors.white),
+                          child: IconButton(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => userprofile(),
+                                ),
+                              );
+                            },
+                            icon: const Icon(
+                              Icons.music_note,
+                              color: Colors.white,
+                            ),
+                          ),
                         ),
                         const SizedBox(width: 12),
                         Column(
@@ -249,7 +264,8 @@ class _HomePageState extends State<HomePage> {
                   );
                 }),
               ),
-              const SizedBox(height: 20), // Added some bottom padding for better scroll feel
+              const SizedBox(height: 20),
+              // Added some bottom padding for better scroll feel
             ],
           ),
         ),
