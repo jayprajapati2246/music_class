@@ -4,11 +4,10 @@ import '../model/Student.dart';
 class AddStudentService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-
+  // Consistent collection name: 'students'
   Future<void> addStudent(StudentModel student) async {
     await _firestore.collection('students').add(student.toMap());
   }
-
 
   Future<List<StudentModel>> getStudents() async {
     final snapshot = await _firestore.collection('students').get();
@@ -24,6 +23,7 @@ class AddStudentService {
   }
 
   Future<void> updateStudent(StudentModel student) async {
+    if (student.id == null) return;
     await _firestore
         .collection('students')
         .doc(student.id)

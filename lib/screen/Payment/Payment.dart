@@ -15,7 +15,32 @@ class Payment extends StatefulWidget {
 
 class _PaymentState extends State<Payment> {
   final PaymentController _paymentController = PaymentController();
-  double _todayTotal = 0;
+  Map<String, String> _studentNames = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _loadStudentNames();
+  }
+
+  Future<void> _loadStudentNames() async {
+    try {
+      final snapshot = await FirebaseFirestore.instance.collection('students').get();
+      final Map<String, String> names = {};
+      for (var doc in snapshot.docs) {
+        final data = doc.data();
+        final profile = data['profile'] as Map<String, dynamic>? ?? {};
+        names[doc.id] = profile['name'] ?? 'Unknown';
+      }
+      if (mounted) {
+        setState(() {
+          _studentNames = names;
+        });
+      }
+    } catch (e) {
+      print("Error loading student names: $e");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,18 +52,20 @@ class _PaymentState extends State<Payment> {
         title: StreamBuilder<List<PaymentModel>>(
           stream: _paymentController.getAllPayments(),
           builder: (context, snapshot) {
+            double todayTotal = 0;
             if (snapshot.hasData) {
               DateTime now = DateTime.now();
-              _todayTotal = snapshot.data!
+              todayTotal = snapshot.data!
                   .where(
                     (p) =>
                         p.date.day == now.day &&
                         p.date.month == now.month &&
                         p.date.year == now.year,
                   )
-                  .fold(0, (sum, p) => sum + p.amount);
+                  .fold(0.0, (sum, p) => sum + p.amount);
             }
             return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
                   "Payments",
@@ -48,10 +75,9 @@ class _PaymentState extends State<Payment> {
                     fontSize: 18,
                   ),
                 ),
-                const SizedBox(height: 2),
                 Text(
-                  "₹${_todayTotal.toStringAsFixed(2)} collected today",
-                  style: const TextStyle(color: Colors.grey, fontSize: 15),
+                  "₹${todayTotal.toStringAsFixed(2)} collected today",
+                  style: const TextStyle(color: Colors.grey, fontSize: 13),
                 ),
               ],
             );
@@ -75,6 +101,8 @@ class _PaymentState extends State<Payment> {
             itemCount: payments.length,
             itemBuilder: (context, index) {
               final payment = payments[index];
+              final studentName = _studentNames[payment.studentId] ?? "Loading...";
+              
               return Card(
                 margin: const EdgeInsets.only(bottom: 12),
                 shape: RoundedRectangleBorder(
@@ -82,17 +110,12 @@ class _PaymentState extends State<Payment> {
                 ),
                 child: ListTile(
                   leading: const CircleAvatar(
-                    backgroundColor: Colors.greenAccent,
-                    child: Icon(Icons.person, color: Colors.blue),
+                    backgroundColor: Color(0xFFE8EAF6),
+                    child: Icon(Icons.person, color: Color(0xff6A5AE0)),
                   ),
-                  title: FutureBuilder<String>(
-                    future: _getStudentName(payment.studentId),
-                    builder: (context, nameSnapshot) {
-                      return Text(
-                        nameSnapshot.data ?? "Loading...",
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      );
-                    },
+                  title: Text(
+                    studentName,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                   subtitle: Text(
                     "${payment.month} • ${DateFormat('dd MMM yyyy').format(payment.date)}",
@@ -112,21 +135,14 @@ class _PaymentState extends State<Payment> {
         },
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Get.to(() => const AddPaymentPage())?.then((_) => setState(() {}));
+        onPressed: () async {
+          await Get.to(() => const AddPaymentPage());
+          _loadStudentNames(); // Refresh names if a new student might have been added
         },
         backgroundColor: Colors.deepPurple,
         shape: const CircleBorder(),
         child: const Icon(Icons.add, color: Colors.white, size: 28),
       ),
     );
-  }
-
-  Future<String> _getStudentName(String studentId) async {
-    final doc = await FirebaseFirestore.instance
-        .collection('students')
-        .doc(studentId)
-        .get();
-    return doc.data()?['name'] ?? "Unknown";
   }
 }

@@ -2,15 +2,19 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class StudentModel {
   final String? id;
+  // Profile field group
   final String name;
   final String phone;
+  
+  // Payment field group
+  final String paymentType;
+  final double monthlyFee;
+  
+  // StudentDetail field group
   final String course;
   final String batchTime;
   final String batchType;
-  final String paymentType;
-  final double monthlyFee;
   final DateTime joinDate;
-
 
   StudentModel({
     this.id,
@@ -27,18 +31,24 @@ class StudentModel {
 
   final Timestamp createdAt;
 
-
-  // Convert model → Firestore map
+  // Convert model → Firestore map with new schema structure
   Map<String, dynamic> toMap() {
     return {
-      'name': name,
-      'phone': phone,
-      'course': course,
-      'batchTime': batchTime,
-      'batchType': batchType,
-      'paymentType': paymentType,
-      'monthlyFee': monthlyFee,
-      'joinDate': Timestamp.fromDate(joinDate),
+      'profile': {
+        'name': name,
+        'phone': phone,
+      },
+      'payment': {
+        'paymentType': paymentType,
+        'monthlyFee': monthlyFee,
+      },
+      'studentDetail': {
+        'course': course,
+        'batchTime': batchTime,
+        'batchType': batchType,
+        'joinDate': Timestamp.fromDate(joinDate),
+      },
+      'createdAt': createdAt,
     };
   }
 
@@ -47,16 +57,21 @@ class StudentModel {
       Map<String, dynamic> map,
       String documentId,
       ) {
+    final profile = map['profile'] as Map<String, dynamic>? ?? {};
+    final payment = map['payment'] as Map<String, dynamic>? ?? {};
+    final studentDetail = map['studentDetail'] as Map<String, dynamic>? ?? {};
+
     return StudentModel(
       id: documentId,
-      name: map['name'] ?? '',
-      phone: map['phone'] ?? '',
-      course: map['course'] ?? '',
-      batchTime: map['batchTime'] ?? '',
-      batchType: map['batchType'] ?? '',
-      paymentType: map['paymentType'] ?? '',
-      monthlyFee: (map['monthlyFee'] ?? 0).toDouble(),
-      joinDate: (map['joinDate'] as Timestamp).toDate(),
+      name: profile['name'] ?? '',
+      phone: profile['phone'] ?? '',
+      course: studentDetail['course'] ?? '',
+      batchTime: studentDetail['batchTime'] ?? '',
+      batchType: studentDetail['batchType'] ?? '',
+      paymentType: payment['paymentType'] ?? '',
+      monthlyFee: (payment['monthlyFee'] ?? 0).toDouble(),
+      joinDate: (studentDetail['joinDate'] as Timestamp?)?.toDate() ?? DateTime.now(),
+      createdAt: map['createdAt'] as Timestamp?,
     );
   }
 }

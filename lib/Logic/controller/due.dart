@@ -41,9 +41,9 @@ class DueController {
     // Calculate expected payment
     DateTime now = DateTime.now();
     int months = _calculateMonthsDifference(student.joinDate, now);
-    
+
     // At least 1 month if they joined
-    if (months <= 0) months = 1; 
+    if (months <= 0) months = 1;
 
     double totalExpected = months * student.monthlyFee;
     double dueAmount = totalExpected - totalPaid;
