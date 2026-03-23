@@ -1,16 +1,19 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'Logic/controller/auth_controller.dart';
-import 'Logic/controller/student_controller.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'Logic/controller/user/auth_controller.dart';
+import 'Logic/controller/user/student_controller.dart';
 import 'firebase_options.dart';
 import 'screen/auth/splash_screen.dart';
 
 Future<void> main() async {
+
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  await MobileAds.instance.initialize();
   
   // Initialize Controllers
   Get.put(AuthController());

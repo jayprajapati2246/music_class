@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:music_class/Logic/controller/edit.dart';
 import 'package:music_class/Logic/model/Student.dart';
 import 'package:music_class/Logic/model/attundance.dart';
 import 'package:music_class/Logic/model/payment.dart';
 import 'package:music_class/screen/student/addnewstudent.dart';
 import 'package:table_calendar/table_calendar.dart';
+
+import '../../Logic/controller/user/edit.dart';
 
 class EditDetail extends StatelessWidget {
   final StudentModel student;
@@ -59,28 +60,24 @@ class EditDetail extends StatelessWidget {
           ),
         ],
       ),
-      body: Obx(() {
-        final student = controller.student.value;
-
-        return SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(10),
-            child: Column(
-              children: [
-                _buildHeader(student),
-                const SizedBox(height: 10),
-                _buildInfoCards(student),
-                const SizedBox(height: 10),
-                _buildCallCard(student),
-                const SizedBox(height: 10),
-                _buildTabBar(),
-                const SizedBox(height: 20),
-                _buildTabContent(),
-              ],
-            ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(10),
+          child: Column(
+            children: [
+              Obx(() => _buildHeader(controller.student.value)),
+              const SizedBox(height: 10),
+              Obx(() => _buildInfoCards(controller.student.value)),
+              const SizedBox(height: 10),
+              Obx(() => _buildCallCard(controller.student.value)),
+              const SizedBox(height: 10),
+              _buildTabBar(),
+              const SizedBox(height: 20),
+              _buildTabContent(),
+            ],
           ),
-        );
-      }),
+        ),
+      ),
     );
   }
 
@@ -223,85 +220,89 @@ class EditDetail extends StatelessWidget {
 
         final allRecords = snapshot.data ?? [];
         
-        // Filter records for the currently focused month
-        final focusedMonthRecords = allRecords.where((r) => 
-          r.date.month == controller.focusedDay.value.month && 
-          r.date.year == controller.focusedDay.value.year
-        ).toList();
+        return Obx(() {
+          // Accessing controller.focusedDay.value here makes this widget rebuild when it changes
+          final focusedMonth = controller.focusedDay.value;
+          
+          final focusedMonthRecords = allRecords.where((r) => 
+            r.date.month == focusedMonth.month && 
+            r.date.year == focusedMonth.year
+          ).toList();
 
-        final presentCount = focusedMonthRecords.where((e) => e.status == 'present').length;
-        final absentCount = focusedMonthRecords.where((e) => e.status == 'absent').length;
+          final presentCount = focusedMonthRecords.where((e) => e.status == 'present').length;
+          final absentCount = focusedMonthRecords.where((e) => e.status == 'absent').length;
 
-        return Column(
-          children: [
-            Row(
-              children: [
-                Expanded(child: _attendanceCard(presentCount, "Present", Colors.green)),
-                const SizedBox(width: 10),
-                Expanded(child: _attendanceCard(absentCount, "Absent", Colors.red)),
-              ],
-            ),
-            const SizedBox(height: 20),
-            TableCalendar(
-              firstDay: DateTime.utc(2020, 1, 1),
-              lastDay: DateTime.utc(2030, 12, 31),
-              focusedDay: controller.focusedDay.value,
-              headerStyle: const HeaderStyle(
-                formatButtonVisible: false,
-                titleCentered: true,
+          return Column(
+            children: [
+              Row(
+                children: [
+                  Expanded(child: _attendanceCard(presentCount, "Present", Colors.green)),
+                  const SizedBox(width: 10),
+                  Expanded(child: _attendanceCard(absentCount, "Absent", Colors.red)),
+                ],
               ),
-              onPageChanged: (focusedDay) {
-                controller.focusedDay.value = focusedDay;
-              },
-              calendarBuilders: CalendarBuilders(
-                defaultBuilder: (context, day, focusedDay) {
-                  final record = allRecords.firstWhereOrNull((r) =>
-                    isSameDay(r.date, day));
-
-                  if (record != null) {
-                    return Container(
-                      margin: const EdgeInsets.all(4),
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        color: record.status == 'present' ? Colors.green.shade400 : Colors.red.shade400,
-                        shape: BoxShape.circle,
-                      ),
-                      child: Text(
-                        '${day.day}',
-                        style: const TextStyle(color: Colors.white),
-                      ),
-                    );
-                  }
-                  return null;
+              const SizedBox(height: 20),
+              TableCalendar(
+                firstDay: DateTime.utc(2020, 1, 1),
+                lastDay: DateTime.utc(2030, 12, 31),
+                focusedDay: focusedMonth,
+                headerStyle: const HeaderStyle(
+                  formatButtonVisible: false,
+                  titleCentered: true,
+                ),
+                onPageChanged: (focusedDay) {
+                  controller.focusedDay.value = focusedDay;
                 },
-                todayBuilder: (context, day, focusedDay) {
-                   final record = allRecords.firstWhereOrNull((r) =>
-                    isSameDay(r.date, day));
+                calendarBuilders: CalendarBuilders(
+                  defaultBuilder: (context, day, focusedDay) {
+                    final record = allRecords.firstWhereOrNull((r) =>
+                      isSameDay(r.date, day));
 
-                   return Container(
-                      margin: const EdgeInsets.all(4),
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        color: record != null
-                          ? (record.status == 'present' ? Colors.green.shade400 : Colors.red.shade400)
-                          : Colors.blue.withOpacity(0.3),
-                        shape: BoxShape.circle,
-                        border: Border.all(color: Colors.blue, width: 2)
-                      ),
-                      child: Text(
-                        '${day.day}',
-                        style: TextStyle(color: record != null ? Colors.white : Colors.blue.shade900, fontWeight: FontWeight.bold),
-                      ),
-                    );
-                }
+                    if (record != null) {
+                      return Container(
+                        margin: const EdgeInsets.all(4),
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: record.status == 'present' ? Colors.green.shade400 : Colors.red.shade400,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Text(
+                          '${day.day}',
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                      );
+                    }
+                    return null;
+                  },
+                  todayBuilder: (context, day, focusedDay) {
+                     final record = allRecords.firstWhereOrNull((r) =>
+                      isSameDay(r.date, day));
+
+                     return Container(
+                        margin: const EdgeInsets.all(4),
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: record != null
+                            ? (record.status == 'present' ? Colors.green.shade400 : Colors.red.shade400)
+                            : Colors.blue.withValues(alpha: 0.3),
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.blue, width: 2)
+                        ),
+                        child: Text(
+                          '${day.day}',
+                          style: TextStyle(color: record != null ? Colors.white : Colors.blue.shade900, fontWeight: FontWeight.bold),
+                        ),
+                      );
+                  }
+                ),
+                onDaySelected: (selectedDay, focusedDay) {
+                  controller.focusedDay.value = focusedDay;
+                  _showMarkAttendanceDialog(selectedDay);
+                },
               ),
-              onDaySelected: (selectedDay, focusedDay) {
-                controller.focusedDay.value = focusedDay;
-                _showMarkAttendanceDialog(selectedDay);
-              },
-            ),
-          ],
-        );
+            ],
+          );
+        });
       },
     );
   }
@@ -423,7 +424,7 @@ class EditDetail extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
         color: isBalance
-            ? Colors.red.withOpacity(0.12)
+            ? Colors.red.withValues(alpha: 0.12)
             : Colors.grey.shade200,
         borderRadius: BorderRadius.circular(14),
       ),
@@ -455,9 +456,9 @@ class EditDetail extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 20),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: color.withOpacity(0.3)),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
       child: Column(
         children: [

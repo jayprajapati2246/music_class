@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import '../../Logic/controller/auth_controller.dart';
+
+import '../../Logic/controller/user/auth_controller.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
@@ -21,6 +22,8 @@ class _SignupScreenState extends State<SignupScreen> {
   
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
+  String selectedRole = "Student";
+  final List<String> roles = ["Student", "Admin"];
 
   @override
   Widget build(BuildContext context) {
@@ -131,7 +134,6 @@ class _SignupScreenState extends State<SignupScreen> {
                           icon: Icons.phone_android_rounded,
                           keyboardType: TextInputType.phone,
                           inputFormatters: [
-                            // Allow only '+' at start and digits
                             FilteringTextInputFormatter.allow(RegExp(r'^\+?[0-9]*$')),
                           ],
                         ),
@@ -143,6 +145,42 @@ class _SignupScreenState extends State<SignupScreen> {
                           icon: Icons.alternate_email_rounded,
                           keyboardType: TextInputType.emailAddress,
                         ),
+                        const SizedBox(height: 18),
+                        
+                        // Role Dropdown
+                        const Text(
+                          "Select Role",
+                          style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: Colors.black54),
+                        ),
+                        const SizedBox(height: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade100,
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                          child: DropdownButtonHideUnderline(
+                            child: DropdownButton<String>(
+                              value: selectedRole,
+                              isExpanded: true,
+                              icon: const Icon(Icons.keyboard_arrow_down_rounded),
+                              items: roles.map((String role) {
+                                return DropdownMenuItem(
+                                  value: role,
+                                  child: Text(role, style: const TextStyle(fontWeight: FontWeight.w600)),
+                                );
+                              }).toList(),
+                              onChanged: (String? newValue) {
+                                if (newValue != null) {
+                                  setState(() {
+                                    selectedRole = newValue;
+                                  });
+                                }
+                              },
+                            ),
+                          ),
+                        ),
+                        
                         const SizedBox(height: 18),
                         _buildInputField(
                           controller: passwordController,
@@ -178,7 +216,6 @@ class _SignupScreenState extends State<SignupScreen> {
                                 }
                                 
                                 String phone = phoneController.text.trim();
-                                // Validate: Must start with '+' and have at least 11 characters (1 country + 10 digits)
                                 if (!phone.startsWith('+') || phone.length < 11) {
                                    Get.snackbar("Error", "Enter country code (+) followed by 10 digits",
                                       backgroundColor: Colors.red.withOpacity(0.8),
@@ -190,7 +227,7 @@ class _SignupScreenState extends State<SignupScreen> {
                                   nameController.text.trim(),
                                   emailController.text.trim(),
                                   passwordController.text.trim(),
-                                  "Student",
+                                  selectedRole,
                                   phone: phone,
                                 );
                               },

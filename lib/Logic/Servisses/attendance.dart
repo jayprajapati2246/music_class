@@ -8,7 +8,7 @@ class AttendanceService {
 
   String? get _userId => _auth.currentUser?.uid;
 
-  // Collection for a specific date: users/{userId}/attendance/{date}/records/{studentId}
+  // Path: users/{userId}/attendance/{date}/records/{studentId}
   CollectionReference _attendanceRecords(String dateStr) {
     if (_userId == null) throw Exception("User not logged in");
     return _firestore
@@ -21,15 +21,28 @@ class AttendanceService {
 
   // Mark attendance
   Future<void> markAttendance(AttendanceRecordModel record) async {
+    if (_userId == null) return;
+    
     final dateStr = "${record.date.year}-${record.date.month.toString().padLeft(2, '0')}-${record.date.day.toString().padLeft(2, '0')}";
     
+    // Ensure userId is included for Collection Group queries
+    final recordWithUser = AttendanceRecordModel(
+      studentId: record.studentId,
+      name: record.name,
+      status: record.status,
+      date: record.date,
+      userId: _userId,
+    );
+
     await _attendanceRecords(dateStr)
         .doc(record.studentId)
-        .set(record.toMap());
+        .set(recordWithUser.toMap());
   }
 
-  // Get real-time stream of attendance for today
+  // Get real-time stream of attendance for today (for Home screen)
   Stream<List<AttendanceRecordModel>> getTodaysAttendanceStream() {
+    if (_userId == null) return Stream.value([]);
+    
     final today = DateTime.now();
     final dateStr = "${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}";
 
@@ -49,30 +62,43 @@ class AttendanceService {
 
   // Future for count of today's present students
   Future<int> getTodaysAttendanceCount() async {
+    if (_userId == null) return 0;
+    
     final today = DateTime.now();
     final dateStr = "${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}";
     
-    final snapshot = await _attendanceRecords(dateStr)
-        .where('status', isEqualTo: 'present')
-        .get();
-    return snapshot.docs.length;
+    try {
+      final snapshot = await _attendanceRecords(dateStr)
+          .where('status', isEqualTo: 'present')
+          .get();
+      return snapshot.docs.length;
+    } catch (e) {
+      print("Error getting attendance count: $e");
+      return 0;
+    }
   }
 
-  // Get attendance for a specific student across all dates
-  // Since we changed the schema to be date-centric, we need a Collection Group query 
-  // to find all 'records' where 'studentId' matches.
+  // Get attendance for a specific student across all dates (for Edit/Detail screen)
   Stream<List<AttendanceRecordModel>> getStudentAttendanceStream(String studentId) {
     if (_userId == null) return Stream.value([]);
     
-    // Note: This requires a Firestore index for collection group 'records' with 'studentId' field.
+    // Filtering by 'userId' and 'studentId' in a Collection Group query.
+    // This requires a Firestore Composite Index on 'records' (Collection Group) for fields: userId, studentId.
     return _firestore
         .collectionGroup('records')
+        .where('userId', isEqualTo: _userId)
         .where('studentId', isEqualTo: studentId)
         .snapshots()
-        .map((snapshot) => snapshot.docs
-            .where((doc) => doc.reference.path.contains('users/$_userId/attendance'))
+        .handleError((error) {
+          print("Firestore Collection Group Error: $error");
+          // If the index is missing, this will print the URL to create it.
+        })
+        .map((snapshot) {
+          final list = snapshot.docs
             .map((doc) => AttendanceRecordModel.fromMap(doc.data() as Map<String, dynamic>, doc.id))
-            .toList()
-            ..sort((a, b) => b.date.compareTo(a.date)));
+            .toList();
+          list.sort((a, b) => b.date.compareTo(a.date));
+          return list;
+        });
   }
 }

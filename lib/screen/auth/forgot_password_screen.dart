@@ -1,7 +1,9 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../Logic/controller/auth_controller.dart';
+
+import '../../Logic/controller/user/auth_controller.dart';
+
 
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
@@ -33,42 +35,30 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> with Single
   @override
   void dispose() {
     _animationController.dispose();
+    emailController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
     return Scaffold(
       body: Stack(
         children: [
-          // Dynamic Background
           Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                colors: [
-                  Color(0xFF1A1A2E),
-                  Color(0xFF16213E),
-                  Color(0xFF0F3460),
-                ],
+                colors: [Color(0xFF1A1A2E), Color(0xFF16213E), Color(0xFF0F3460)],
               ),
             ),
           ),
-          // Animated Glow Orbs
-          Positioned(
-            top: size.height * 0.1,
-            right: -size.width * 0.2,
-            child: _buildGlowOrb(size.width * 0.7, const Color(0xFF6A5AE0).withOpacity(0.3)),
-          ),
-
           SafeArea(
             child: FadeTransition(
               opacity: _fadeAnimation,
               child: SingleChildScrollView(
                 padding: const EdgeInsets.symmetric(horizontal: 30.0),
-                child: Column(
+                child: Obx(() => Column(
                   children: [
                     const SizedBox(height: 20),
                     Align(
@@ -78,40 +68,24 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> with Single
                         onPressed: () => Get.back(),
                       ),
                     ),
-                    const SizedBox(height: 30),
-                    // Glassmorphic Icon Container
+                    const SizedBox(height: 50),
                     _buildGlassContainer(
                       padding: const EdgeInsets.all(20),
                       borderRadius: 25,
-                      child: const Icon(
-                        Icons.lock_reset_rounded,
-                        color: Colors.white,
-                        size: 60,
-                      ),
+                      child: const Icon(Icons.person_search_rounded, color: Colors.white, size: 60),
                     ),
                     const SizedBox(height: 30),
                     const Text(
-                      "Forgot Password?",
-                      style: TextStyle(
-                        fontSize: 32,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                        letterSpacing: 1.2,
-                      ),
+                      "Find Account",
+                      style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.white),
                     ),
                     const SizedBox(height: 10),
                     Text(
-                      "Enter your email address to receive a password reset link.",
+                      "Enter your registered email address to verify your account.",
                       textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Colors.white.withOpacity(0.6),
-                        fontSize: 16,
-                        fontWeight: FontWeight.w300,
-                      ),
+                      style: TextStyle(color: Colors.white.withOpacity(0.6), fontSize: 16),
                     ),
-                    const SizedBox(height: 50),
-                    
-                    // Glassmorphic Input Card
+                    const SizedBox(height: 40),
                     _buildGlassContainer(
                       padding: const EdgeInsets.all(25),
                       borderRadius: 35,
@@ -120,65 +94,24 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> with Single
                           _buildModernField(
                             controller: emailController,
                             hint: "Email Address",
-                            icon: Icons.alternate_email_rounded,
+                            icon: Icons.email_outlined,
+                            keyboardType: TextInputType.emailAddress,
                           ),
                           const SizedBox(height: 30),
-                          Obx(() => _buildPrimaryButton(
-                            text: "SEND RESET LINK",
+                          _buildPrimaryButton(
+                            text: "VERIFY EMAIL",
                             isLoading: authController.isLoading.value,
                             onPressed: () {
-                              if (emailController.text.isNotEmpty) {
-                                authController.forgotPassword(emailController.text.trim());
-                              } else {
-                                Get.snackbar(
-                                  "Error",
-                                  "Please enter your email address",
-                                  backgroundColor: Colors.red.withOpacity(0.8),
-                                  colorText: Colors.white,
-                                );
-                              }
+                              authController.checkEmailAndNavigate(emailController.text.trim());
                             },
-                          )),
+                          ),
                         ],
                       ),
                     ),
-                    const SizedBox(height: 40),
-                    Text(
-                      "Remembered your password?",
-                      style: TextStyle(color: Colors.white.withOpacity(0.6)),
-                    ),
-                    TextButton(
-                      onPressed: () => Get.back(),
-                      child: const Text(
-                        "Back to Login",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
-                      ),
-                    ),
                   ],
-                ),
+                )),
               ),
             ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildGlowOrb(double size, Color color) {
-    return Container(
-      height: size,
-      width: size,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        boxShadow: [
-          BoxShadow(
-            color: color,
-            blurRadius: 100,
-            spreadRadius: 20,
           ),
         ],
       ),
@@ -207,6 +140,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> with Single
     required TextEditingController controller,
     required String hint,
     required IconData icon,
+    TextInputType keyboardType = TextInputType.text,
   }) {
     return Container(
       decoration: BoxDecoration(
@@ -216,7 +150,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> with Single
       ),
       child: TextField(
         controller: controller,
-        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
+        keyboardType: keyboardType,
+        style: const TextStyle(color: Colors.white),
         decoration: InputDecoration(
           hintText: hint,
           hintStyle: TextStyle(color: Colors.white.withOpacity(0.3)),
@@ -235,25 +170,13 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> with Single
         height: 60,
         width: double.infinity,
         decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [Color(0xFF6A5AE0), Color(0xFF92278F)],
-          ),
+          gradient: const LinearGradient(colors: [Color(0xFF6A5AE0), Color(0xFF92278F)]),
           borderRadius: BorderRadius.circular(18),
-          boxShadow: [
-            BoxShadow(
-              color: const Color(0xFF6A5AE0).withOpacity(0.3),
-              blurRadius: 15,
-              offset: const Offset(0, 8),
-            ),
-          ],
         ),
         child: Center(
           child: isLoading
-            ? const CircularProgressIndicator(color: Colors.white, strokeWidth: 2)
-            : Text(
-                text,
-                style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold, letterSpacing: 1.2),
-              ),
+              ? const CircularProgressIndicator(color: Colors.white, strokeWidth: 2)
+              : Text(text, style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold, letterSpacing: 1.2)),
         ),
       ),
     );

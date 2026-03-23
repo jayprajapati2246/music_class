@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:music_class/Logic/controller/home_controller.dart';
 import 'package:music_class/screen/Payment/Payment.dart';
 import 'package:music_class/screen/attendance.dart';
 import 'package:music_class/screen/dues.dart';
 import 'package:music_class/screen/home.dart';
 import 'package:music_class/screen/student/student.dart';
+
+import 'Logic/controller/user/home_controller.dart';
 
 class Mainscreen extends StatefulWidget {
   const Mainscreen({super.key});

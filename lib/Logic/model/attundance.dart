@@ -6,6 +6,7 @@ class AttendanceRecordModel {
   final String name;
   final String status; // 'present', 'absent'
   final DateTime date;
+  final String? userId;
 
   AttendanceRecordModel({
     this.id,
@@ -13,6 +14,7 @@ class AttendanceRecordModel {
     required this.name,
     required this.status,
     required this.date,
+    this.userId,
   });
 
   Map<String, dynamic> toMap() {
@@ -21,6 +23,7 @@ class AttendanceRecordModel {
       'name': name,
       'status': status,
       'date': Timestamp.fromDate(date),
+      if (userId != null) 'userId': userId,
     };
   }
 
@@ -31,6 +34,7 @@ class AttendanceRecordModel {
       name: map['name'] ?? '',
       status: map['status'] ?? '',
       date: (map['date'] as Timestamp).toDate(),
+      userId: map['userId'],
     );
   }
 }

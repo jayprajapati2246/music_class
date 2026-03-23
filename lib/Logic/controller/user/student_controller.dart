@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:music_class/Logic/Servisses/student.dart';
 
-import '../model/Student.dart';
+import '../../model/Student.dart';
 
 class StudentController extends GetxController {
 

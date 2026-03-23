@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get_core/src/get_main.dart';
+import 'package:get/get_instance/src/extension_instance.dart';
 import 'package:get/get_navigation/src/extension_navigation.dart';
-import 'package:intl/intl.dart';
+import 'package:get/get_state_manager/src/simple/get_state.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:music_class/Logic/ads/banner_ads.dart';
 import 'package:music_class/screen/student/edit.dart';
-import '../Logic/controller/due.dart';
-import '../Logic/controller/Payments.dart';
+
+import '../Logic/controller/user/Payments.dart';
+import '../Logic/controller/user/due.dart';
 import '../Logic/model/Student.dart';
 
 class Dues extends StatefulWidget {
@@ -22,10 +26,17 @@ class _DuesState extends State<Dues> {
   bool _isLoading = true;
   double _totalDues = 0;
 
+  final BannerAds bannerAds = Get.put(BannerAds());
+
   @override
   void initState() {
     super.initState();
     _fetchDues();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      bannerAds.loadAd(MediaQuery.of(context).size.width);
+    });
+
   }
 
   Future<void> _fetchDues() async {
@@ -255,9 +266,24 @@ class _DuesState extends State<Dues> {
                       ),
                     );
                   }).toList(),
+
                 ],
               ),
             ),
+      bottomNavigationBar: GetBuilder<BannerAds>(
+        builder: (controller) {
+          if (controller.bannerAd == null || !controller.isLoaded) {
+            return const SizedBox();
+          }
+
+          return Container(
+            color: Colors.white,
+            width: controller.bannerAd!.size.width.toDouble(),
+            height: controller.bannerAd!.size.height.toDouble(),
+            child: AdWidget(ad: controller.bannerAd!),
+          );
+        },
+      ),
     );
   }
 }

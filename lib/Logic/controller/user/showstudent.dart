@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../Servisses/student.dart';
-import '../model/Student.dart';
+import '../../Servisses/student.dart';
+import '../../model/Student.dart';
 import 'due.dart';
 
 class Showstudent extends GetxController {

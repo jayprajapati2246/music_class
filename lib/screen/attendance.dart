@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:music_class/screen/student/student.dart';
-import '../Logic/controller/attendance.dart';
-import '../Logic/controller/showstudent.dart';
+import '../Logic/controller/user/attendance.dart';
+import '../Logic/controller/user/showstudent.dart';
 import '../Logic/model/Student.dart';
 
 class Attendance extends StatefulWidget {

@@ -1,21 +1,24 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:music_class/screen/student/student.dart';
-import '../Servisses/student.dart';
-import '../model/Student.dart';
+import '../../Servisses/student.dart';
+import '../../model/Student.dart';
 
 class Addstudentcontroller extends GetxController {
   final AddStudentService _service = AddStudentService();
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  String? targetUserId; 
 
   String? selectedCourse;
   String? selectedBatchType;
   String? selectedPaymentType;
   String? selectedBatchTime;
 
-  final List<String> courses = ['Guitar', 'Piano', 'Drums', 'Violin'];
+  var courses = <String>['Guitar', 'Piano', 'Drums', 'Violin'].obs;
   final List<String> batchTypes = ['Everyday', 'Alternate Days'];
   final List<String> paymentTypes = ['Per Class', 'Monthly'];
-  final List<String> batchTime = [
+  var batchTime = <String>[
     '7:00 AM - 8:00 AM',
     '8:00 AM - 9:00 AM',
     '9:00 AM - 10:00 AM',
@@ -28,7 +31,7 @@ class Addstudentcontroller extends GetxController {
     '4:00 PM - 5:00 PM',
     '5:00 PM - 6:00 PM',
     '6:00 PM - 7:00 PM',
-  ];
+  ].obs;
 
   DateTime? joinDate;
   DateTime? get initialDate => joinDate;
@@ -37,6 +40,29 @@ class Addstudentcontroller extends GetxController {
   final TextEditingController phoneController = TextEditingController();
   final TextEditingController amountController = TextEditingController();
   final TextEditingController joinDateController = TextEditingController();
+
+  @override
+  void onInit() {
+    super.onInit();
+    fetchDynamicSettings();
+  }
+
+  Future<void> fetchDynamicSettings() async {
+    try {
+      DocumentSnapshot doc = await _firestore.collection('settings').doc('app_settings').get();
+      if (doc.exists) {
+        Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+        if (data['courses'] != null) {
+          courses.value = List<String>.from(data['courses']);
+        }
+        if (data['batchTimes'] != null) {
+          batchTime.value = List<String>.from(data['batchTimes']);
+        }
+      }
+    } catch (e) {
+      debugPrint("Error fetching dynamic settings: $e");
+    }
+  }
 
   Future<void> addStudent() async {
     if (!_validate()) return;
@@ -53,7 +79,7 @@ class Addstudentcontroller extends GetxController {
     );
 
     try {
-      await _service.addStudent(student);
+      await _service.addStudent(student, userId: targetUserId);
       Get.back(result: true);
 
       Get.snackbar(
@@ -92,7 +118,7 @@ class Addstudentcontroller extends GetxController {
     );
 
     try {
-      await _service.updateStudent(student);
+      await _service.updateStudent(student, userId: targetUserId);
       Get.back(result: true);
 
       Get.snackbar(
@@ -147,6 +173,7 @@ class Addstudentcontroller extends GetxController {
     selectedBatchType = null;
     selectedPaymentType = null;
     joinDate = null;
+    targetUserId = null;
   }
 
   @override

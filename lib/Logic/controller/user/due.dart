@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../model/Student.dart';
+import '../../model/Student.dart';
+
 
 class DueController {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -20,7 +21,7 @@ class DueController {
     List<Map<String, dynamic>> dueList = [];
 
     try {
-      // 1. Get all students for this user
+
       QuerySnapshot studentSnapshot = await _studentCollection.get();
       List<StudentModel> students = studentSnapshot.docs
           .map((doc) => StudentModel.fromMap(doc.data() as Map<String, dynamic>, doc.id))

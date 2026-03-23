@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../../Logic/controller/Payments.dart';
+
+import '../../Logic/controller/user/Payments.dart';
 import '../../Logic/model/payment.dart';
 import 'add_payment.dart';
 

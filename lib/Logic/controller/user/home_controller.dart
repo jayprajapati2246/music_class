@@ -3,7 +3,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:music_class/Logic/Servisses/attendance.dart';
+
 import 'due.dart';
+
 
 class HomeController extends GetxController {
   final AttendanceService _attendanceService = AttendanceService();
@@ -22,7 +24,6 @@ class HomeController extends GetxController {
 
   // Stream Subscriptions
   StreamSubscription? _studentsSub;
-  StreamSubscription? _todayPaymentsSub;
   StreamSubscription? _attendanceSub;
 
   @override
@@ -46,26 +47,11 @@ class HomeController extends GetxController {
       totalStudents.value = snapshot.docs.length;
     });
 
-    // For "Today's Attendance" and "Payments Today" in a nested schema,
-    // we would ideally use Collection Group queries with a filter for the parent user,
-    // or aggregate the data differently.
-    // For now, I will update the listeners to use Collection Group if possible, 
-    // but that requires indexes. 
-    // A simpler way for a small number of students is to refresh them manually or 
-    // keep the listeners as they were if we want to keep it simple, 
-    // but the user wants the schema changed.
-    
-    // For now, let's keep it simple and refresh these on manual refresh or 
-    // use a more complex logic if needed. 
-    // I'll update the manual fetch to reflect the new structure.
-    _listenToTodaysPayments();
-  }
-
-  void _listenToTodaysPayments() {
-    // Note: This is harder with nested schema without Collection Group queries.
-    // We'll rely more on manual refresh or update this once Collection Group is set up.
-    // For now, I'll stop the listener and rely on manual fetch in refreshData.
-    _todayPaymentsSub?.cancel();
+    // Listen for today's attendance updates
+    _attendanceSub?.cancel();
+    _attendanceSub = _attendanceService.getTodaysPresentCountStream().listen((count) {
+      todaysPresent.value = count;
+    });
   }
 
   // Combined refresh method
@@ -95,35 +81,29 @@ class HomeController extends GetxController {
       totalStudents.value = studentDocs.docs.length;
 
       double totalPaymentsToday = 0;
-      int presentTodayCount = 0;
       
       DateTime now = DateTime.now();
-      String dateStr = "${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}";
+      DateTime startOfDay = DateTime(now.year, now.month, now.day);
+      DateTime endOfDay = DateTime(now.year, now.month, now.day, 23, 59, 59);
 
       for (var studentDoc in studentDocs.docs) {
-        // Fetch payments for today for this student
+        // Fetch payments for today for this student (Payments are nested under students)
         final payments = await studentDoc.reference
             .collection('payments')
-            .where('date', isGreaterThanOrEqualTo: Timestamp.fromDate(DateTime(now.year, now.month, now.day)))
+            .where('date', isGreaterThanOrEqualTo: Timestamp.fromDate(startOfDay))
+            .where('date', isLessThanOrEqualTo: Timestamp.fromDate(endOfDay))
             .get();
         
         for (var p in payments.docs) {
           totalPaymentsToday += (p.data()['amount'] ?? 0).toDouble();
         }
-
-        // Check attendance for today for this student
-        final attendanceDoc = await studentDoc.reference
-            .collection('attendance')
-            .doc("${studentDoc.id}_$dateStr")
-            .get();
-        
-        if (attendanceDoc.exists && attendanceDoc.data()?['status'] == 'present') {
-          presentTodayCount++;
-        }
       }
 
       paymentsToday.value = totalPaymentsToday;
-      todaysPresent.value = presentTodayCount;
+
+      // Use service to get attendance count (Optimized path)
+      final attendanceCount = await _attendanceService.getTodaysAttendanceCount();
+      todaysPresent.value = attendanceCount;
 
     } catch (e) {
       Get.log("Error refreshing stats: $e");
@@ -154,7 +134,6 @@ class HomeController extends GetxController {
   @override
   void onClose() {
     _studentsSub?.cancel();
-    _todayPaymentsSub?.cancel();
     _attendanceSub?.cancel();
     super.onClose();
   }

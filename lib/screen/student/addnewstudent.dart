@@ -3,12 +3,13 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:music_class/Logic/model/Student.dart';
 
-import '../../Logic/controller/AddStudent.dart';
+import '../../Logic/controller/user/AddStudent.dart';
 
 class Addnstudent extends StatefulWidget {
   final StudentModel? student;
+  final String? userId; 
 
-  const Addnstudent({super.key, this.student});
+  const Addnstudent({super.key, this.student, this.userId});
 
   @override
   State<Addnstudent> createState() => _AddnstudentState();
@@ -21,6 +22,8 @@ class _AddnstudentState extends State<Addnstudent> {
   void initState() {
     super.initState();
     controller = Get.put(Addstudentcontroller());
+    controller.targetUserId = widget.userId;
+    
     if (widget.student != null) {
       controller.nameController.text = widget.student!.name;
       controller.phoneController.text = widget.student!.phone;
@@ -48,14 +51,14 @@ class _AddnstudentState extends State<Addnstudent> {
           children: [
             Text(
               widget.student == null ? "Add New Student" : "Edit Student",
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 18,
                 color: Colors.black,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            SizedBox(height: 2),
-            Text(
+            const SizedBox(height: 2),
+            const Text(
               "Enter student details",
               style: TextStyle(fontSize: 12, color: Colors.black),
             ),
@@ -81,7 +84,7 @@ class _AddnstudentState extends State<Addnstudent> {
             ),
             SizedBox(height: height * 0.02),
             _label("Course"),
-            commonDropdown<String>(
+            Obx(() => commonDropdown<String>(
               hintText: "Select course",
               items: controller.courses,
               value: controller.selectedCourse,
@@ -89,10 +92,10 @@ class _AddnstudentState extends State<Addnstudent> {
               onChanged: (value) {
                 setState(() => controller.selectedCourse = value);
               },
-            ),
+            )),
             SizedBox(height: height * 0.02),
             _label("Batch Time"),
-            commonDropdown<String>(
+            Obx(() => commonDropdown<String>(
               hintText: "Select batch time",
               items: controller.batchTime,
               value: controller.selectedBatchTime,
@@ -100,7 +103,7 @@ class _AddnstudentState extends State<Addnstudent> {
               onChanged: (value) {
                 setState(() => controller.selectedBatchTime = value);
               },
-            ),
+            )),
             SizedBox(height: height * 0.02),
             Row(
               children: [
@@ -144,7 +147,7 @@ class _AddnstudentState extends State<Addnstudent> {
             SizedBox(height: height * 0.02),
             commonDateField(
               label: "Join Date",
-              controller: controller.joinDateController,
+              dateController: controller.joinDateController,
               onDateSelected: (date) {
                 setState(() => controller.joinDate = date);
               },
@@ -171,7 +174,7 @@ class _AddnstudentState extends State<Addnstudent> {
               },
               child: Text(
                 widget.student == null ? "Add Student" : "Update Student",
-                style: TextStyle(
+                style: const TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.w600,
                 ),
@@ -228,9 +231,11 @@ class _AddnstudentState extends State<Addnstudent> {
     required String Function(T) itemLabel,
     required ValueChanged<T?> onChanged,
   }) {
+    final safeValue = items.contains(value) ? value : null;
+
     return DropdownButtonFormField<T>(
       isExpanded: true,
-      value: value,
+      value: safeValue,
       onChanged: onChanged,
       decoration: InputDecoration(
         hintText: hintText,
@@ -259,7 +264,7 @@ class _AddnstudentState extends State<Addnstudent> {
 
   Widget commonDateField({
     required String label,
-    required TextEditingController controller,
+    required TextEditingController dateController,
     required Function(DateTime) onDateSelected,
   }) {
     return Column(
@@ -271,13 +276,13 @@ class _AddnstudentState extends State<Addnstudent> {
           onTap: () async {
             final picked = await showDatePicker(
               context: context,
-              initialDate: this.controller.joinDate ?? DateTime.now(),
+              initialDate: controller.joinDate ?? DateTime.now(),
               firstDate: DateTime(2000),
               lastDate: DateTime(2100),
             );
 
             if (picked != null) {
-              controller.text =
+              dateController.text =
                   "${picked.day.toString().padLeft(2, '0')}/"
                   "${picked.month.toString().padLeft(2, '0')}/"
                   "${picked.year}";
@@ -286,7 +291,7 @@ class _AddnstudentState extends State<Addnstudent> {
           },
           child: AbsorbPointer(
             child: TextField(
-              controller: controller,
+              controller: dateController,
               readOnly: true,
               decoration: InputDecoration(
                 hintText: "Select date",
@@ -294,9 +299,9 @@ class _AddnstudentState extends State<Addnstudent> {
                   horizontal: 16,
                   vertical: 14,
                 ),
-                suffixIcon: Padding(
-                  padding: const EdgeInsets.only(right: 14),
-                  child: const Icon(
+                suffixIcon: const Padding(
+                  padding: EdgeInsets.only(right: 14),
+                  child: Icon(
                     Icons.calendar_today_outlined,
                     size: 20,
                     color: Colors.grey,

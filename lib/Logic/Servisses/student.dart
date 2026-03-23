@@ -6,23 +6,23 @@ class AddStudentService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  String? get _userId => _auth.currentUser?.uid;
+  String? get _currentUserId => _auth.currentUser?.uid;
 
-  CollectionReference get _studentCollection {
-    if (_userId == null) throw Exception("User not logged in");
+  CollectionReference _getStudentCollection(String? userId) {
+    final targetId = userId ?? _currentUserId;
+    if (targetId == null) throw Exception("User ID not provided and no user logged in");
     return _firestore
         .collection('users')
-        .doc(_userId)
+        .doc(targetId)
         .collection('students');
   }
 
-  // Consistent collection name: 'students'
-  Future<void> addStudent(StudentModel student) async {
-    await _studentCollection.add(student.toMap());
+  Future<void> addStudent(StudentModel student, {String? userId}) async {
+    await _getStudentCollection(userId).add(student.toMap());
   }
 
-  Future<List<StudentModel>> getStudents() async {
-    final snapshot = await _studentCollection.get();
+  Future<List<StudentModel>> getStudents({String? userId}) async {
+    final snapshot = await _getStudentCollection(userId).get();
 
     return snapshot.docs
         .map(
@@ -34,14 +34,14 @@ class AddStudentService {
         .toList();
   }
 
-  Future<void> updateStudent(StudentModel student) async {
+  Future<void> updateStudent(StudentModel student, {String? userId}) async {
     if (student.id == null) return;
-    await _studentCollection
+    await _getStudentCollection(userId)
         .doc(student.id)
         .update(student.toMap());
   }
 
-  Future<void> deleteStudent(String studentId) async {
-    await _studentCollection.doc(studentId).delete();
+  Future<void> deleteStudent(String studentId, {String? userId}) async {
+    await _getStudentCollection(userId).doc(studentId).delete();
   }
 }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../Logic/controller/auth_controller.dart';
+import '../../Logic/controller/user/auth_controller.dart';
 import 'signup_screen.dart';
 import 'forgot_password_screen.dart';
 

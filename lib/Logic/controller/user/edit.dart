@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:music_class/Logic/controller/user/student_controller.dart';
 import 'package:music_class/Logic/model/Student.dart';
 import 'package:music_class/Logic/model/attundance.dart';
 import 'package:music_class/Logic/model/payment.dart';
 import 'package:music_class/Logic/Servisses/attendance.dart';
 import 'package:music_class/Logic/Servisses/payment_service.dart';
-import 'package:music_class/Logic/controller/student_controller.dart';
-import 'package:music_class/Logic/controller/due.dart';
+import 'due.dart';
 
 class StudentDetailController extends GetxController {
   late Rx<StudentModel> student;
@@ -22,23 +22,20 @@ class StudentDetailController extends GetxController {
   final DueController _dueController = DueController();
 
   RxInt selectedTab = 0.obs;
-  RxBool isLoading = false.obs;
   RxDouble balance = 0.0.obs;
-
   final TextEditingController paymentAmountController = TextEditingController();
 
   // Attendance related
   Rx<DateTime> focusedDay = DateTime.now().obs;
-  
-  Stream<List<AttendanceRecordModel>> get attendanceStream =>
-      _attendanceService.getStudentAttendanceStream(student.value.id!);
 
-  Stream<List<PaymentModel>> get paymentStream =>
-      _paymentService.getPaymentsForStudent(student.value.id!);
+  late Stream<List<AttendanceRecordModel>> attendanceStream;
+  late Stream<List<PaymentModel>> paymentStream;
 
   @override
   void onInit() {
     super.onInit();
+    attendanceStream = _attendanceService.getStudentAttendanceStream(student.value.id!);
+    paymentStream = _paymentService.getPaymentsForStudent(student.value.id!);
     calculateBalance();
   }
 
@@ -52,19 +49,16 @@ class StudentDetailController extends GetxController {
   }
 
   void refreshStudent() async {
-    final updatedStudent = studentController.students.firstWhereOrNull(
-          (s) => s.id == student.value.id,
-    );
+    final updatedStudent = studentController.students.firstWhereOrNull((s) => s.id == student.value.id);
     if (updatedStudent != null) {
       student.value = updatedStudent;
-      await calculateBalance();
+      calculateBalance();
     }
   }
 
   Future<void> deleteStudent() async {
     await studentController.deleteStudent(student.value.id!);
     Get.back(result: true);
-    // Get.off(() => const StudentPage());
   }
 
   Future<void> recordPayment() async {

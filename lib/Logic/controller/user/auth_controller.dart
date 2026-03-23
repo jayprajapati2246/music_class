@@ -1,10 +1,14 @@
+import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:music_class/screen.dart';
-import '../../screen/auth/login_screen.dart';
+
+import '../../../screen/auth/login_screen.dart';
+import '../../../screen/auth/reset_password_screen.dart';
+
 
 class AuthController extends GetxController {
   static AuthController instance = Get.find();
@@ -18,6 +22,9 @@ class AuthController extends GetxController {
   Rx<Map<String, dynamic>> userData = Rx<Map<String, dynamic>>({});
   RxBool isLoading = false.obs;
   bool _isInitialLoad = true;
+  
+  // Forgot Password Flow
+  RxString resetEmail = "".obs;
 
   @override
   void onReady() {
@@ -25,27 +32,22 @@ class AuthController extends GetxController {
     _user = Rx<User?>(_auth.currentUser);
     _user.bindStream(_auth.userChanges());
     
-    // Initial fetch if already logged in
     if (_user.value != null) {
       getUserDetails(_user.value!.uid);
     }
 
-    // Listen for auth changes to update userData and handle navigation
     ever(_user, (user) {
       if (user != null) {
         getUserDetails(user.uid);
       } else {
         userData.value = {};
-      }
-
-      // Handle navigation: Skip initial redirect to allow Splash Screen to show for 5 seconds
-      if (!_isInitialLoad) {
-        _initialScreen(user);
+        if (!_isInitialLoad) {
+          _initialScreen(user);
+        }
       }
     });
 
-    // Wait for 5 seconds (Splash Screen duration) for the VERY FIRST redirect
-    Future.delayed(const Duration(seconds: 5), () {
+    Future.delayed(const Duration(seconds: 3), () {
       _isInitialLoad = false;
       _initialScreen(_user.value);
     });
@@ -55,6 +57,7 @@ class AuthController extends GetxController {
     if (user == null) {
       Get.offAll(() => const LoginScreen());
     } else {
+      // Both Admin and Student go to the same Mainscreen
       Get.offAll(() => const Mainscreen());
     }
   }
@@ -82,19 +85,81 @@ class AuthController extends GetxController {
         }
       }
     } catch (e) {
-      print("Error in getUserDetails: $e");
+      debugPrint("Error in getUserDetails: $e");
     }
   }
 
+  // --- NEW: Email-based Forgot Password (Direct Flow) ---
+
+  Future<void> checkEmailAndNavigate(String email) async {
+    if (email.isEmpty || !GetUtils.isEmail(email)) {
+      Get.snackbar("Error", "Please enter a valid email address",
+          backgroundColor: Colors.orange, colorText: Colors.white);
+      return;
+    }
+
+    try {
+      isLoading.value = true;
+      
+      // Check if user exists in Firestore
+      QuerySnapshot query = await _firestore
+          .collection('users')
+          .where('email', isEqualTo: email)
+          .get();
+
+      if (query.docs.isEmpty) {
+        Get.snackbar("Not Found", "No account registered with this email.",
+            backgroundColor: Colors.red, colorText: Colors.white);
+        return;
+      }
+
+      // Store email and navigate to Reset Screen
+      resetEmail.value = email;
+      Get.to(() => const ResetPasswordScreen());
+      
+    } catch (e) {
+      Get.snackbar("Error", e.toString(),
+          backgroundColor: Colors.red, colorText: Colors.white);
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<void> resetPasswordDirectly(String newPassword) async {
+    try {
+      isLoading.value = true;
+      
+      // Note: Firebase Auth does not allow updating password for an arbitrary email
+      // without being logged in or using an OOB code (Email Link/OTP).
+      // The standard secure way is sendPasswordResetEmail.
+      
+      await _auth.sendPasswordResetEmail(email: resetEmail.value);
+      
+      Get.snackbar(
+        "Reset Link Sent", 
+        "For security, Firebase requires password resets via email. A link has been sent to ${resetEmail.value}",
+        backgroundColor: Colors.green, 
+        colorText: Colors.white,
+        duration: const Duration(seconds: 5)
+      );
+      
+      Future.delayed(const Duration(seconds: 2), () => Get.offAll(() => const LoginScreen()));
+      
+    } catch (e) {
+      Get.snackbar("Error", e.toString(),
+          backgroundColor: Colors.red, colorText: Colors.white);
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  // --- Auth Methods ---
+
   Future<void> register(String name, String email, String password, String role, {required String phone}) async {
     final phoneRegex = RegExp(r'^\+[0-9]{1,4}[0-9]{10}$');
-    
     if (!phoneRegex.hasMatch(phone)) {
       Get.snackbar("Invalid Phone", "Please enter country code (+) followed by 10 digits",
-          snackPosition: SnackPosition.TOP,
-          backgroundColor: Colors.red,
-          colorText: Colors.white,
-          margin: const EdgeInsets.all(15));
+          backgroundColor: Colors.red, colorText: Colors.white);
       return;
     }
 
@@ -117,16 +182,11 @@ class AuthController extends GetxController {
       await _firestore.collection('users').doc(credential.user?.uid).set(userMap);
       userData.value = userMap;
       Get.snackbar("Success", "Account created successfully",
-          snackPosition: SnackPosition.TOP,
-          backgroundColor: Colors.green,
-          colorText: Colors.white,
-          margin: const EdgeInsets.all(15));
+          backgroundColor: Colors.green, colorText: Colors.white);
+      _initialScreen(credential.user);
     } catch (e) {
       Get.snackbar("Error", e.toString(),
-          snackPosition: SnackPosition.TOP,
-          backgroundColor: Colors.red,
-          colorText: Colors.white,
-          margin: const EdgeInsets.all(15));
+          backgroundColor: Colors.red, colorText: Colors.white);
     } finally {
       isLoading.value = false;
     }
@@ -137,12 +197,10 @@ class AuthController extends GetxController {
       isLoading.value = true;
       UserCredential credential = await _auth.signInWithEmailAndPassword(email: email, password: password);
       await getUserDetails(credential.user!.uid);
+      _initialScreen(credential.user);
     } catch (e) {
       Get.snackbar("Login Failed", e.toString(),
-          snackPosition: SnackPosition.TOP,
-          backgroundColor: Colors.red,
-          colorText: Colors.white,
-          margin: const EdgeInsets.all(15));
+          backgroundColor: Colors.red, colorText: Colors.white);
     } finally {
       isLoading.value = false;
     }
@@ -177,42 +235,12 @@ class AuthController extends GetxController {
           } else {
             userData.value = doc.data() as Map<String, dynamic>;
           }
+          _initialScreen(user);
         }
       }
     } catch (e) {
       Get.snackbar("Google Sign In Failed", e.toString(),
-          snackPosition: SnackPosition.TOP,
-          backgroundColor: Colors.red,
-          colorText: Colors.white,
-          margin: const EdgeInsets.all(15));
-    } finally {
-      isLoading.value = false;
-    }
-  }
-
-  Future<void> forgotPassword(String email) async {
-    if (email.isEmpty || !GetUtils.isEmail(email)) {
-      Get.snackbar("Error", "Please enter a valid email address",
-          snackPosition: SnackPosition.TOP,
-          backgroundColor: Colors.orange,
-          colorText: Colors.white,
-          margin: const EdgeInsets.all(15));
-      return;
-    }
-    try {
-      isLoading.value = true;
-      await _auth.sendPasswordResetEmail(email: email);
-      Get.snackbar("Reset Email Sent", "Check your inbox to reset password",
-          snackPosition: SnackPosition.TOP,
-          backgroundColor: Colors.green,
-          colorText: Colors.white,
-          margin: const EdgeInsets.all(15));
-    } catch (e) {
-      Get.snackbar("Error", e.toString(),
-          snackPosition: SnackPosition.TOP,
-          backgroundColor: Colors.red,
-          colorText: Colors.white,
-          margin: const EdgeInsets.all(15));
+          backgroundColor: Colors.red, colorText: Colors.white);
     } finally {
       isLoading.value = false;
     }
