@@ -29,6 +29,7 @@ class _PaymentState extends State<Payment> {
   }
 
   Future<void> _loadData() async {
+    if (!mounted) return;
     setState(() => _isLoading = true);
     try {
       final userId = _auth.currentUser?.uid;
@@ -45,8 +46,14 @@ class _PaymentState extends State<Payment> {
 
       for (var studentDoc in studentSnapshot.docs) {
         final data = studentDoc.data();
-        final profile = data['profile'] as Map<String, dynamic>? ?? {};
-        names[studentDoc.id] = profile['name'] ?? 'Unknown';
+        // Updated to handle both nested 'profile' and flat structure
+        String name = 'Unknown';
+        if (data.containsKey('profile')) {
+          name = data['profile']['name'] ?? 'Unknown';
+        } else {
+          name = data['name'] ?? 'Unknown';
+        }
+        names[studentDoc.id] = name;
 
         // Fetch payments for each student
         final paymentSnapshot = await studentDoc.reference.collection('payments').get();
@@ -66,13 +73,16 @@ class _PaymentState extends State<Payment> {
         });
       }
     } catch (e) {
-      print("Error loading data: $e");
+      debugPrint("Error loading data: $e");
       if (mounted) setState(() => _isLoading = false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     double todayTotal = 0;
     DateTime now = DateTime.now();
     todayTotal = _allPayments
@@ -85,67 +95,92 @@ class _PaymentState extends State<Payment> {
         .fold(0.0, (sum, p) => sum + p.amount);
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: theme.appBarTheme.backgroundColor,
         elevation: 0,
+        centerTitle: false,
         title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               "Payments",
-              style: TextStyle(
-                color: Colors.black,
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
-              ),
+              style: theme.appBarTheme.titleTextStyle,
             ),
             Text(
-              "₹${todayTotal.toStringAsFixed(2)} collected today",
-              style: const TextStyle(color: Colors.grey, fontSize: 13),
+              "₹${todayTotal.toStringAsFixed(0)} collected today",
+              style: TextStyle(
+                color: isDark ? Colors.white60 : Colors.grey.shade400,
+                fontSize: 13
+              ),
             ),
           ],
         ),
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? Center(child: CircularProgressIndicator(color: theme.primaryColor))
           : _allPayments.isEmpty
-              ? const Center(child: Text("No payments recorded yet."))
-              : ListView.builder(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: _allPayments.length,
-                  itemBuilder: (context, index) {
-                    final payment = _allPayments[index];
-                    final studentName = _studentNames[payment.studentId] ?? "Unknown";
-                    
-                    return Card(
-                      margin: const EdgeInsets.only(bottom: 12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.payment_rounded, size: 64, color: isDark ? Colors.white24 : Colors.grey.shade300),
+                      const SizedBox(height: 16),
+                      Text(
+                        "No payments recorded yet.",
+                        style: TextStyle(color: isDark ? Colors.white38 : Colors.grey),
                       ),
-                      child: ListTile(
-                        leading: const CircleAvatar(
-                          backgroundColor: Color(0xFFE8EAF6),
-                          child: Icon(Icons.person, color: Color(0xff6A5AE0)),
+                    ],
+                  ),
+                )
+              : RefreshIndicator(
+                  onRefresh: _loadData,
+                  child: ListView.builder(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    itemCount: _allPayments.length,
+                    itemBuilder: (context, index) {
+                      final payment = _allPayments[index];
+                      final studentName = _studentNames[payment.studentId] ?? "Unknown";
+                      
+                      return Card(
+                        margin: const EdgeInsets.only(bottom: 12),
+                        color: theme.cardColor,
+                        elevation: 2,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
                         ),
-                        title: Text(
-                          studentName,
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        subtitle: Text(
-                          "${payment.month} • ${DateFormat('dd MMM yyyy').format(payment.date)}",
-                        ),
-                        trailing: Text(
-                          "₹${payment.amount.toStringAsFixed(2)}",
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.green,
-                            fontSize: 16,
+                        child: ListTile(
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          leading: CircleAvatar(
+                            radius: 22,
+                            backgroundColor: theme.primaryColor.withOpacity(0.1),
+                            child: Icon(Icons.person, color: theme.primaryColor),
+                          ),
+                          title: Text(
+                            studentName,
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: theme.colorScheme.onSurface,
+                            ),
+                          ),
+                          subtitle: Padding(
+                            padding: const EdgeInsets.only(top: 4),
+                            child: Text(
+                              "${payment.month} • ${DateFormat('dd MMM yyyy').format(payment.date)}",
+                              style: TextStyle(color: isDark ? Colors.white60 : Colors.black54),
+                            ),
+                          ),
+                          trailing: Text(
+                            "₹${payment.amount.toStringAsFixed(0)}",
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w900,
+                              color: Colors.green,
+                              fontSize: 18,
+                            ),
                           ),
                         ),
-                      ),
-                    );
-                  },
+                      );
+                    },
+                  ),
                 ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
@@ -154,9 +189,10 @@ class _PaymentState extends State<Payment> {
             _loadData();
           }
         },
-        backgroundColor: Colors.deepPurple,
+        backgroundColor: theme.primaryColor,
+        foregroundColor: Colors.white,
         shape: const CircleBorder(),
-        child: const Icon(Icons.add, color: Colors.white, size: 28),
+        child: const Icon(Icons.add, size: 28),
       ),
     );
   }

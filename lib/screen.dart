@@ -23,7 +23,7 @@ class _MainscreenState extends State<Mainscreen> {
       selectedIndex = index;
     });
     
-    // Refresh Home data if Home tab is selected
+
     if (index == 0) {
       try {
         if (Get.isRegistered<HomeController>()) {
@@ -39,7 +39,7 @@ class _MainscreenState extends State<Mainscreen> {
   Widget build(BuildContext context) {
     final List<Widget> pages = [
       HomePage(
-        onNavigateToStudent: () => onItemTapped(1),
+        onNavigateToAddStudents: () => onItemTapped(1),
         onNavigateToAttendance: () => onItemTapped(2),
         onNavigateToPayments: () => onItemTapped(3),
         onNavigateToDues: () => onItemTapped(4),
@@ -50,30 +50,44 @@ class _MainscreenState extends State<Mainscreen> {
       const Dues(),
     ];
 
+    // Access current theme colors
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Scaffold(
       body: pages[selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: selectedIndex,
-        selectedItemColor: Colors.deepPurple,
-        unselectedItemColor: Colors.black87,
+        selectedItemColor: theme.primaryColor,
+        unselectedItemColor: isDark ? Colors.white70 : Colors.black54,
+        backgroundColor: theme.bottomNavigationBarTheme.backgroundColor ?? theme.cardColor,
         type: BottomNavigationBarType.fixed,
         onTap: onItemTapped,
+        elevation: 10,
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.home_outlined),
+            activeIcon: Icon(Icons.home_rounded),
             label: "Home",
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.people_alt_outlined),
+            activeIcon: Icon(Icons.people_alt_rounded),
             label: "Student",
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.calendar_today_outlined),
+            activeIcon: Icon(Icons.calendar_today_rounded),
             label: "Attendance",
           ),
-          BottomNavigationBarItem(icon: Icon(Icons.payment), label: "Payment"),
           BottomNavigationBarItem(
-            icon: Icon(Icons.error_outline),
+            icon: Icon(Icons.payment_outlined), 
+            activeIcon: Icon(Icons.payment_rounded),
+            label: "Payment",
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.error_outline_rounded),
+            activeIcon: Icon(Icons.error_rounded),
             label: "Dues",
           ),
         ],

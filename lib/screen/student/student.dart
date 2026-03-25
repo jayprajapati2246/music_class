@@ -17,68 +17,71 @@ class _StudentState extends State<Student> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Scaffold(
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-          backgroundColor: Colors.white,
-          elevation: 0,
-          title: Obx(() => Column(
-                children: [
-                  const Text(
-                    "Students",
-                    style: TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18),
-                  ),
-                  const SizedBox(
-                    height: 2,
-                  ),
-                  Text("${showController.students.length} enrolled",
-                      style: const TextStyle(color: Colors.grey, fontSize: 15)),
-                ],
-              ))),
+        backgroundColor: theme.appBarTheme.backgroundColor,
+        elevation: 0,
+        centerTitle: false,
+        title: Obx(() => Column(
+          children: [
+            Text(
+              "Students",
+              style: theme.appBarTheme.titleTextStyle,
+            ),
+            const SizedBox(height: 2),
+            Text(
+              "${showController.students.length} enrolled",
+              style: TextStyle(
+                color: isDark ? Colors.white70: Colors.grey.shade400,
+                fontSize: 13
+              ),
+            ),
+          ],
+        )),
+      ),
       body: RefreshIndicator(
         onRefresh: () async {
           await showController.fetchStudents();
         },
         child: Column(
           children: [
+            // Search Bar
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               child: TextField(
                 onChanged: (value) => showController.searchStudents(value),
+                style: TextStyle(color: theme.colorScheme.onSurface),
                 decoration: InputDecoration(
                   hintText: "Search students...",
-                  prefixIcon: const Padding(
-                    padding: EdgeInsets.only(left: 16, right: 8),
-                    child: Icon(Icons.search, color: Colors.grey),
-                  ),
-                  prefixIconConstraints: const BoxConstraints(
-                    minWidth: 0,
-                    minHeight: 0,
-                  ),
+                  hintStyle: TextStyle(color: isDark ? Colors.white38 : Colors.grey),
+                  prefixIcon: Icon(Icons.search, color: isDark ? Colors.white38 : Colors.grey),
+                  filled: true,
+                  fillColor: theme.cardColor,
                   contentPadding: const EdgeInsets.symmetric(vertical: 14),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(32),
+                    borderSide: BorderSide.none,
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(32),
-                    borderSide: const BorderSide(color: Colors.black12),
+                    borderSide: BorderSide(color: isDark ? Colors.white12 : Colors.black12),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(32),
-                    borderSide: const BorderSide(
-                      color: Colors.deepPurple,
-                      width: 2.5,
-                    ),
+                    borderSide: BorderSide(color: theme.primaryColor, width: 2),
                   ),
                 ),
               ),
             ),
+            
             Expanded(
               child: Obx(() {
                 if (showController.isLoading.value) {
-                  return const Center(child: CircularProgressIndicator());
+                  return Center(child: CircularProgressIndicator(color: theme.primaryColor));
                 }
 
                 if (showController.students.isEmpty) {
@@ -94,30 +97,34 @@ class _StudentState extends State<Student> {
                               width: 80,
                               height: 80,
                               decoration: BoxDecoration(
-                                color: Colors.grey.shade200,
+                                color: isDark ? Colors.white.withOpacity(0.05) : Colors.grey.shade200,
                                 shape: BoxShape.circle,
                               ),
-                              child: const Icon(
+                              child: Icon(
                                 Icons.group_outlined,
                                 size: 36,
-                                color: Colors.grey,
+                                color: isDark ? Colors.white38 : Colors.grey,
                               ),
                             ),
                             const SizedBox(height: 20),
-                            const Text(
+                            Text(
                               "No Students Yet",
                               style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
+                                color: theme.colorScheme.onSurface,
                               ),
                             ),
                             const SizedBox(height: 8),
-                            const Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 32),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 32),
                               child: Text(
                                 "Add your first student to get started with managing your music classes",
                                 textAlign: TextAlign.center,
-                                style: TextStyle(color: Colors.grey, fontSize: 14),
+                                style: TextStyle(
+                                  color: isDark ? Colors.white60 : Colors.grey, 
+                                  fontSize: 14
+                                ),
                               ),
                             ),
                             const SizedBox(height: 20),
@@ -127,7 +134,8 @@ class _StudentState extends State<Student> {
                                 showController.fetchStudents();
                               },
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.deepPurple,
+                                backgroundColor: theme.primaryColor,
+                                foregroundColor: Colors.white,
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 28,
                                   vertical: 12,
@@ -139,9 +147,8 @@ class _StudentState extends State<Student> {
                               child: const Text(
                                 "Add Student",
                                 style: TextStyle(
-                                  color: Colors.white,
                                   fontSize: 14,
-                                  fontWeight: FontWeight.w600,
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
                             ),
@@ -155,10 +162,10 @@ class _StudentState extends State<Student> {
                 return ListView.builder(
                   physics: const AlwaysScrollableScrollPhysics(),
                   itemCount: showController.students.length,
-                  padding: const EdgeInsets.only(bottom: 80),
+                  padding: const EdgeInsets.fromLTRB(10, 0, 10, 80),
                   itemBuilder: (context, index) {
                     final StudentModel student = showController.students[index];
-                    return studentListItem(student);
+                    return studentListItem(student, theme, isDark);
                   },
                 );
               }),
@@ -171,35 +178,36 @@ class _StudentState extends State<Student> {
           await Get.to(() => const Addnstudent());
           showController.fetchStudents();
         },
-        backgroundColor: Colors.deepPurple,
+        backgroundColor: theme.primaryColor,
+        foregroundColor: Colors.white,
         shape: const CircleBorder(),
-        child: const Icon(Icons.add, color: Colors.white, size: 28),
+        child: const Icon(Icons.add, size: 28),
       ),
     );
   }
 
-  Widget studentListItem(StudentModel student) {
+  Widget studentListItem(StudentModel student, ThemeData theme, bool isDark) {
     final double dueAmount = showController.getDueAmount(student.id);
     final bool hasDue = dueAmount > 0;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      padding: const EdgeInsets.symmetric(vertical: 4),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
           borderRadius: BorderRadius.circular(16),
           onTap: () async {
             await Get.to(() => EditDetail(student: student));
-            showController.fetchStudents(); // Refresh after coming back from details
+            showController.fetchStudents();
           },
           child: Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: theme.cardColor,
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
+                  color: Colors.black.withOpacity(isDark ? 0.2 : 0.05),
                   blurRadius: 10,
                   offset: const Offset(0, 4),
                 ),
@@ -209,8 +217,8 @@ class _StudentState extends State<Student> {
               children: [
                 CircleAvatar(
                   radius: 22,
-                  backgroundColor: Colors.deepPurple.shade50,
-                  child: const Icon(Icons.person_outline, color: Colors.deepPurple),
+                  backgroundColor: theme.primaryColor.withOpacity(0.1),
+                  child: Icon(Icons.person_outline, color: theme.primaryColor),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -221,9 +229,10 @@ class _StudentState extends State<Student> {
                         student.name,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
+                          color: theme.colorScheme.onSurface,
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -232,31 +241,31 @@ class _StudentState extends State<Student> {
                         runSpacing: 4,
                         crossAxisAlignment: WrapCrossAlignment.center,
                         children: [
-                          const Icon(
+                          Icon(
                             Icons.music_note,
                             size: 14,
-                            color: Colors.grey,
+                            color: isDark ? Colors.white60 : Colors.grey,
                           ),
                           Text(
                             student.course,
-                            style: const TextStyle(
-                              color: Colors.grey,
+                            style: TextStyle(
+                              color: isDark ? Colors.white60 : Colors.grey,
                               fontSize: 13,
                             ),
                           ),
                           Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const Icon(
+                              Icon(
                                 Icons.access_time,
                                 size: 14,
-                                color: Colors.grey,
+                                color: isDark ? Colors.white60 : Colors.grey,
                               ),
                               const SizedBox(width: 4),
                               Text(
                                 student.batchTime,
-                                style: const TextStyle(
-                                  color: Colors.grey,
+                                style: TextStyle(
+                                  color: isDark ? Colors.white60 : Colors.grey,
                                   fontSize: 11,
                                 ),
                               ),
@@ -292,7 +301,11 @@ class _StudentState extends State<Student> {
                         ),
                       ),
                     ),
-                    const Icon(Icons.chevron_right, color: Colors.grey, size: 20),
+                    Icon(
+                      Icons.chevron_right, 
+                      color: isDark ? Colors.white38 : Colors.grey, 
+                      size: 20
+                    ),
                   ],
                 ),
               ],

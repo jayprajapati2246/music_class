@@ -17,7 +17,6 @@ class UserDetailsPage extends StatelessWidget {
       backgroundColor: const Color(0xffF7F8FC),
       body: Column(
         children: [
-          // ===== TOP HEADER =====
           Container(
             width: double.infinity,
             padding: const EdgeInsets.only(top: 55, bottom: 25),
@@ -48,7 +47,7 @@ class UserDetailsPage extends StatelessWidget {
                       Expanded(
                         child: Center(
                           child: Text(
-                            user['name'],
+                            user['name'] ?? 'User Details',
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 25,
@@ -57,23 +56,37 @@ class UserDetailsPage extends StatelessWidget {
                           ),
                         ),
                       ),
-                      const SizedBox(width: 40),
                     ],
                   ),
                 ),
-
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(
+                      Icons.calendar_today_rounded,
+                      color: Colors.white70,
+                      size: 18,
+                    ),
+                    const SizedBox(width: 5),
+                    Text(
+                      user['joiningDate'] ?? 'Member since 2024',
+                      style: const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
                 const SizedBox(height: 10),
-
                 CircleAvatar(
                   radius: 48,
                   backgroundColor: Colors.white,
-                  backgroundImage:
-                      user['profileImage'] != null &&
+                  backgroundImage: user['profileImage'] != null &&
                           user['profileImage'].isNotEmpty
                       ? NetworkImage(user['profileImage'])
                       : null,
-                  child:
-                      user['profileImage'] == null ||
+                  child: user['profileImage'] == null ||
                           user['profileImage'].isEmpty
                       ? const Icon(
                           Icons.person,
@@ -82,24 +95,28 @@ class UserDetailsPage extends StatelessWidget {
                         )
                       : null,
                 ),
-
                 const SizedBox(height: 12),
-
                 Text(
-                  user['email'],
-                  style: const TextStyle(color: Colors.white70, fontSize: 17, fontWeight: FontWeight.w500),
+                  user['email'] ?? '',
+                  style: const TextStyle(
+                    color: Colors.white70,
+                    fontSize: 17,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
                 const SizedBox(height: 6),
                 Text(
                   user['phone'] ?? '',
-                  style: const TextStyle(color: Colors.white70,fontSize: 17, fontWeight: FontWeight.w500),
+                  style: const TextStyle(
+                    color: Colors.white70,
+                    fontSize: 17,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ],
             ),
           ),
-
           const SizedBox(height: 15),
-
           Expanded(
             child: StreamBuilder<List<StudentModel>>(
               stream: controller.getStudentsForUser(user['uid']),
@@ -154,12 +171,11 @@ class UserDetailsPage extends StatelessWidget {
                                     style: const TextStyle(color: Colors.white),
                                   ),
                                 ),
-
                                 const SizedBox(width: 15),
-
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: .start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         student.name,
@@ -168,9 +184,7 @@ class UserDetailsPage extends StatelessWidget {
                                           fontWeight: FontWeight.bold,
                                         ),
                                       ),
-
                                       const SizedBox(height: 6),
-
                                       Column(
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
@@ -193,9 +207,7 @@ class UserDetailsPage extends StatelessWidget {
                                               ),
                                             ),
                                           ),
-
                                           const SizedBox(height: 5),
-
                                           Container(
                                             padding: const EdgeInsets.symmetric(
                                               horizontal: 10,
@@ -219,21 +231,16 @@ class UserDetailsPage extends StatelessWidget {
                                     ],
                                   ),
                                 ),
-
                                 PopupMenuButton<String>(
                                   onSelected: (value) async {
                                     if (value == "edit") {
-                                      final updated = await Get.to(
-                                        () => Addnstudent(student: student),
+                                      // Correctly pass both student and the specific user's uid
+                                      await Get.to(
+                                        () => Addnstudent(
+                                          student: student,
+                                          userId: user['uid'],
+                                        ),
                                       );
-
-                                      if (updated != null &&
-                                          updated is StudentModel) {
-                                        controller.updateStudentDetails(
-                                          user['uid'],
-                                          updated,
-                                        );
-                                      }
                                     }
 
                                     if (value == "delete") {
@@ -251,15 +258,10 @@ class UserDetailsPage extends StatelessWidget {
                                           Icon(
                                             Icons.edit,
                                             color: Colors.blue,
-                                            size: 25,
+                                            size: 20,
                                           ),
                                           SizedBox(width: 10),
-                                          Text(
-                                            "Edit",
-                                            style: TextStyle(
-                                              fontSize: 18,
-                                            ),
-                                          ),
+                                          Text("Edit"),
                                         ],
                                       ),
                                     ),
@@ -270,18 +272,12 @@ class UserDetailsPage extends StatelessWidget {
                                           Icon(
                                             Icons.delete,
                                             color: Colors.red,
-                                            size: 25,
+                                            size: 20,
                                           ),
                                           SizedBox(width: 10),
-                                          Text(
-                                            "Delete",
-                                            style: TextStyle(
-                                              fontSize: 18,
-                                            ),
-                                          ),
+                                          Text("Delete"),
                                         ],
                                       ),
-
                                     ),
                                   ],
                                 ),

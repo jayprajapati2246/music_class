@@ -8,10 +8,46 @@ class AdminController extends GetxController {
   var users = <Map<String, dynamic>>[].obs;
   var isLoadingUsers = false.obs;
 
+  var totalUsers = 0.obs;
+  var totalStudents = 0.obs;
+  var totalFees = 0.0.obs;
+
   @override
   void onInit() {
     super.onInit();
     fetchAllUsers();
+    fetchStats();
+  }
+
+  Future<void> fetchStats() async {
+    try {
+      // 1. Count Total Users
+      QuerySnapshot usersSnapshot = await _firestore.collection('users').get();
+      totalUsers.value = usersSnapshot.docs.length;
+
+      // 2. Count Total Students & Fees
+      int studentCount = 0;
+      double feesSum = 0.0;
+
+      for (var userDoc in usersSnapshot.docs) {
+        QuerySnapshot studentSnapshot = await _firestore
+            .collection('users')
+            .doc(userDoc.id)
+            .collection('students')
+            .get();
+        studentCount += studentSnapshot.docs.length;
+
+        for (var studentDoc in studentSnapshot.docs) {
+          final data = studentDoc.data() as Map<String, dynamic>;
+          feesSum += (data['totalFees'] ?? 0).toDouble();
+        }
+      }
+
+      totalStudents.value = studentCount;
+      totalFees.value = feesSum;
+    } catch (e) {
+      print("Error fetching stats: $e");
+    }
   }
 
   Future<void> fetchAllUsers() async {
@@ -57,6 +93,7 @@ class AdminController extends GetxController {
           .update(student.toMap());
 
       Get.snackbar("Success", "Student updated successfully");
+      fetchStats(); // Refresh stats
     } catch (e) {
       Get.snackbar("Error", "Update failed: $e");
     }
@@ -72,6 +109,7 @@ class AdminController extends GetxController {
           .delete();
 
       Get.snackbar("Success", "Student deleted successfully");
+      fetchStats(); // Refresh stats
     } catch (e) {
       Get.snackbar("Error", "Delete failed: $e");
     }

@@ -41,26 +41,34 @@ class _AddnstudentState extends State<Addnstudent> {
   @override
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        centerTitle: true,
-        backgroundColor: Colors.white70,
+        centerTitle: false,
+        backgroundColor: theme.appBarTheme.backgroundColor,
         elevation: 0,
+        leading: IconButton(
+          onPressed: () => Get.back(),
+          icon: Icon(Icons.arrow_back_ios, color: theme.iconTheme.color),
+        ),
         title: Column(
           children: [
             Text(
               widget.student == null ? "Add New Student" : "Edit Student",
-              style: const TextStyle(
-                fontSize: 18,
-                color: Colors.black,
-                fontWeight: FontWeight.bold,
+              style: theme.appBarTheme.titleTextStyle?.copyWith(
+                color: theme.colorScheme.onSurface
               ),
             ),
             const SizedBox(height: 2),
-            const Text(
+            Text(
               "Enter student details",
-              style: TextStyle(fontSize: 12, color: Colors.black),
+              style: TextStyle(
+                fontSize: 12, 
+                color: isDark ? Colors.white60 : Colors.black54
+              ),
             ),
           ],
         ),
@@ -70,21 +78,25 @@ class _AddnstudentState extends State<Addnstudent> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _label("Student Name"),
+            const SizedBox(height: 10),
+            _label(context, "Student Name"),
             commonTextField(
+              context: context,
               hintText: "Enter student name",
               controller: controller.nameController,
             ),
             SizedBox(height: height * 0.02),
-            _label("Phone Number"),
+            _label(context, "Phone Number"),
             commonTextField(
+              context: context,
               hintText: "Enter phone number",
               controller: controller.phoneController,
               keyboardType: TextInputType.phone,
             ),
             SizedBox(height: height * 0.02),
-            _label("Course"),
+            _label(context, "Course"),
             Obx(() => commonDropdown<String>(
+              context: context,
               hintText: "Select course",
               items: controller.courses,
               value: controller.selectedCourse,
@@ -94,8 +106,9 @@ class _AddnstudentState extends State<Addnstudent> {
               },
             )),
             SizedBox(height: height * 0.02),
-            _label("Batch Time"),
+            _label(context, "Batch Time"),
             Obx(() => commonDropdown<String>(
+              context: context,
               hintText: "Select batch time",
               items: controller.batchTime,
               value: controller.selectedBatchTime,
@@ -111,8 +124,9 @@ class _AddnstudentState extends State<Addnstudent> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _label("Batch Type"),
+                      _label(context, "Batch Type"),
                       commonDropdown<String>(
+                        context: context,
                         hintText: "Everyday",
                         items: controller.batchTypes,
                         value: controller.selectedBatchType,
@@ -129,8 +143,9 @@ class _AddnstudentState extends State<Addnstudent> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _label("Payment Type"),
+                      _label(context, "Payment Type"),
                       commonDropdown<String>(
+                        context: context,
                         hintText: "Per Class",
                         items: controller.paymentTypes,
                         value: controller.selectedPaymentType,
@@ -146,6 +161,7 @@ class _AddnstudentState extends State<Addnstudent> {
             ),
             SizedBox(height: height * 0.02),
             commonDateField(
+              context: context,
               label: "Join Date",
               dateController: controller.joinDateController,
               onDateSelected: (date) {
@@ -153,17 +169,20 @@ class _AddnstudentState extends State<Addnstudent> {
               },
             ),
             SizedBox(height: height * 0.02),
-            _label("Monthly Fee"),
+            _label(context, "Monthly Fee"),
             commonTextField(
+              context: context,
               hintText: "Enter amount",
               controller: controller.amountController,
               keyboardType: TextInputType.number,
             ),
-            SizedBox(height: height * 0.03),
+            SizedBox(height: height * 0.04),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.deepPurple,
-                minimumSize: const Size(double.infinity, 48),
+                backgroundColor: theme.primaryColor,
+                minimumSize: const Size(double.infinity, 55),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+                elevation: 4,
               ),
               onPressed: () {
                 if (widget.student == null) {
@@ -176,86 +195,106 @@ class _AddnstudentState extends State<Addnstudent> {
                 widget.student == null ? "Add Student" : "Update Student",
                 style: const TextStyle(
                   color: Colors.white,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
                 ),
               ),
             ),
-            SizedBox(height: height * 0.03),
+            SizedBox(height: height * 0.05),
           ],
         ),
       ),
     );
   }
 
-  Widget _label(String text) => Padding(
-        padding: const EdgeInsets.only(bottom: 5),
-        child: Text(
-          text,
-          style: const TextStyle(
-            fontSize: 15,
-            fontWeight: FontWeight.w500,
-          ),
+  Widget _label(BuildContext context, String text) {
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 6, left: 4),
+      child: Text(
+        text,
+        style: TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
+          color: theme.colorScheme.onSurface.withOpacity(0.8),
         ),
-      );
+      ),
+    );
+  }
 
   Widget commonTextField({
+    required BuildContext context,
     required String hintText,
     TextEditingController? controller,
     TextInputType keyboardType = TextInputType.text,
   }) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return TextField(
       controller: controller,
       keyboardType: keyboardType,
+      style: TextStyle(color: theme.colorScheme.onSurface),
       decoration: InputDecoration(
         hintText: hintText,
-        contentPadding:
-            const EdgeInsets.symmetric(vertical: 14, horizontal: 14),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(20)),
+        hintStyle: TextStyle(color: isDark ? Colors.white30 : Colors.grey),
+        filled: true,
+        fillColor: theme.cardColor,
+        contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(18),
+          borderSide: BorderSide.none,
+        ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(20),
-          borderSide: const BorderSide(color: Colors.black),
+          borderRadius: BorderRadius.circular(18),
+          borderSide: BorderSide(color: isDark ? Colors.white12 : Colors.black12),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(20),
-          borderSide:
-              const BorderSide(color: Colors.deepPurple, width: 2.5),
+          borderRadius: BorderRadius.circular(18),
+          borderSide: BorderSide(color: theme.primaryColor, width: 2),
         ),
       ),
     );
   }
 
   Widget commonDropdown<T>({
+    required BuildContext context,
     required String hintText,
     required List<T> items,
     required T? value,
     required String Function(T) itemLabel,
     required ValueChanged<T?> onChanged,
   }) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     final safeValue = items.contains(value) ? value : null;
 
     return DropdownButtonFormField<T>(
       isExpanded: true,
       value: safeValue,
       onChanged: onChanged,
+      dropdownColor: theme.cardColor,
+      style: TextStyle(color: theme.colorScheme.onSurface),
       decoration: InputDecoration(
         hintText: hintText,
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+        hintStyle: TextStyle(color: isDark ? Colors.white30 : Colors.grey),
+        filled: true,
+        fillColor: theme.cardColor,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(20),
-          borderSide: const BorderSide(color: Colors.black),
+          borderRadius: BorderRadius.circular(18),
+          borderSide: BorderSide(color: isDark ? Colors.white12 : Colors.black12),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(20),
-          borderSide:
-              const BorderSide(color: Colors.deepPurple, width: 2.5),
+          borderRadius: BorderRadius.circular(18),
+          borderSide: BorderSide(color: theme.primaryColor, width: 2),
         ),
       ),
       items: items
           .map(
             (item) => DropdownMenuItem<T>(
           value: item,
-          child: Text(itemLabel(item)),
+          child: Text(itemLabel(item), style: TextStyle(color: theme.colorScheme.onSurface)),
         ),
       )
           .toList(),
@@ -263,15 +302,19 @@ class _AddnstudentState extends State<Addnstudent> {
   }
 
   Widget commonDateField({
+    required BuildContext context,
     required String label,
     required TextEditingController dateController,
     required Function(DateTime) onDateSelected,
   }) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _label(label),
-        const SizedBox(height: 6),
+        _label(context, label),
+        const SizedBox(height: 2),
         GestureDetector(
           onTap: () async {
             final picked = await showDatePicker(
@@ -279,6 +322,20 @@ class _AddnstudentState extends State<Addnstudent> {
               initialDate: controller.joinDate ?? DateTime.now(),
               firstDate: DateTime(2000),
               lastDate: DateTime(2100),
+              builder: (context, child) {
+                return Theme(
+                  data: isDark ? ThemeData.dark().copyWith(
+                    colorScheme: ColorScheme.dark(
+                      primary: theme.primaryColor,
+                      onPrimary: Colors.white,
+                      surface: theme.cardColor,
+                      onSurface: Colors.white,
+                    ),
+                    dialogBackgroundColor: theme.cardColor,
+                  ) : theme,
+                  child: child!,
+                );
+              },
             );
 
             if (picked != null) {
@@ -293,37 +350,34 @@ class _AddnstudentState extends State<Addnstudent> {
             child: TextField(
               controller: dateController,
               readOnly: true,
+              style: TextStyle(color: theme.colorScheme.onSurface),
               decoration: InputDecoration(
                 hintText: "Select date",
+                hintStyle: TextStyle(color: isDark ? Colors.white30 : Colors.grey),
+                filled: true,
+                fillColor: theme.cardColor,
                 contentPadding: const EdgeInsets.symmetric(
                   horizontal: 16,
-                  vertical: 14,
+                  vertical: 16,
                 ),
-                suffixIcon: const Padding(
-                  padding: EdgeInsets.only(right: 14),
+                suffixIcon: Padding(
+                  padding: const EdgeInsets.only(right: 14),
                   child: Icon(
                     Icons.calendar_today_outlined,
                     size: 20,
-                    color: Colors.grey,
+                    color: isDark ? Colors.white38 : Colors.grey,
                   ),
-                ),
-                suffixIconConstraints: const BoxConstraints(
-                  minWidth: 48,
-                  minHeight: 48,
                 ),
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(18),
                 ),
                 enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(20),
-                  borderSide: const BorderSide(color: Colors.black12),
+                  borderRadius: BorderRadius.circular(18),
+                  borderSide: BorderSide(color: isDark ? Colors.white12 : Colors.black12),
                 ),
                 focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(20),
-                  borderSide: const BorderSide(
-                    color: Colors.deepPurple,
-                    width: 2,
-                  ),
+                  borderRadius: BorderRadius.circular(18),
+                  borderSide: BorderSide(color: theme.primaryColor, width: 2),
                 ),
               ),
             ),

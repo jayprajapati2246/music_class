@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../Servisses/student.dart';
@@ -7,6 +8,7 @@ import '../../model/Student.dart';
 class Addstudentcontroller extends GetxController {
   final AddStudentService _service = AddStudentService();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   String? targetUserId; 
 
@@ -15,23 +17,10 @@ class Addstudentcontroller extends GetxController {
   String? selectedPaymentType;
   String? selectedBatchTime;
 
-  var courses = <String>['Guitar', 'Piano', 'Drums', 'Violin'].obs;
+  var courses = <String>[].obs;
   final List<String> batchTypes = ['Everyday', 'Alternate Days'];
   final List<String> paymentTypes = ['Per Class', 'Monthly'];
-  var batchTime = <String>[
-    '7:00 AM - 8:00 AM',
-    '8:00 AM - 9:00 AM',
-    '9:00 AM - 10:00 AM',
-    '10:00 AM - 11:00 AM',
-    '11:00 AM - 12:00 PM',
-    '12:00 PM - 1:00 PM',
-    '1:00 PM - 2:00 PM',
-    '2:00 PM - 3:00 PM',
-    '3:00 PM - 4:00 PM',
-    '4:00 PM - 5:00 PM',
-    '5:00 PM - 6:00 PM',
-    '6:00 PM - 7:00 PM',
-  ].obs;
+  var batchTime = <String>[].obs;
 
   DateTime? joinDate;
   DateTime? get initialDate => joinDate;
@@ -44,23 +33,69 @@ class Addstudentcontroller extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    fetchDynamicSettings();
+    fetchUserServices();
   }
 
-  Future<void> fetchDynamicSettings() async {
+  Future<void> fetchUserServices() async {
     try {
-      DocumentSnapshot doc = await _firestore.collection('settings').doc('app_settings').get();
+      String uid = targetUserId ?? _auth.currentUser!.uid;
+      DocumentSnapshot doc = await _firestore.collection('users').doc(uid).get();
+
       if (doc.exists) {
         Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-        if (data['courses'] != null) {
-          courses.value = List<String>.from(data['courses']);
-        }
-        if (data['batchTimes'] != null) {
-          batchTime.value = List<String>.from(data['batchTimes']);
+        if (data['services'] != null) {
+          Map<String, dynamic> services = data['services'];
+          
+          List<String> userCourses = List<String>.from(services['courses'] ?? []);
+          List<String> userBatches = List<String>.from(services['batchTimes'] ?? []);
+
+          if (userCourses.isNotEmpty) {
+            courses.value = userCourses;
+          } else {
+            // Default courses if user hasn't added any
+            courses.value = ['Guitar', 'Piano', 'Drums', 'Violin'];
+          }
+
+          if (userBatches.isNotEmpty) {
+            batchTime.value = userBatches;
+          } else {
+            // Default batch times
+            batchTime.value = [
+              '7:00 AM - 8:00 AM',
+              '8:00 AM - 9:00 AM',
+              '9:00 AM - 10:00 AM',
+              '10:00 AM - 11:00 AM',
+              '11:00 AM - 12:00 PM',
+              '12:00 PM - 1:00 PM',
+              '1:00 PM - 2:00 PM',
+              '2:00 PM - 3:00 PM',
+              '3:00 PM - 4:00 PM',
+              '4:00 PM - 5:00 PM',
+              '5:00 PM - 6:00 PM',
+              '6:00 PM - 7:00 PM',
+            ];
+          }
+        } else {
+           // No services field at all, use defaults
+           courses.value = ['Guitar', 'Piano', 'Drums', 'Violin'];
+           batchTime.value = [
+              '7:00 AM - 8:00 AM',
+              '8:00 AM - 9:00 AM',
+              '9:00 AM - 10:00 AM',
+              '10:00 AM - 11:00 AM',
+              '11:00 AM - 12:00 PM',
+              '12:00 PM - 1:00 PM',
+              '1:00 PM - 2:00 PM',
+              '2:00 PM - 3:00 PM',
+              '3:00 PM - 4:00 PM',
+              '4:00 PM - 5:00 PM',
+              '5:00 PM - 6:00 PM',
+              '6:00 PM - 7:00 PM',
+            ];
         }
       }
     } catch (e) {
-      debugPrint("Error fetching dynamic settings: $e");
+      debugPrint("Error fetching user services: $e");
     }
   }
 

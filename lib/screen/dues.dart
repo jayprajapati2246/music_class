@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:get/get_core/src/get_main.dart';
-import 'package:get/get_instance/src/extension_instance.dart';
-import 'package:get/get_navigation/src/extension_navigation.dart';
-import 'package:get/get_state_manager/src/simple/get_state.dart';
+import 'package:get/get.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:music_class/Logic/ads/banner_ads.dart';
 import 'package:music_class/screen/student/edit.dart';
@@ -36,10 +33,10 @@ class _DuesState extends State<Dues> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       bannerAds.loadAd(MediaQuery.of(context).size.width);
     });
-
   }
 
   Future<void> _fetchDues() async {
+    if (!mounted) return;
     setState(() => _isLoading = true);
 
     final duesList = await _dueController.calculateDues();
@@ -48,96 +45,102 @@ class _DuesState extends State<Dues> {
       total += item['dueAmount'];
     }
 
-    setState(() {
-      _dues = duesList;
-      _totalDues = total;
-      _isLoading = false;
-    });
+    if (mounted) {
+      setState(() {
+        _dues = duesList;
+        _totalDues = total;
+        _isLoading = false;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: const Color(0xfff5f6fa),
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: theme.appBarTheme.backgroundColor,
         elevation: 0,
         centerTitle: false,
-        titleSpacing: 16,
         title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               "Due Payments",
-              style: TextStyle(
-                color: Colors.black,
-                fontWeight: FontWeight.bold,
-                fontSize: 20,
-              ),
+              style: theme.appBarTheme.titleTextStyle,
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: 2),
             Text(
               "₹${_totalDues.toStringAsFixed(0)} total pending",
-              style: const TextStyle(color: Colors.grey, fontSize: 14),
+              style: TextStyle(
+                color: isDark ? Colors.white60 : Colors.grey.shade400,
+                fontSize: 13
+              ),
             ),
           ],
         ),
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? Center(child: CircularProgressIndicator(color: theme.primaryColor))
           : RefreshIndicator(
               onRefresh: _fetchDues,
               child: ListView(
                 padding: const EdgeInsets.all(16),
                 children: [
-
+                  // Summary Banner
                   Container(
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      color: const Color(0xffffebee),
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: Colors.red.shade200),
+                      color: isDark ? Colors.red.withOpacity(0.1) : const Color(0xffffebee),
+                      borderRadius: BorderRadius.circular(18),
+                      border: Border.all(color: Colors.red.withOpacity(0.3)),
                     ),
                     child: Row(
                       children: [
                         Container(
-                          height: 45,
-                          width: 45,
+                          height: 50,
+                          width: 50,
                           decoration: BoxDecoration(
-                            color: Colors.red.shade100,
+                            color: Colors.red.withOpacity(0.2),
                             shape: BoxShape.circle,
                           ),
                           child: const Icon(
-                            Icons.error_outline,
+                            Icons.warning_amber_rounded,
                             color: Colors.red,
+                            size: 28,
                           ),
                         ),
-                        const SizedBox(width: 14),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "₹${_totalDues.toStringAsFixed(0)}",
-                              style: const TextStyle(
-                                color: Colors.red,
-                                fontSize: 22,
-                                fontWeight: FontWeight.bold,
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "₹${_totalDues.toStringAsFixed(0)}",
+                                style: const TextStyle(
+                                  color: Colors.red,
+                                  fontSize: 26,
+                                  fontWeight: FontWeight.w900,
+                                ),
                               ),
-                            ),
-                            Text(
-                              "from ${_dues.length} students",
-                              style: const TextStyle(
-                                color: Colors.black54,
-                                fontSize: 13,
+                              Text(
+                                "Pending from ${_dues.length} students",
+                                style: TextStyle(
+                                  color: isDark ? Colors.white70 : Colors.black87,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ],
                     ),
                   ),
 
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 24),
 
                   ..._dues.map((item) {
                     final StudentModel student = item['student'];
@@ -145,16 +148,13 @@ class _DuesState extends State<Dues> {
 
                     return Container(
                       margin: const EdgeInsets.only(bottom: 14),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 14,
-                        vertical: 14,
-                      ),
+                      padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(14),
+                        color: theme.cardColor,
+                        borderRadius: BorderRadius.circular(18),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.grey.withOpacity(0.08),
+                            color: Colors.black.withOpacity(isDark ? 0.2 : 0.05),
                             blurRadius: 10,
                             offset: const Offset(0, 4),
                           ),
@@ -162,65 +162,47 @@ class _DuesState extends State<Dues> {
                       ),
                       child: Row(
                         children: [
-
-                          Container(
-                            height: 45,
-                            width: 45,
-                            decoration: BoxDecoration(
-                              color: Colors.red.shade50,
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(
-                              Icons.person_outline,
-                              color: Colors.red,
-                            ),
+                          CircleAvatar(
+                            radius: 25,
+                            backgroundColor: Colors.red.withOpacity(0.1),
+                            child: const Icon(Icons.person, color: Colors.red),
                           ),
-                          const SizedBox(width: 12),
-
+                          const SizedBox(width: 14),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
                                   student.name,
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 16,
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 17,
+                                    color: theme.colorScheme.onSurface,
                                   ),
                                 ),
-                                const SizedBox(height: 2),
-
+                                const SizedBox(height: 4),
                                 Row(
                                   children: [
-                                    const Icon(
-                                      Icons.music_note,
-                                      size: 14,
-                                      color: Colors.grey,
-                                    ),
-
+                                    Icon(Icons.music_note, size: 14, color: isDark ? Colors.white38 : Colors.grey),
+                                    const SizedBox(width: 4),
                                     Text(
                                       student.course,
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         fontSize: 13,
-                                        color: Colors.grey,
+                                        color: isDark ? Colors.white60 : Colors.grey.shade600,
                                       ),
                                     ),
                                   ],
                                 ),
-
                                 Row(
                                   children: [
-                                    const Icon(
-                                      Icons.access_time,
-                                      size: 12,
-                                      color: Colors.grey,
-                                    ),
-
+                                    Icon(Icons.access_time, size: 14, color: isDark ? Colors.white38 : Colors.grey),
+                                    const SizedBox(width: 4),
                                     Text(
                                       student.batchTime,
-                                      style: const TextStyle(
-                                        fontSize: 11,
-                                        color: Colors.grey,
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: isDark ? Colors.white60 : Colors.grey.shade600,
                                       ),
                                     ),
                                   ],
@@ -228,45 +210,38 @@ class _DuesState extends State<Dues> {
                               ],
                             ),
                           ),
-
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
                               Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 10,
-                                  vertical: 4,
-                                ),
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                                 decoration: BoxDecoration(
-                                  color: Colors.red.shade50,
-                                  borderRadius: BorderRadius.circular(20),
+                                  color: Colors.red.withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(12),
                                 ),
                                 child: Text(
-                                  "₹${dueAmount.toStringAsFixed(0)} due",
+                                  "₹${dueAmount.toStringAsFixed(0)}",
                                   style: const TextStyle(
                                     color: Colors.red,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w600,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w900,
                                   ),
                                 ),
                               ),
-                              const SizedBox(height: 6),
-                             IconButton(onPressed: ()
-                             {
-                                  Get.to(() => EditDetail(student: student));
-                             },
-                               icon:Icon(
-                               Icons.chevron_right,
-                               color: Colors.grey,
-                             ),
-                             ),
+                              const SizedBox(height: 4),
+                              IconButton(
+                                onPressed: () => Get.to(() => EditDetail(student: student)),
+                                icon: Icon(
+                                  Icons.chevron_right_rounded,
+                                  color: isDark ? Colors.white38 : Colors.grey,
+                                ),
+                              ),
                             ],
                           ),
                         ],
                       ),
                     );
                   }).toList(),
-
                 ],
               ),
             ),
@@ -277,7 +252,7 @@ class _DuesState extends State<Dues> {
           }
 
           return Container(
-            color: Colors.white,
+            color: theme.cardColor,
             width: controller.bannerAd!.size.width.toDouble(),
             height: controller.bannerAd!.size.height.toDouble(),
             child: AdWidget(ad: controller.bannerAd!),

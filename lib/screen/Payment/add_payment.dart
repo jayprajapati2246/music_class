@@ -49,7 +49,7 @@ class _AddPaymentPageState extends State<AddPaymentPage> {
         _isLoadingStudents = false;
       });
     } catch (e) {
-      print("Error loading students: $e");
+      debugPrint("Error loading students: $e");
       setState(() {
         _isLoadingStudents = false;
       });
@@ -68,22 +68,30 @@ class _AddPaymentPageState extends State<AddPaymentPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: const Color(0xfff5f5f7),
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: theme.appBarTheme.backgroundColor,
         elevation: 0,
-        title: const Text(
-          "Add Payments",
-          style: TextStyle(
-            color: Colors.black,
-            fontWeight: FontWeight.bold,
+        centerTitle: false,
+        leading: IconButton(
+          onPressed: () => Get.back(),
+          icon: Icon(Icons.arrow_back_ios, color: theme.iconTheme.color),
+        ),
+        title: Text(
+          "Add Payment",
+          style: theme.appBarTheme.titleTextStyle?.copyWith(
+            color: theme.colorScheme.onSurface,
             fontSize: 18,
+            fontWeight: FontWeight.bold,
           ),
         ),
       ),
       body: _isLoadingStudents 
-          ? const Center(child: CircularProgressIndicator())
+          ? Center(child: CircularProgressIndicator(color: theme.primaryColor))
           : SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(20),
@@ -91,29 +99,27 @@ class _AddPaymentPageState extends State<AddPaymentPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               /// SELECT STUDENT
-              const Text(
-                "Select Student",
-                style: TextStyle(fontWeight: FontWeight.w500),
-              ),
+              _label(context, "Select Student"),
               const SizedBox(height: 8),
 
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 14),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: Colors.deepPurple.withOpacity(0.5)),
-                  color: Colors.white,
+                  border: Border.all(color: theme.primaryColor.withOpacity(0.3)),
+                  color: theme.cardColor,
                 ),
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<StudentModel>(
                     value: selectedStudent,
                     isExpanded: true,
-                    hint: const Text("Choose a student"),
-                    icon: const Icon(Icons.keyboard_arrow_down),
+                    hint: Text("Choose a student", style: TextStyle(color: isDark ? Colors.white38 : Colors.grey)),
+                    icon: Icon(Icons.keyboard_arrow_down, color: theme.primaryColor),
+                    dropdownColor: theme.cardColor,
                     items: _students.map((student) {
                       return DropdownMenuItem(
                         value: student,
-                        child: Text(student.name),
+                        child: Text(student.name, style: TextStyle(color: theme.colorScheme.onSurface)),
                       );
                     }).toList(),
                     onChanged: (value) {
@@ -131,24 +137,26 @@ class _AddPaymentPageState extends State<AddPaymentPage> {
               const SizedBox(height: 20),
 
               /// FOR MONTH
-              const Text(
-                "For Month",
-                style: TextStyle(fontWeight: FontWeight.w500),
-              ),
+              _label(context, "For Month"),
               const SizedBox(height: 8),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 14),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: Colors.deepPurple.withOpacity(0.5)),
-                  color: Colors.white,
+                  border: Border.all(color: theme.primaryColor.withOpacity(0.3)),
+                  color: theme.cardColor,
                 ),
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<String>(
                     value: selectedMonth,
                     isExpanded: true,
+                    dropdownColor: theme.cardColor,
+                    icon: Icon(Icons.calendar_month, color: theme.primaryColor),
                     items: _getMonthsList().map((month) {
-                      return DropdownMenuItem(value: month, child: Text(month));
+                      return DropdownMenuItem(
+                        value: month, 
+                        child: Text(month, style: TextStyle(color: theme.colorScheme.onSurface))
+                      );
                     }).toList(),
                     onChanged: (val) {
                       if (val != null) setState(() => selectedMonth = val);
@@ -160,26 +168,29 @@ class _AddPaymentPageState extends State<AddPaymentPage> {
               const SizedBox(height: 20),
 
               /// AMOUNT
-              const Text(
-                "Amount",
-                style: TextStyle(fontWeight: FontWeight.w500),
-              ),
+              _label(context, "Amount"),
               const SizedBox(height: 8),
 
               TextField(
                 controller: amountController,
                 keyboardType: TextInputType.number,
+                style: TextStyle(color: theme.colorScheme.onSurface),
                 decoration: InputDecoration(
                   hintText: "Enter amount",
+                  hintStyle: TextStyle(color: isDark ? Colors.white30 : Colors.grey),
                   filled: true,
-                  fillColor: Colors.white,
+                  fillColor: theme.cardColor,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(14),
-                    borderSide: BorderSide(color: Colors.deepPurple.withOpacity(0.5)),
+                    borderSide: BorderSide(color: theme.primaryColor.withOpacity(0.3)),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(14),
-                    borderSide: BorderSide(color: Colors.deepPurple.withOpacity(0.5)),
+                    borderSide: BorderSide(color: theme.primaryColor.withOpacity(0.3)),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    borderSide: BorderSide(color: theme.primaryColor, width: 2),
                   ),
                 ),
               ),
@@ -187,25 +198,28 @@ class _AddPaymentPageState extends State<AddPaymentPage> {
               const SizedBox(height: 20),
 
               /// NOTE
-              const Text(
-                "Note (optional)",
-                style: TextStyle(fontWeight: FontWeight.w500),
-              ),
+              _label(context, "Note (optional)"),
               const SizedBox(height: 8),
 
               TextField(
                 controller: noteController,
+                style: TextStyle(color: theme.colorScheme.onSurface),
                 decoration: InputDecoration(
                   hintText: "e.g., Monthly fee for January",
+                  hintStyle: TextStyle(color: isDark ? Colors.white30 : Colors.grey),
                   filled: true,
-                  fillColor: Colors.white,
+                  fillColor: theme.cardColor,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(14),
-                    borderSide: BorderSide(color: Colors.deepPurple.withOpacity(0.5)),
+                    borderSide: BorderSide(color: theme.primaryColor.withOpacity(0.3)),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(14),
-                    borderSide: BorderSide(color: Colors.deepPurple.withOpacity(0.5)),
+                    borderSide: BorderSide(color: theme.primaryColor.withOpacity(0.3)),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    borderSide: BorderSide(color: theme.primaryColor, width: 2),
                   ),
                 ),
               ),
@@ -215,7 +229,7 @@ class _AddPaymentPageState extends State<AddPaymentPage> {
               /// BUTTON
               SizedBox(
                 width: double.infinity,
-                height: 50,
+                height: 55,
                 child: ElevatedButton(
                   onPressed: () async {
                     if (selectedStudent == null) {
@@ -249,13 +263,14 @@ class _AddPaymentPageState extends State<AddPaymentPage> {
                       borderRadius: BorderRadius.circular(14),
                     ),
                     padding: EdgeInsets.zero,
-                    elevation: 0,
+                    elevation: 4,
                     backgroundColor: Colors.transparent,
+                    shadowColor: theme.primaryColor.withOpacity(0.3),
                   ),
                   child: Ink(
                     decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [Color(0xff6A5AE0), Color(0xff8E54E9)],
+                      gradient: LinearGradient(
+                        colors: [theme.primaryColor, theme.primaryColor.withOpacity(0.8)],
                       ),
                       borderRadius: BorderRadius.circular(14),
                     ),
@@ -265,7 +280,7 @@ class _AddPaymentPageState extends State<AddPaymentPage> {
                         style: TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
-                          fontSize: 15,
+                          fontSize: 16,
                         ),
                       ),
                     ),
@@ -275,6 +290,16 @@ class _AddPaymentPageState extends State<AddPaymentPage> {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _label(BuildContext context, String text) {
+    return Text(
+      text,
+      style: TextStyle(
+        fontWeight: FontWeight.w600,
+        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
       ),
     );
   }

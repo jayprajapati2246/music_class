@@ -6,18 +6,17 @@ import 'package:music_class/screen/user%20profile.dart';
 import '../Logic/controller/user/auth_controller.dart';
 import '../Logic/controller/user/home_controller.dart';
 
-
 class HomePage extends StatefulWidget {
   final VoidCallback onNavigateToPayments;
   final VoidCallback onNavigateToDues;
-  final VoidCallback onNavigateToStudent;
+  final VoidCallback onNavigateToAddStudents;
   final VoidCallback onNavigateToAttendance;
 
   const HomePage({
     super.key,
     required this.onNavigateToPayments,
     required this.onNavigateToDues,
-    required this.onNavigateToStudent,
+    required this.onNavigateToAddStudents,
     required this.onNavigateToAttendance,
   });
 
@@ -36,8 +35,11 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: const Color(0xfff5f5f7),
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: RefreshIndicator(
         onRefresh: () async {
           await controller.refreshData();
@@ -48,13 +50,15 @@ class _HomePageState extends State<HomePage> {
             children: [
               Container(
                 padding: const EdgeInsets.fromLTRB(20, 50, 20, 30),
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [Color(0xff6A5AE0), Color(0xff8E54E9)],
+                    colors: isDark 
+                      ? [const Color(0xff1E1E1E), const Color(0xff2C2C2C)]
+                      : [const Color(0xff6A5AE0), const Color(0xff8E54E9)],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
-                  borderRadius: BorderRadius.only(
+                  borderRadius: const BorderRadius.only(
                     bottomLeft: Radius.circular(30),
                     bottomRight: Radius.circular(30),
                   ),
@@ -125,7 +129,8 @@ class _HomePageState extends State<HomePage> {
                               controller.totalStudents.toString(),
                               "Total Students",
                               Icons.people,
-                              onTap: widget.onNavigateToStudent,
+                              context,
+                              onTap: widget.onNavigateToAddStudents,
                             ),
                           ),
                           const SizedBox(width: 12),
@@ -134,6 +139,7 @@ class _HomePageState extends State<HomePage> {
                               "${controller.todaysPresent}/${controller.totalStudents}",
                               "Today's Attendance",
                               Icons.calendar_today,
+                              context,
                               onTap: widget.onNavigateToAttendance,
                             ),
                           ),
@@ -154,6 +160,7 @@ class _HomePageState extends State<HomePage> {
                           "₹${controller.paymentsToday.value.toStringAsFixed(0)}",
                           "Payments Today",
                           Colors.green,
+                          context,
                           widget.onNavigateToPayments,
                         ),
                       ),
@@ -163,6 +170,7 @@ class _HomePageState extends State<HomePage> {
                           "₹${controller.totalDues.value.toStringAsFixed(0)}",
                           "Pending Dues",
                           Colors.redAccent,
+                          context,
                           widget.onNavigateToDues,
                         ),
                       ),
@@ -176,17 +184,25 @@ class _HomePageState extends State<HomePage> {
                 child: Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: theme.cardColor,
                     borderRadius: BorderRadius.circular(18),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.05),
+                        blurRadius: 10,
+                        offset: const Offset(0, 5),
+                      ),
+                    ],
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
+                      Text(
                         "Quick Actions",
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 15,
+                          color: theme.colorScheme.onSurface,
                         ),
                       ),
                       const SizedBox(height: 15),
@@ -196,8 +212,9 @@ class _HomePageState extends State<HomePage> {
                             child: actionButton(
                               "Add Student",
                               Icons.people,
-                              Colors.deepPurple,
-                              widget.onNavigateToStudent,
+                              const Color(0xff6A5AE0),
+                              context,
+                              widget.onNavigateToAddStudents,
                             ),
                           ),
                           const SizedBox(width: 12),
@@ -206,6 +223,7 @@ class _HomePageState extends State<HomePage> {
                               "Mark Attendance",
                               Icons.event,
                               Colors.orange,
+                              context,
                               widget.onNavigateToAttendance,
                             ),
                           ),
@@ -229,9 +247,9 @@ class _HomePageState extends State<HomePage> {
                     child: Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: const Color(0xffffebee),
+                        color: isDark ? Colors.red.withOpacity(0.1) : const Color(0xffffebee),
                         borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: Colors.red.shade200),
+                        border: Border.all(color: Colors.red.withOpacity(0.3)),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -257,9 +275,9 @@ class _HomePageState extends State<HomePage> {
                           const SizedBox(height: 8),
                           Text(
                             "${controller.studentsWithDues.value} students have pending payments totaling ₹${controller.totalDues.value.toStringAsFixed(0)}",
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 13,
-                              color: Colors.black87,
+                              color: isDark ? Colors.white70 : Colors.black87,
                             ),
                           ),
                           const SizedBox(height: 10),
@@ -278,7 +296,6 @@ class _HomePageState extends State<HomePage> {
                 }),
               ),
               const SizedBox(height: 20),
-              // Added some bottom padding for better scroll feel
             ],
           ),
         ),
@@ -289,7 +306,8 @@ class _HomePageState extends State<HomePage> {
   Widget topCard(
     String value,
     String title,
-    IconData icon, {
+    IconData icon,
+    BuildContext context, {
     VoidCallback? onTap,
   }) {
     return InkWell(
@@ -329,16 +347,27 @@ class _HomePageState extends State<HomePage> {
     String amount,
     String title,
     Color iconColor,
+    BuildContext context,
     VoidCallback onTap,
   ) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(18),
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: theme.cardColor,
           borderRadius: BorderRadius.circular(18),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 5),
+            ),
+          ],
         ),
         child: Column(
           children: [
@@ -346,12 +375,19 @@ class _HomePageState extends State<HomePage> {
             const SizedBox(height: 10),
             Text(
               amount,
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                fontSize: 18, 
+                fontWeight: FontWeight.bold,
+                color: theme.colorScheme.onSurface,
+              ),
             ),
             const SizedBox(height: 4),
             Text(
               title,
-              style: const TextStyle(fontSize: 12, color: Colors.grey),
+              style: TextStyle(
+                fontSize: 12, 
+                color: isDark ? Colors.white60 : Colors.grey,
+              ),
             ),
           ],
         ),
@@ -363,6 +399,7 @@ class _HomePageState extends State<HomePage> {
     String title,
     IconData icon,
     Color color,
+    BuildContext context,
     VoidCallback onTap,
   ) {
     return InkWell(
