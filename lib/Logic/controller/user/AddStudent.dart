@@ -16,10 +16,12 @@ class Addstudentcontroller extends GetxController {
   String? selectedBatchType;
   String? selectedPaymentType;
   String? selectedBatchTime;
+  String selectedStatus = 'Active';
 
   var courses = <String>[].obs;
   final List<String> batchTypes = ['Everyday', 'Alternate Days'];
   final List<String> paymentTypes = ['Per Class', 'Monthly'];
+  final List<String> statuses = ['Active', 'Inactive'];
   var batchTime = <String>[].obs;
 
   DateTime? joinDate;
@@ -30,6 +32,7 @@ class Addstudentcontroller extends GetxController {
   final TextEditingController phoneController = TextEditingController();
   final TextEditingController amountController = TextEditingController();
   final TextEditingController joinDateController = TextEditingController();
+  final TextEditingController sourceController = TextEditingController();
 
   @override
   void onInit() {
@@ -60,18 +63,15 @@ class Addstudentcontroller extends GetxController {
           if (userCourses.isNotEmpty) {
             courses.value = userCourses;
           } else {
-            // Default courses if user hasn't added any
             courses.value = [];
           }
 
           if (userBatches.isNotEmpty) {
             batchTime.value = userBatches;
           } else {
-            // Default batch times
             batchTime.value = [];
           }
         } else {
-          // No services field at all, use defaults
           courses.value = [];
           batchTime.value = [];
         }
@@ -93,6 +93,8 @@ class Addstudentcontroller extends GetxController {
       paymentType: selectedPaymentType!,
       monthlyFee: double.parse(amountController.text.trim()),
       joinDate: joinDate!,
+      source: sourceController.text.trim(),
+      status: selectedStatus,
     );
 
     try {
@@ -132,6 +134,8 @@ class Addstudentcontroller extends GetxController {
       paymentType: selectedPaymentType!,
       monthlyFee: double.parse(amountController.text.trim()),
       joinDate: joinDate!,
+      source: sourceController.text.trim(),
+      status: selectedStatus,
     );
 
     try {
@@ -184,11 +188,13 @@ class Addstudentcontroller extends GetxController {
     phoneController.clear();
     amountController.clear();
     joinDateController.clear();
+    sourceController.clear();
 
     selectedCourse = null;
     selectedBatchTime = null;
     selectedBatchType = null;
     selectedPaymentType = null;
+    selectedStatus = 'Active';
     joinDate = null;
     targetUserId = null;
   }
@@ -199,6 +205,7 @@ class Addstudentcontroller extends GetxController {
     phoneController.dispose();
     amountController.dispose();
     joinDateController.dispose();
+    sourceController.dispose();
     super.onClose();
   }
 }

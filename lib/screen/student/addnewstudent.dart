@@ -35,6 +35,8 @@ class _AddnstudentState extends State<Addnstudent> {
       controller.joinDateController.text =
           DateFormat('dd/MM/yyyy').format(widget.student!.joinDate);
       controller.amountController.text = widget.student!.monthlyFee.toString();
+      controller.sourceController.text = widget.student!.source;
+      controller.selectedStatus = widget.student!.status;
     }
   }
 
@@ -57,14 +59,14 @@ class _AddnstudentState extends State<Addnstudent> {
         title: Column(
           children: [
             Text(
-              widget.student == null ? "Add New Student" : "Edit Student",
+              widget.student == null ? "Add New Service" : "Edit Service",
               style: theme.appBarTheme.titleTextStyle?.copyWith(
                 color: theme.colorScheme.onSurface
               ),
             ),
             const SizedBox(height: 2),
             Text(
-              "Enter student details",
+              "Enter service details",
               style: TextStyle(
                 fontSize: 12, 
                 color: isDark ? Colors.white60 : Colors.black54
@@ -143,6 +145,29 @@ class _AddnstudentState extends State<Addnstudent> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      _label(context, "Status"),
+                      commonDropdown<String>(
+                        context: context,
+                        hintText: "Active",
+                        items: controller.statuses,
+                        value: controller.selectedStatus,
+                        itemLabel: (e) => e,
+                        onChanged: (value) {
+                          setState(() => controller.selectedStatus = value ?? 'Active');
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: height * 0.02),
+            Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
                       _label(context, "Payment Type"),
                       commonDropdown<String>(
                         context: context,
@@ -153,6 +178,21 @@ class _AddnstudentState extends State<Addnstudent> {
                         onChanged: (value) {
                           setState(() => controller.selectedPaymentType = value);
                         },
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _label(context, "Monthly Fee"),
+                      commonTextField(
+                        context: context,
+                        hintText: "Enter amount",
+                        controller: controller.amountController,
+                        keyboardType: TextInputType.number,
                       ),
                     ],
                   ),
@@ -169,12 +209,11 @@ class _AddnstudentState extends State<Addnstudent> {
               },
             ),
             SizedBox(height: height * 0.02),
-            _label(context, "Monthly Fee"),
+            _label(context, "Source"),
             commonTextField(
               context: context,
-              hintText: "Enter amount",
-              controller: controller.amountController,
-              keyboardType: TextInputType.number,
+              hintText: "e.g. Google, Friend, Instagram",
+              controller: controller.sourceController,
             ),
             SizedBox(height: height * 0.04),
             ElevatedButton(
@@ -192,7 +231,7 @@ class _AddnstudentState extends State<Addnstudent> {
                 }
               },
               child: Text(
-                widget.student == null ? "Add Student" : "Update Student",
+                widget.student == null ? "Add Service" : "Update Service",
                 style: const TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,

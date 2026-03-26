@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../Logic/controller/admin/admin_controller.dart';
-import 'Userdetail.dart';
+import 'user_services_page.dart';
 
 class ManageUsersPage extends StatefulWidget {
   final String appBarTitle;
@@ -153,7 +153,10 @@ class _ManageUsersPageState extends State<ManageUsersPage> {
                         color: isDark ? Colors.white38 : Colors.grey,
                       ),
                       onTap: () {
-                        Get.to(() => UserDetailsPage(user: user));
+                        Get.to(
+                          () => UserServicesPage(user: user),
+                          transition: Transition.cupertino,
+                        );
                       },
                     ),
                   );

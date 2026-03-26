@@ -26,7 +26,10 @@ class UserServicesController extends GetxController {
     try {
       isLoading.value = true;
       String uid = _auth.currentUser!.uid;
-      DocumentSnapshot doc = await _firestore.collection('users').doc(uid).get();
+      DocumentSnapshot doc = await _firestore
+          .collection('users')
+          .doc(uid)
+          .get();
 
       if (doc.exists) {
         Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
@@ -38,7 +41,12 @@ class UserServicesController extends GetxController {
         }
       }
     } catch (e) {
-      Get.snackbar("Error", "Failed to fetch services: $e");
+      showTopSnackbar(
+        "Error",
+        "Failed to fetch services: $e",
+        Colors.red,
+        Icons.signal_wifi_connected_no_internet_4,
+      );
     } finally {
       isLoading.value = false;
     }
@@ -57,9 +65,19 @@ class UserServicesController extends GetxController {
         }
       }, SetOptions(merge: true));
       courseController.clear();
-      Get.snackbar("Success", "Course added successfully");
+      showTopSnackbar(
+        "Success",
+        "Course added successfully",
+        Colors.green,
+        Icons.check_circle,
+      );
     } catch (e) {
-      Get.snackbar("Error", "Failed to add course: $e");
+      showTopSnackbar(
+        "Error",
+        "Failed to add course: $e",
+        Colors.red,
+        Icons.layers_clear_rounded,
+      );
     }
   }
 
@@ -76,30 +94,23 @@ class UserServicesController extends GetxController {
         }
       }, SetOptions(merge: true));
       batchController.clear();
-      Get.snackbar("Success", "Batch added successfully");
+      showTopSnackbar(
+        "Success",
+        "Batch added successfully",
+        Colors.green,
+        Icons.check_circle,
+      );
     } catch (e) {
-      Get.snackbar("Error", "Failed to add batch: $e");
+      showTopSnackbar(
+        "Error",
+        "Failed to add batch: $e",
+        Colors.red,
+        Icons.history_toggle_off_rounded,
+      );
     }
   }
 
-  Future<void> addFee() async {
-    String fee = feeController.text.trim();
-    if (fee.isEmpty) return;
 
-    try {
-      String uid = _auth.currentUser!.uid;
-      fees.add(fee);
-      await _firestore.collection('users').doc(uid).set({
-        'services': {
-          'fees': fees,
-        }
-      }, SetOptions(merge: true));
-      feeController.clear();
-      Get.snackbar("Success", "Fee option added successfully");
-    } catch (e) {
-      Get.snackbar("Error", "Failed to add fee: $e");
-    }
-  }
 
   Future<void> removeCourse(int index) async {
     try {
@@ -152,7 +163,12 @@ class UserServicesController extends GetxController {
           'courses': [],
         }
       }, SetOptions(merge: true));
-      Get.snackbar("Success", "All courses cleared");
+      showTopSnackbar(
+          "Success",
+          "All courses cleared",
+        Colors.green,
+        Icons.check_circle,
+      );
     } catch (e) {
       Get.snackbar("Error", "Failed to clear courses: $e");
     }
@@ -167,7 +183,12 @@ class UserServicesController extends GetxController {
           'batchTimes': [],
         }
       }, SetOptions(merge: true));
-      Get.snackbar("Success", "All batches cleared");
+      showTopSnackbar(
+        "Success",
+        "All batches cleared",
+        Colors.green,
+        Icons.check_circle,
+      );
     } catch (e) {
       Get.snackbar("Error", "Failed to clear batches: $e");
     }
@@ -186,9 +207,39 @@ class UserServicesController extends GetxController {
           'fees': [],
         }
       }, SetOptions(merge: true));
-      Get.snackbar("Success", "All services cleared successfully");
+      showTopSnackbar(
+        "Success",
+        "All services cleared",
+        Colors.green,
+        Icons.check_circle,
+      );
     } catch (e) {
       Get.snackbar("Error", "Failed to clear services: $e");
     }
   }
+
+  void showTopSnackbar(String title, String message, Color color,
+      IconData icon) {
+    Get.snackbar(
+      title,
+      message,
+      snackPosition: SnackPosition.TOP,
+      backgroundColor: color,
+      colorText: Colors.white,
+      margin: const EdgeInsets.all(12),
+      borderRadius: 14,
+      icon: Icon(icon, color: Colors.white),
+      duration: const Duration(seconds: 2),
+      snackStyle: SnackStyle.FLOATING,
+      boxShadows: [
+        BoxShadow(
+          color: Colors.black26,
+          blurRadius: 10,
+          offset: Offset(0, 4),
+        ),
+      ],
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+    );
+  }
+
 }
