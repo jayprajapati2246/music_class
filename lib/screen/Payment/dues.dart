@@ -4,9 +4,9 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:music_class/Logic/ads/banner_ads.dart';
 import 'package:music_class/screen/student/edit.dart';
 
-import '../Logic/controller/user/Payments.dart';
-import '../Logic/controller/user/due.dart';
-import '../Logic/model/Student.dart';
+import '../../Logic/controller/user/Payments.dart';
+import '../../Logic/controller/user/due.dart';
+import '../../Logic/model/Student.dart';
 
 class Dues extends StatefulWidget {
   const Dues({super.key});

@@ -10,7 +10,7 @@ class Addstudentcontroller extends GetxController {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  String? targetUserId; 
+  String? targetUserId;
 
   String? selectedCourse;
   String? selectedBatchType;
@@ -23,6 +23,7 @@ class Addstudentcontroller extends GetxController {
   var batchTime = <String>[].obs;
 
   DateTime? joinDate;
+
   DateTime? get initialDate => joinDate;
 
   final TextEditingController nameController = TextEditingController();
@@ -39,59 +40,40 @@ class Addstudentcontroller extends GetxController {
   Future<void> fetchUserServices() async {
     try {
       String uid = targetUserId ?? _auth.currentUser!.uid;
-      DocumentSnapshot doc = await _firestore.collection('users').doc(uid).get();
+      DocumentSnapshot doc = await _firestore
+          .collection('users')
+          .doc(uid)
+          .get();
 
       if (doc.exists) {
         Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
         if (data['services'] != null) {
           Map<String, dynamic> services = data['services'];
-          
-          List<String> userCourses = List<String>.from(services['courses'] ?? []);
-          List<String> userBatches = List<String>.from(services['batchTimes'] ?? []);
+
+          List<String> userCourses = List<String>.from(
+            services['courses'] ?? [],
+          );
+          List<String> userBatches = List<String>.from(
+            services['batchTimes'] ?? [],
+          );
 
           if (userCourses.isNotEmpty) {
             courses.value = userCourses;
           } else {
             // Default courses if user hasn't added any
-            courses.value = ['Guitar', 'Piano', 'Drums', 'Violin'];
+            courses.value = [];
           }
 
           if (userBatches.isNotEmpty) {
             batchTime.value = userBatches;
           } else {
             // Default batch times
-            batchTime.value = [
-              '7:00 AM - 8:00 AM',
-              '8:00 AM - 9:00 AM',
-              '9:00 AM - 10:00 AM',
-              '10:00 AM - 11:00 AM',
-              '11:00 AM - 12:00 PM',
-              '12:00 PM - 1:00 PM',
-              '1:00 PM - 2:00 PM',
-              '2:00 PM - 3:00 PM',
-              '3:00 PM - 4:00 PM',
-              '4:00 PM - 5:00 PM',
-              '5:00 PM - 6:00 PM',
-              '6:00 PM - 7:00 PM',
-            ];
+            batchTime.value = [];
           }
         } else {
-           // No services field at all, use defaults
-           courses.value = ['Guitar', 'Piano', 'Drums', 'Violin'];
-           batchTime.value = [
-              '7:00 AM - 8:00 AM',
-              '8:00 AM - 9:00 AM',
-              '9:00 AM - 10:00 AM',
-              '10:00 AM - 11:00 AM',
-              '11:00 AM - 12:00 PM',
-              '12:00 PM - 1:00 PM',
-              '1:00 PM - 2:00 PM',
-              '2:00 PM - 3:00 PM',
-              '3:00 PM - 4:00 PM',
-              '4:00 PM - 5:00 PM',
-              '5:00 PM - 6:00 PM',
-              '6:00 PM - 7:00 PM',
-            ];
+          // No services field at all, use defaults
+          courses.value = [];
+          batchTime.value = [];
         }
       }
     } catch (e) {

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:music_class/screen/Payment/Payment.dart';
 import 'package:music_class/screen/attendance.dart';
-import 'package:music_class/screen/dues.dart';
+import 'package:music_class/screen/Payment/dues.dart';
 import 'package:music_class/screen/home.dart';
 import 'package:music_class/screen/student/student.dart';
 

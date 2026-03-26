@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:music_class/screen/user%20profile.dart';
+import 'package:music_class/screen/User%20Profile/user%20profile.dart';
 
 import '../Logic/controller/user/auth_controller.dart';
 import '../Logic/controller/user/home_controller.dart';

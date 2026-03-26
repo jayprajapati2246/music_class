@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../Logic/controller/theme_controller.dart';
+import '../../Logic/controller/theme_controller.dart';
 import 'user_services_page.dart';
 
 class SettingsPage extends StatelessWidget {

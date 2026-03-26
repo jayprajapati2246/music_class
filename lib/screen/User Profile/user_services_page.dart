@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../Logic/controller/user/services_controller.dart';
+import '../../Logic/controller/user/services_controller.dart';
 
 class UserServicesPage extends StatelessWidget {
   UserServicesPage({super.key});

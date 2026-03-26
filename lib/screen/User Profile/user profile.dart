@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:music_class/screen/setting.dart';
-import '../Logic/controller/admin/admin_auth_controller.dart';
-import '../Logic/controller/user/auth_controller.dart';
+import 'package:music_class/screen/User%20Profile/setting.dart';
+import '../../Logic/controller/admin/admin_auth_controller.dart';
+import '../../Logic/controller/user/auth_controller.dart';
 
 class userprofile extends StatefulWidget {
   const userprofile({super.key});
