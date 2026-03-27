@@ -30,7 +30,7 @@ class UserServicesPage extends StatelessWidget {
         elevation: 0,
         backgroundColor: Colors.transparent,
         foregroundColor: theme.colorScheme.onSurface,
-        centerTitle: true,
+        centerTitle: false,
         leading: IconButton(
           onPressed: () => Get.back(),
           icon: Icon(Icons.arrow_back_ios_new_rounded, color: theme.colorScheme.onSurface),

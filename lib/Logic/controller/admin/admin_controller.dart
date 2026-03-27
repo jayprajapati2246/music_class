@@ -68,6 +68,10 @@ class AdminController extends GetxController {
     }
   }
 
+  Stream<DocumentSnapshot> getUserStream(String userId) {
+    return _firestore.collection('users').doc(userId).snapshots();
+  }
+
   Stream<List<StudentModel>> getStudentsForUser(String userId) {
     return _firestore
         .collection('users')
@@ -112,6 +116,32 @@ class AdminController extends GetxController {
       fetchStats(); // Refresh stats
     } catch (e) {
       Get.snackbar("Error", "Delete failed: $e");
+    }
+  }
+
+  Future<void> deleteUser(String userId) async {
+    try {
+      // 1. Delete all students in the subcollection
+      var studentDocs = await _firestore
+          .collection('users')
+          .doc(userId)
+          .collection('students')
+          .get();
+      
+      for (var doc in studentDocs.docs) {
+        await doc.reference.delete();
+      }
+
+      // 2. Delete the user document
+      await _firestore.collection('users').doc(userId).delete();
+      
+      // 3. Update local state
+      users.removeWhere((u) => u['uid'] == userId);
+      
+      Get.snackbar("Success", "User and all associated data deleted");
+      fetchStats(); // Update dashboard stats
+    } catch (e) {
+      Get.snackbar("Error", "Failed to delete user: $e");
     }
   }
 }

@@ -125,7 +125,10 @@ class AdminDashboardPage extends StatelessWidget {
                 children: [
                   GestureDetector(
                     onTap: () => Get.to(
-                      () => ManageUsersPage(appBarTitle: "Users Student"),
+                      () => ManageUsersPage(
+                        appBarTitle: "Users Student",
+                        isServiceFlow: true,
+                      ),
                     ),
                     child: _dashboardItem(
                       context,
@@ -136,7 +139,10 @@ class AdminDashboardPage extends StatelessWidget {
                   ),
                   GestureDetector(
                     onTap: () => Get.to(
-                      () => ManageUsersPage(appBarTitle: "Manage Users"),
+                      () => ManageUsersPage(
+                        appBarTitle: "Manage Users",
+                        isServiceFlow: false,
+                      ),
                     ),
                     child: _dashboardItem(
                       context,
