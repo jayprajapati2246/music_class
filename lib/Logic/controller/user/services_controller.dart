@@ -204,7 +204,6 @@ class UserServicesController extends GetxController {
         'services': {
           'courses': [],
           'batchTimes': [],
-          'fees': [],
         }
       }, SetOptions(merge: true));
       showTopSnackbar(

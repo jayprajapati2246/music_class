@@ -96,7 +96,7 @@ class UserServicesPage extends StatelessWidget {
 
                     const SizedBox(height: 30),
 
-                    // Independent Clear Buttons Section
+                   
                     Row(
                       children: [
                         Expanded(

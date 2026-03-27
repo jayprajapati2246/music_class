@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
 import '../../model/Student.dart';
+import '../../model/service_model.dart';
 
 class AdminController extends GetxController {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -72,6 +73,19 @@ class AdminController extends GetxController {
     return _firestore.collection('users').doc(userId).snapshots();
   }
 
+  Stream<List<ServiceModel>> getServicesStream(String userId) {
+    return _firestore
+        .collection('users')
+        .doc(userId)
+        .collection('services')
+        .snapshots()
+        .map((snapshot) {
+      return snapshot.docs.map((doc) {
+        return ServiceModel.fromMap(doc.data(), doc.id);
+      }).toList();
+    });
+  }
+
   Stream<List<StudentModel>> getStudentsForUser(String userId) {
     return _firestore
         .collection('users')
@@ -132,10 +146,21 @@ class AdminController extends GetxController {
         await doc.reference.delete();
       }
 
-      // 2. Delete the user document
+      // 2. Delete all services in the subcollection
+      var serviceDocs = await _firestore
+          .collection('users')
+          .doc(userId)
+          .collection('services')
+          .get();
+
+      for (var doc in serviceDocs.docs) {
+        await doc.reference.delete();
+      }
+
+      // 3. Delete the user document
       await _firestore.collection('users').doc(userId).delete();
       
-      // 3. Update local state
+      // 4. Update local state
       users.removeWhere((u) => u['uid'] == userId);
       
       Get.snackbar("Success", "User and all associated data deleted");

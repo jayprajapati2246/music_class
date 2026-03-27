@@ -23,7 +23,7 @@ class AuthController extends GetxController {
   RxBool isLoading = false.obs;
   bool _isInitialLoad = true;
   
-  // Forgot Password Flow
+
   RxString resetEmail = "".obs;
 
   @override
@@ -113,7 +113,6 @@ class AuthController extends GetxController {
         return;
       }
 
-      // Store email and navigate to Reset Screen
       resetEmail.value = email;
       Get.to(() => const ResetPasswordScreen());
       

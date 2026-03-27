@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../Logic/controller/admin/admin_controller.dart';
 import '../../Logic/model/Student.dart';
+import '../../Logic/model/service_model.dart';
 import 'user_services_page.dart';
 
 class UserDetailsPage extends StatelessWidget {
@@ -34,7 +35,7 @@ class UserDetailsPage extends StatelessWidget {
             flexibleSpace: FlexibleSpaceBar(
               stretchModes: const [
                 StretchMode.zoomBackground,
-                StretchMode.blurBackground
+                StretchMode.blurBackground,
               ],
               background: Stack(
                 fit: StackFit.expand,
@@ -68,10 +69,11 @@ class UserDetailsPage extends StatelessWidget {
                               boxShadow: [
                                 BoxShadow(
                                   color: Colors.black.withValues(
-                                      alpha: isDark ? 0.4 : 0.15),
+                                    alpha: isDark ? 0.4 : 0.15,
+                                  ),
                                   blurRadius: 30,
                                   spreadRadius: 2,
-                                )
+                                ),
                               ],
                               border: Border.all(
                                 color: isDark ? theme.cardColor : Colors.white,
@@ -80,16 +82,22 @@ class UserDetailsPage extends StatelessWidget {
                             ),
                             child: CircleAvatar(
                               radius: 55,
-                              backgroundColor: isDark ? theme.cardColor : Colors
-                                  .white,
-                              backgroundImage: user['profileImage'] != null &&
-                                  user['profileImage'].isNotEmpty
+                              backgroundColor: isDark
+                                  ? theme.cardColor
+                                  : Colors.white,
+                              backgroundImage:
+                                  user['profileImage'] != null &&
+                                      user['profileImage'].isNotEmpty
                                   ? NetworkImage(user['profileImage'])
                                   : null,
-                              child: user['profileImage'] == null ||
-                                  user['profileImage'].isEmpty
+                              child:
+                                  user['profileImage'] == null ||
+                                      user['profileImage'].isEmpty
                                   ? Icon(
-                                  Icons.person, size: 55, color: primaryColor)
+                                      Icons.person,
+                                      size: 55,
+                                      color: primaryColor,
+                                    )
                                   : null,
                             ),
                           ),
@@ -106,9 +114,10 @@ class UserDetailsPage extends StatelessWidget {
                               Shadow(
                                 blurRadius: 10,
                                 color: Colors.black.withValues(
-                                    alpha: isDark ? 0.3 : 0.1),
+                                  alpha: isDark ? 0.3 : 0.1,
+                                ),
                                 offset: const Offset(0, 2),
-                              )
+                              ),
                             ],
                           ),
                         ),
@@ -126,7 +135,10 @@ class UserDetailsPage extends StatelessWidget {
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
-                    Icons.arrow_back_ios_new, size: 18, color: onSurface),
+                  Icons.arrow_back_ios_new,
+                  size: 18,
+                  color: onSurface,
+                ),
               ),
               onPressed: () => Get.back(),
             ),
@@ -135,7 +147,9 @@ class UserDetailsPage extends StatelessWidget {
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.symmetric(
-                  horizontal: 20.0, vertical: 10),
+                horizontal: 20.0,
+                vertical: 10,
+              ),
               child: Column(
                 children: [
                   // Quick Stats Summary
@@ -169,22 +183,33 @@ class UserDetailsPage extends StatelessWidget {
 
                   // Contact Info Section
                   _buildSectionHeader(
-                      "Contact Info", Icons.alternate_email_rounded, theme),
+                    "Contact Info",
+                    Icons.alternate_email_rounded,
+                    theme,
+                  ),
                   _buildInfoCard(
                     context,
                     items: [
-                      _infoItem(Icons.mail_outline_rounded, "Email Address",
-                          user['email'] ?? 'N/A', theme),
-                      _infoItem(Icons.phone_iphone_rounded, "Phone Number",
-                          user['phone'] ?? 'N/A', theme),
+                      _infoItem(
+                        Icons.mail_outline_rounded,
+                        "Email Address",
+                        user['email'] ?? 'N/A',
+                        theme,
+                      ),
+                      _infoItem(
+                        Icons.phone_iphone_rounded,
+                        "Phone Number",
+                        user['phone'] ?? 'N/A',
+                        theme,
+                      ),
                     ],
                   ),
 
-                  const SizedBox(height: 28),
+                  const SizedBox(height: 25),
 
-                  // Configured Services Section
-                  StreamBuilder<DocumentSnapshot>(
-                    stream: controller.getUserStream(user['uid']),
+                  // Configured Services Section (Now reading from subcollection)
+                  StreamBuilder<List<ServiceModel>>(
+                    stream: controller.getServicesStream(user['uid']),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return const Padding(
@@ -193,18 +218,10 @@ class UserDetailsPage extends StatelessWidget {
                         );
                       }
 
-                      final userData = snapshot.data?.data() as Map<
-                          String,
-                          dynamic>? ?? {};
-                      final services = userData['services'] as Map<
-                          String,
-                          dynamic>? ?? {};
-                      final addedCourses = List<String>.from(
-                          services['courses'] ?? []);
-                      final addedBatches = List<String>.from(
-                          services['batchTimes'] ?? []);
-                      final addedFees = List<String>.from(
-                          services['fees'] ?? []);
+                      final services = snapshot.data ?? [];
+                      final courses = services.map((s) => s.course).toSet().toList();
+                      final batches = services.map((s) => s.batch).toSet().toList();
+                      final fees = services.map((s) => "₹${s.fee}").toSet().toList();
 
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -212,17 +229,10 @@ class UserDetailsPage extends StatelessWidget {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              _buildSectionHeader("Configured Services",
-                                  Icons.auto_awesome_mosaic_rounded, theme),
-                              TextButton.icon(
-                                onPressed: () =>
-                                    Get.to(() => UserServicesPage(user: user)),
-                                label: const Text("View All"),
-                                style: TextButton.styleFrom(
-                                  foregroundColor: primaryColor,
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 12),
-                                ),
+                              _buildSectionHeader(
+                                "Services Provided",
+                                Icons.auto_awesome_mosaic_rounded,
+                                theme,
                               ),
                             ],
                           ),
@@ -230,34 +240,34 @@ class UserDetailsPage extends StatelessWidget {
                             context,
                             items: [
                               _buildServiceTags(
-                                  context,
-                                  "Courses",
-                                  addedCourses,
-                                  Icons.auto_stories_rounded,
-                                  Colors.indigoAccent
+                                context,
+                                "Courses",
+                                courses,
+                                Icons.auto_stories_rounded,
+                                Colors.indigoAccent,
                               ),
                               const Padding(
                                 padding: EdgeInsets.symmetric(vertical: 12),
                                 child: Divider(height: 1, thickness: 0.5),
                               ),
                               _buildServiceTags(
-                                  context,
-                                  "Batch Times",
-                                  addedBatches,
-                                  Icons.alarm_rounded,
-                                  Colors.orangeAccent
+                                context,
+                                "Batches",
+                                batches,
+                                Icons.alarm_rounded,
+                                Colors.orangeAccent,
                               ),
-                              if (addedFees.isNotEmpty) ...[
+                              if (fees.isNotEmpty) ...[
                                 const Padding(
                                   padding: EdgeInsets.symmetric(vertical: 12),
                                   child: Divider(height: 1, thickness: 0.5),
                                 ),
                                 _buildServiceTags(
-                                    context,
-                                    "Fee Plans",
-                                    addedFees.map((f) => "₹$f").toList(),
-                                    Icons.account_balance_wallet_rounded,
-                                    Colors.tealAccent
+                                  context,
+                                  "Fee structures",
+                                  fees,
+                                  Icons.account_balance_wallet_rounded,
+                                  Colors.tealAccent,
                                 ),
                               ],
                             ],
@@ -267,9 +277,9 @@ class UserDetailsPage extends StatelessWidget {
                     },
                   ),
 
-                  const SizedBox(height: 28),
+                  const SizedBox(height: 20),
 
-                  // Active Usage Section
+
                   StreamBuilder<List<StudentModel>>(
                     stream: controller.getStudentsForUser(user['uid']),
                     builder: (context, snapshot) {
@@ -290,22 +300,45 @@ class UserDetailsPage extends StatelessWidget {
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          _buildSectionHeader("Usage Insight", Icons
-                              .analytics_rounded, theme),
+                          Row(
+                            spacing:50,
+                            children: [
+                              _buildSectionHeader(
+                                "Active Now",
+                                Icons.analytics_rounded,
+                                theme,
+                              ),
+                              TextButton.icon(
+                                onPressed: () =>
+                                    Get.to(() => UserServicesPage(user: user)),
+                                icon: Icon(
+                                  Icons.view_list_rounded,
+                                  color: primaryColor,
+                                ),
+                                label: const Text("View All"),
+                                style: TextButton.styleFrom(
+                                  foregroundColor: primaryColor,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                           _buildInfoCard(
                             context,
                             items: [
                               _infoItem(
-                                  Icons.layers_outlined,
-                                  "Active Courses",
-                                  activeCourses.join(", "),
-                                  theme
+                                Icons.layers_outlined,
+                                "Active Courses",
+                                activeCourses.join(", "),
+                                theme,
                               ),
                               _infoItem(
-                                  Icons.timelapse_rounded,
-                                  "Active Batches",
-                                  activeBatches.join(", "),
-                                  theme
+                                Icons.timelapse_rounded,
+                                "Active Batches",
+                                activeBatches.join(", "),
+                                theme,
                               ),
                             ],
                           ),
@@ -314,20 +347,26 @@ class UserDetailsPage extends StatelessWidget {
                     },
                   ),
 
-                  const SizedBox(height: 28),
+                  const SizedBox(height: 25),
 
                   _buildSectionHeader(
-                      "System ID", Icons.info_outline_rounded, theme),
+                    "System ID",
+                    Icons.info_outline_rounded,
+                    theme,
+                  ),
                   _buildInfoCard(
                     context,
                     items: [
-                      _infoItem(Icons.fingerprint_rounded, "Identifier (UID)",
-                          user['uid'] ?? 'N/A', theme),
+                      _infoItem(
+                        Icons.fingerprint_rounded,
+                        "Identifier (UID)",
+                        user['uid'] ?? 'N/A',
+                        theme,
+                      ),
                     ],
                   ),
 
                   const SizedBox(height: 48),
-
 
                   Container(
                     width: double.infinity,
@@ -335,27 +374,34 @@ class UserDetailsPage extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: Colors.red.withValues(alpha: isDark ? 0.1 : 0.05),
                       borderRadius: BorderRadius.circular(28),
-                      border: Border.all(color: Colors.red.withValues(
-                          alpha: isDark ? 0.3 : 0.2)),
+                      border: Border.all(
+                        color: Colors.red.withValues(alpha: isDark ? 0.3 : 0.2),
+                      ),
                     ),
                     child: Column(
                       children: [
-                        const Icon(Icons.report_gmailerrorred_rounded,
-                            color: Colors.red, size: 40),
+                        const Icon(
+                          Icons.report_gmailerrorred_rounded,
+                          color: Colors.red,
+                          size: 40,
+                        ),
                         const SizedBox(height: 16),
                         const Text(
                           "Sensitive Actions",
-                          style: TextStyle(fontSize: 18, fontWeight: FontWeight
-                              .bold, color: Colors.red),
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.red,
+                          ),
                         ),
                         const SizedBox(height: 8),
                         Text(
                           "Removing this user will immediately disconnect all linked students and services. This cannot be undone.",
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                              fontSize: 13,
-                              color: isDark ? Colors.red[200] : Colors.red[700],
-                              height: 1.5
+                            fontSize: 13,
+                            color: isDark ? Colors.red[200] : Colors.red[700],
+                            height: 1.5,
                           ),
                         ),
                         const SizedBox(height: 24),
@@ -368,12 +414,17 @@ class UserDetailsPage extends StatelessWidget {
                               foregroundColor: Colors.white,
                               padding: const EdgeInsets.symmetric(vertical: 16),
                               shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(16)),
+                                borderRadius: BorderRadius.circular(16),
+                              ),
                               elevation: 0,
                             ),
-                            child: const Text("DELETE ACCOUNT",
-                                style: TextStyle(fontWeight: FontWeight.bold,
-                                    letterSpacing: 1)),
+                            child: const Text(
+                              "DELETE ACCOUNT",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 1,
+                              ),
+                            ),
                           ),
                         ),
                       ],
@@ -395,7 +446,10 @@ class UserDetailsPage extends StatelessWidget {
       child: Row(
         children: [
           Icon(
-              icon, size: 18, color: theme.primaryColor.withValues(alpha: 0.8)),
+            icon,
+            size: 18,
+            color: theme.primaryColor.withValues(alpha: 0.8),
+          ),
           const SizedBox(width: 10),
           Text(
             title.toUpperCase(),
@@ -411,8 +465,13 @@ class UserDetailsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildStatCard(BuildContext context, String label, String value,
-      IconData icon, Color color) {
+  Widget _buildStatCard(
+    BuildContext context,
+    String label,
+    String value,
+    IconData icon,
+    Color color,
+  ) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
@@ -420,8 +479,9 @@ class UserDetailsPage extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: isDark ? color.withValues(alpha: 0.15) : color.withValues(
-              alpha: 0.1),
+          color: isDark
+              ? color.withValues(alpha: 0.15)
+              : color.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(28),
           border: Border.all(color: color.withValues(alpha: 0.25), width: 1.5),
         ),
@@ -478,7 +538,8 @@ class UserDetailsPage extends StatelessWidget {
           ),
         ],
         border: Border.all(
-            color: theme.dividerColor.withValues(alpha: isDark ? 0.1 : 0.05)),
+          color: theme.dividerColor.withValues(alpha: isDark ? 0.1 : 0.05),
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -487,8 +548,13 @@ class UserDetailsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildServiceTags(BuildContext context, String title,
-      List<String> tags, IconData icon, Color color) {
+  Widget _buildServiceTags(
+    BuildContext context,
+    String title,
+    List<String> tags,
+    IconData icon,
+    Color color,
+  ) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
@@ -513,37 +579,46 @@ class UserDetailsPage extends StatelessWidget {
         const SizedBox(height: 14),
         tags.isEmpty
             ? Text(
-          "No $title configured",
-          style: TextStyle(
-            fontSize: 13,
-            fontStyle: FontStyle.italic,
-            color: theme.colorScheme.onSurface.withValues(alpha: 0.3),
-          ),
-        )
+                "No $title configured",
+                style: TextStyle(
+                  fontSize: 13,
+                  fontStyle: FontStyle.italic,
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.3),
+                ),
+              )
             : Wrap(
-          spacing: 10,
-          runSpacing: 10,
-          children: tags.map((tag) =>
-              Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 14, vertical: 8),
-                decoration: BoxDecoration(
-                  color: isDark ? color.withValues(alpha: 0.15) : color
-                      .withValues(alpha: 0.08),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                      color: color.withValues(alpha: isDark ? 0.3 : 0.2)),
-                ),
-                child: Text(
-                  tag,
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                    color: isDark ? color : color.withValues(alpha: 0.9),
-                  ),
-                ),
-              )).toList(),
-        ),
+                spacing: 10,
+                runSpacing: 10,
+                children: tags
+                    .map(
+                      (tag) => Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 8,
+                        ),
+                        decoration: BoxDecoration(
+                          color: isDark
+                              ? color.withValues(alpha: 0.15)
+                              : color.withValues(alpha: 0.08),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: color.withValues(alpha: isDark ? 0.3 : 0.2),
+                          ),
+                        ),
+                        child: Text(
+                          tag,
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                            color: isDark
+                                ? color
+                                : color.withValues(alpha: 0.9),
+                          ),
+                        ),
+                      ),
+                    )
+                    .toList(),
+              ),
       ],
     );
   }
@@ -611,19 +686,24 @@ class UserDetailsPage extends StatelessWidget {
                 shape: BoxShape.circle,
               ),
               child: const Icon(
-                  Icons.warning_amber_rounded, color: Colors.red, size: 24),
+                Icons.warning_amber_rounded,
+                color: Colors.red,
+                size: 24,
+              ),
             ),
             const SizedBox(width: 12),
             const Text(
-                "Final Warning", style: TextStyle(fontWeight: FontWeight.w900)),
+              "Final Warning",
+              style: TextStyle(fontWeight: FontWeight.w900,fontSize: 22),
+            ),
           ],
         ),
         content: Text(
           "This will permanently delete the account for ${user['name']}. This action is irreversible. Do you wish to continue?",
           style: TextStyle(
-              fontSize: 15,
-              height: 1.6,
-              color: theme.colorScheme.onSurface.withValues(alpha: 0.8)
+            fontSize: 15,
+            height: 1.6,
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.8),
           ),
         ),
         actionsPadding: const EdgeInsets.only(right: 20, bottom: 20, left: 20),
@@ -636,11 +716,16 @@ class UserDetailsPage extends StatelessWidget {
                   style: TextButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14)),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
                   ),
-                  child: Text("CANCEL", style: TextStyle(
+                  child: Text(
+                    "CANCEL",
+                    style: TextStyle(
                       color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
-                      fontWeight: FontWeight.bold)),
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
               ),
               const SizedBox(width: 12),
@@ -657,10 +742,13 @@ class UserDetailsPage extends StatelessWidget {
                     elevation: 0,
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14)),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
                   ),
                   child: const Text(
-                      "DELETE", style: TextStyle(fontWeight: FontWeight.bold)),
+                    "DELETE",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
                 ),
               ),
             ],

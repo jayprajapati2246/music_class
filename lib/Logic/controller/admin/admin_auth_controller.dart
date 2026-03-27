@@ -3,15 +3,14 @@ import 'package:get/get.dart';
 import '../../../screen/admin/admin_dashboard.dart';
 
 class AdminAuthController extends GetxController {
-  // Admin password
-  final String adminPassword = "000";
+
+  final String adminPassword = "jay7227";
 
   // Main admin access function
   void handleAdminAccess(BuildContext context) {
     _showPasswordDialog(context);
   }
 
-  // Password dialog
   void _showPasswordDialog(BuildContext context) {
     final TextEditingController passwordController = TextEditingController();
 
