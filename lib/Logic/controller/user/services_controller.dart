@@ -26,20 +26,89 @@ class UserServicesController extends GetxController {
     try {
       isLoading.value = true;
       String uid = _auth.currentUser!.uid;
-      DocumentSnapshot doc = await _firestore
+      
+      // 1. Try to fetch from the new subcollection structure
+      QuerySnapshot snapshot = await _firestore
           .collection('users')
           .doc(uid)
+          .collection('services')
           .get();
 
-      if (doc.exists) {
+      List<String> tempCourses = [];
+      List<String> tempBatches = [];
+      List<String> tempFees = [];
+
+      for (var doc in snapshot.docs) {
         Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-        if (data['services'] != null) {
-          Map<String, dynamic> services = data['services'];
-          courses.value = List<String>.from(services['courses'] ?? []);
-          batchTimes.value = List<String>.from(services['batchTimes'] ?? []);
-          fees.value = List<String>.from(services['fees'] ?? []);
+        if (data['course'] != null && data['course'].toString().isNotEmpty) {
+          tempCourses.add(data['course']);
+        }
+        if (data['batch'] != null && data['batch'].toString().isNotEmpty) {
+          tempBatches.add(data['batch']);
+        }
+        if (data['batchTimes'] is List) {
+          tempBatches.addAll(List<String>.from(data['batchTimes']));
+        }
+        if (data['fee'] != null) {
+          tempFees.add(data['fee'].toString());
         }
       }
+
+      // 2. Check for old data in the 'services' field for migration or backward compatibility
+      DocumentSnapshot userDoc = await _firestore.collection('users').doc(uid).get();
+      if (userDoc.exists) {
+        Map<String, dynamic> data = userDoc.data() as Map<String, dynamic>;
+        if (data['services'] != null) {
+          Map<String, dynamic> servicesField = data['services'];
+          
+          List<String> oldCourses = List<String>.from(servicesField['courses'] ?? []);
+          List<String> oldBatches = List<String>.from(servicesField['batchTimes'] ?? []);
+          List<String> oldFees = List<String>.from(servicesField['fees'] ?? []);
+
+          // Add only if not already present in subcollection
+          for (var c in oldCourses) {
+            if (!tempCourses.contains(c)) {
+              tempCourses.add(c);
+              // Migrate to subcollection automatically
+              await _firestore.collection('users').doc(uid).collection('services').add({
+                'course': c,
+                'status': 'Active',
+                'updatedAt': FieldValue.serverTimestamp(),
+              });
+            }
+          }
+          for (var b in oldBatches) {
+            if (!tempBatches.contains(b)) {
+              tempBatches.add(b);
+              await _firestore.collection('users').doc(uid).collection('services').add({
+                'batch': b,
+                'status': 'Active',
+                'updatedAt': FieldValue.serverTimestamp(),
+              });
+            }
+          }
+          for (var f in oldFees) {
+            if (!tempFees.contains(f)) {
+              tempFees.add(f);
+              await _firestore.collection('users').doc(uid).collection('services').add({
+                'fee': double.tryParse(f) ?? 0.0,
+                'status': 'Active',
+                'updatedAt': FieldValue.serverTimestamp(),
+              });
+            }
+          }
+
+          // 3. Remove the old 'services' field from the root document
+          await _firestore.collection('users').doc(uid).update({
+            'services': FieldValue.delete(),
+          });
+        }
+      }
+
+      courses.value = tempCourses.toSet().toList();
+      batchTimes.value = tempBatches.toSet().toList();
+      fees.value = tempFees.toSet().toList();
+
     } catch (e) {
       showTopSnackbar(
         "Error",
@@ -58,12 +127,17 @@ class UserServicesController extends GetxController {
 
     try {
       String uid = _auth.currentUser!.uid;
-      courses.add(course);
-      await _firestore.collection('users').doc(uid).set({
-        'services': {
-          'courses': courses,
-        }
-      }, SetOptions(merge: true));
+      
+      if (!courses.contains(course)) {
+        courses.add(course);
+        // Add to subcollection as a separate document
+        await _firestore.collection('users').doc(uid).collection('services').add({
+          'course': course,
+          'status': 'Active',
+          'updatedAt': FieldValue.serverTimestamp(),
+        });
+      }
+      
       courseController.clear();
       showTopSnackbar(
         "Success",
@@ -87,12 +161,17 @@ class UserServicesController extends GetxController {
 
     try {
       String uid = _auth.currentUser!.uid;
-      batchTimes.add(batch);
-      await _firestore.collection('users').doc(uid).set({
-        'services': {
-          'batchTimes': batchTimes,
-        }
-      }, SetOptions(merge: true));
+      
+      if (!batchTimes.contains(batch)) {
+        batchTimes.add(batch);
+        // Add to subcollection as a separate document
+        await _firestore.collection('users').doc(uid).collection('services').add({
+          'batch': batch,
+          'status': 'Active',
+          'updatedAt': FieldValue.serverTimestamp(),
+        });
+      }
+      
       batchController.clear();
       showTopSnackbar(
         "Success",
@@ -110,17 +189,23 @@ class UserServicesController extends GetxController {
     }
   }
 
-
-
   Future<void> removeCourse(int index) async {
     try {
       String uid = _auth.currentUser!.uid;
+      String courseName = courses[index];
       courses.removeAt(index);
-      await _firestore.collection('users').doc(uid).set({
-        'services': {
-          'courses': courses,
-        }
-      }, SetOptions(merge: true));
+      
+      // Delete documents with this course name in subcollection
+      var snapshots = await _firestore
+          .collection('users')
+          .doc(uid)
+          .collection('services')
+          .where('course', isEqualTo: courseName)
+          .get();
+      
+      for (var doc in snapshots.docs) {
+        await doc.reference.delete();
+      }
     } catch (e) {
       Get.snackbar("Error", "Failed to remove course: $e");
     }
@@ -129,12 +214,20 @@ class UserServicesController extends GetxController {
   Future<void> removeBatch(int index) async {
     try {
       String uid = _auth.currentUser!.uid;
+      String batchName = batchTimes[index];
       batchTimes.removeAt(index);
-      await _firestore.collection('users').doc(uid).set({
-        'services': {
-          'batchTimes': batchTimes,
-        }
-      }, SetOptions(merge: true));
+      
+      // Delete documents with this batch name in subcollection
+      var snapshots = await _firestore
+          .collection('users')
+          .doc(uid)
+          .collection('services')
+          .where('batch', isEqualTo: batchName)
+          .get();
+      
+      for (var doc in snapshots.docs) {
+        await doc.reference.delete();
+      }
     } catch (e) {
       Get.snackbar("Error", "Failed to remove batch: $e");
     }
@@ -143,12 +236,22 @@ class UserServicesController extends GetxController {
   Future<void> removeFee(int index) async {
     try {
       String uid = _auth.currentUser!.uid;
+      String feeValue = fees[index];
       fees.removeAt(index);
-      await _firestore.collection('users').doc(uid).set({
-        'services': {
-          'fees': fees,
+      
+      double? feeNum = double.tryParse(feeValue);
+      if (feeNum != null) {
+        var snapshots = await _firestore
+            .collection('users')
+            .doc(uid)
+            .collection('services')
+            .where('fee', isEqualTo: feeNum)
+            .get();
+        
+        for (var doc in snapshots.docs) {
+          await doc.reference.delete();
         }
-      }, SetOptions(merge: true));
+      }
     } catch (e) {
       Get.snackbar("Error", "Failed to remove fee: $e");
     }
@@ -158,11 +261,19 @@ class UserServicesController extends GetxController {
     try {
       String uid = _auth.currentUser!.uid;
       courses.clear();
-      await _firestore.collection('users').doc(uid).set({
-        'services': {
-          'courses': [],
+      
+      var snapshots = await _firestore
+          .collection('users')
+          .doc(uid)
+          .collection('services')
+          .get();
+      
+      for (var doc in snapshots.docs) {
+        if (doc.data().containsKey('course')) {
+          await doc.reference.delete();
         }
-      }, SetOptions(merge: true));
+      }
+
       showTopSnackbar(
           "Success",
           "All courses cleared",
@@ -178,11 +289,19 @@ class UserServicesController extends GetxController {
     try {
       String uid = _auth.currentUser!.uid;
       batchTimes.clear();
-      await _firestore.collection('users').doc(uid).set({
-        'services': {
-          'batchTimes': [],
+      
+      var snapshots = await _firestore
+          .collection('users')
+          .doc(uid)
+          .collection('services')
+          .get();
+      
+      for (var doc in snapshots.docs) {
+        if (doc.data().containsKey('batch')) {
+          await doc.reference.delete();
         }
-      }, SetOptions(merge: true));
+      }
+
       showTopSnackbar(
         "Success",
         "All batches cleared",
@@ -200,12 +319,17 @@ class UserServicesController extends GetxController {
       courses.clear();
       batchTimes.clear();
       fees.clear();
-      await _firestore.collection('users').doc(uid).set({
-        'services': {
-          'courses': [],
-          'batchTimes': [],
-        }
-      }, SetOptions(merge: true));
+      
+      var snapshots = await _firestore
+          .collection('users')
+          .doc(uid)
+          .collection('services')
+          .get();
+      
+      for (var doc in snapshots.docs) {
+        await doc.reference.delete();
+      }
+
       showTopSnackbar(
         "Success",
         "All services cleared",
@@ -240,5 +364,4 @@ class UserServicesController extends GetxController {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
     );
   }
-
 }

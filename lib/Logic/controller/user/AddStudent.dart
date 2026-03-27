@@ -43,39 +43,51 @@ class Addstudentcontroller extends GetxController {
   Future<void> fetchUserServices() async {
     try {
       String uid = targetUserId ?? _auth.currentUser!.uid;
-      DocumentSnapshot doc = await _firestore
+      
+      // Fetch from the new services subcollection
+      QuerySnapshot snapshot = await _firestore
           .collection('users')
           .doc(uid)
+          .collection('services')
           .get();
 
-      if (doc.exists) {
+      List<String> userCourses = [];
+      List<String> userBatches = [];
+
+      for (var doc in snapshot.docs) {
         Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-        if (data['services'] != null) {
-          Map<String, dynamic> services = data['services'];
-
-          List<String> userCourses = List<String>.from(
-            services['courses'] ?? [],
-          );
-          List<String> userBatches = List<String>.from(
-            services['batchTimes'] ?? [],
-          );
-
-          if (userCourses.isNotEmpty) {
-            courses.value = userCourses;
-          } else {
-            courses.value = [];
-          }
-
-          if (userBatches.isNotEmpty) {
-            batchTime.value = userBatches;
-          } else {
-            batchTime.value = [];
-          }
-        } else {
-          courses.value = [];
-          batchTime.value = [];
+        if (data['course'] != null && data['course'].toString().isNotEmpty) {
+          userCourses.add(data['course']);
+        }
+        if (data['batch'] != null && data['batch'].toString().isNotEmpty) {
+          userBatches.add(data['batch']);
+        }
+        if (data['batchTimes'] is List) {
+          userBatches.addAll(List<String>.from(data['batchTimes']));
         }
       }
+
+      // Check for legacy services field in case migration hasn't happened for this user
+      DocumentSnapshot userDoc = await _firestore.collection('users').doc(uid).get();
+      if (userDoc.exists) {
+        Map<String, dynamic> data = userDoc.data() as Map<String, dynamic>;
+        if (data['services'] != null) {
+          Map<String, dynamic> services = data['services'];
+          List<String> oldCourses = List<String>.from(services['courses'] ?? []);
+          List<String> oldBatches = List<String>.from(services['batchTimes'] ?? []);
+          
+          for (var c in oldCourses) {
+            if (!userCourses.contains(c)) userCourses.add(c);
+          }
+          for (var b in oldBatches) {
+            if (!userBatches.contains(b)) userBatches.add(b);
+          }
+        }
+      }
+
+      courses.value = userCourses.toSet().toList();
+      batchTime.value = userBatches.toSet().toList();
+      
     } catch (e) {
       debugPrint("Error fetching user services: $e");
     }

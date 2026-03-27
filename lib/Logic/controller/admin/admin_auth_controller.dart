@@ -8,9 +8,11 @@ class AdminAuthController extends GetxController {
 
   // Main admin access function
   void handleAdminAccess(BuildContext context) {
-    _showPasswordDialog(context);
+    // Removed password verification as per request
+    Get.to(() => AdminDashboardPage());
   }
 
+  // Keeping the dialog method for reference if needed later, but it's not called anymore
   void _showPasswordDialog(BuildContext context) {
     final TextEditingController passwordController = TextEditingController();
 
