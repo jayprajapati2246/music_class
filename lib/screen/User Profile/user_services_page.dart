@@ -182,7 +182,7 @@ class UserServicesPage extends StatelessWidget {
       onTap: onPressed,
       borderRadius: BorderRadius.circular(15),
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 12),
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
         decoration: BoxDecoration(
           color: color.withOpacity(isDark ? 0.12 : 0.08),
           borderRadius: BorderRadius.circular(15),
@@ -194,9 +194,10 @@ class UserServicesPage extends StatelessWidget {
             const SizedBox(height: 4),
             Text(
               label,
+              textAlign: TextAlign.center,
               style: TextStyle(
                 color: color,
-                fontSize: 12,
+                fontSize: 10,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -216,6 +217,7 @@ class UserServicesPage extends StatelessWidget {
     required VoidCallback onAdd,
     required RxList<String> items,
     required Function(int) onRemove,
+    TextInputType keyboardType = TextInputType.text,
   }) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
@@ -270,6 +272,7 @@ class UserServicesPage extends StatelessWidget {
                       Expanded(
                         child: TextField(
                           controller: textController,
+                          keyboardType: keyboardType,
                           style: TextStyle(color: theme.colorScheme.onSurface),
                           decoration: InputDecoration(
                             hintText: hint,

@@ -16,12 +16,10 @@ class Addstudentcontroller extends GetxController {
   String? selectedBatchType;
   String? selectedPaymentType;
   String? selectedBatchTime;
-  String selectedStatus = 'Active';
 
   var courses = <String>[].obs;
-  final List<String> batchTypes = ['Everyday', 'Alternate Days'];
-  final List<String> paymentTypes = ['Per Class', 'Monthly'];
-  final List<String> statuses = ['Active', 'Inactive'];
+  final List<String> batchTypes = ['Everyday', 'Alternate Days','Weekends'];
+  final List<String> paymentTypes = ['Per Class', 'Monthly','3 Months','6 Months','One Time'];
   var batchTime = <String>[].obs;
 
   DateTime? joinDate;
@@ -44,7 +42,7 @@ class Addstudentcontroller extends GetxController {
     try {
       String uid = targetUserId ?? _auth.currentUser!.uid;
       
-      // Fetch from the new services subcollection
+      // Fetch from the new services subcollectio
       QuerySnapshot snapshot = await _firestore
           .collection('users')
           .doc(uid)
@@ -106,7 +104,6 @@ class Addstudentcontroller extends GetxController {
       monthlyFee: double.parse(amountController.text.trim()),
       joinDate: joinDate!,
       source: sourceController.text.trim(),
-      status: selectedStatus,
     );
 
     try {
@@ -147,7 +144,6 @@ class Addstudentcontroller extends GetxController {
       monthlyFee: double.parse(amountController.text.trim()),
       joinDate: joinDate!,
       source: sourceController.text.trim(),
-      status: selectedStatus,
     );
 
     try {
@@ -206,7 +202,6 @@ class Addstudentcontroller extends GetxController {
     selectedBatchTime = null;
     selectedBatchType = null;
     selectedPaymentType = null;
-    selectedStatus = 'Active';
     joinDate = null;
     targetUserId = null;
   }

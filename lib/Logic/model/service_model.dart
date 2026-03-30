@@ -6,7 +6,6 @@ class ServiceModel {
   final String batch; 
   final List<String> batchTimes;
   final double fee;
-  final String status;
 
   ServiceModel({
     this.id,
@@ -14,7 +13,6 @@ class ServiceModel {
     required this.batch,
     this.batchTimes = const [],
     this.fee = 0.0,
-    this.status = 'Active',
   });
 
   Map<String, dynamic> toMap() {
@@ -23,7 +21,6 @@ class ServiceModel {
       'batch': batch,
       'batchTimes': batchTimes,
       'fee': fee,
-      'status': status,
       'updatedAt': FieldValue.serverTimestamp(),
     };
   }
@@ -35,7 +32,6 @@ class ServiceModel {
       batch: map['batch'] ?? '',
       batchTimes: List<String>.from(map['batchTimes'] ?? []),
       fee: (map['fee'] ?? 0.0).toDouble(),
-      status: map['status'] ?? 'Active',
     );
   }
 }

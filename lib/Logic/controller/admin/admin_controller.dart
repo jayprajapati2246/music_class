@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../../core/utils/snackbar_utils.dart';
 import '../../model/Student.dart';
 import '../../model/service_model.dart';
 
@@ -39,8 +41,11 @@ class AdminController extends GetxController {
         studentCount += studentSnapshot.docs.length;
 
         for (var studentDoc in studentSnapshot.docs) {
-          final data = studentDoc.data() as Map<String, dynamic>;
-          feesSum += (data['totalFees'] ?? 0).toDouble();
+          // Calculate total fees from payments subcollection
+          QuerySnapshot paymentsSnapshot = await studentDoc.reference.collection('payments').get();
+          for (var paymentDoc in paymentsSnapshot.docs) {
+            feesSum += (paymentDoc.data() as Map<String, dynamic>)['amount'] ?? 0;
+          }
         }
       }
 
@@ -49,6 +54,28 @@ class AdminController extends GetxController {
     } catch (e) {
       print("Error fetching stats: $e");
     }
+  }
+
+  Future<double> getTotalCollectedForUser(String userId) async {
+    double total = 0.0;
+    try {
+      final studentsSnapshot = await _firestore
+          .collection('users')
+          .doc(userId)
+          .collection('students')
+          .get();
+
+      for (var studentDoc in studentsSnapshot.docs) {
+        final paymentsSnapshot = await studentDoc.reference.collection('payments').get();
+        for (var paymentDoc in paymentsSnapshot.docs) {
+          final data = paymentDoc.data() as Map<String, dynamic>;
+          total += (data['amount'] ?? 0).toDouble();
+        }
+      }
+    } catch (e) {
+      print("Error fetching total collected for user: $e");
+    }
+    return total;
   }
 
   Future<void> fetchAllUsers() async {
@@ -63,7 +90,7 @@ class AdminController extends GetxController {
         return data;
       }).toList();
     } catch (e) {
-      Get.snackbar("Error", "Failed to fetch users: $e");
+      SnackbarUtils.showAttractiveSnackbar("Error", "Failed to fetch users: $e", isError: true);
     } finally {
       isLoadingUsers.value = false;
     }
@@ -110,10 +137,10 @@ class AdminController extends GetxController {
           .doc(student.id)
           .update(student.toMap());
 
-      Get.snackbar("Success", "Student updated successfully");
+      SnackbarUtils.showAttractiveSnackbar("Success", "Student updated successfully");
       fetchStats(); // Refresh stats
     } catch (e) {
-      Get.snackbar("Error", "Update failed: $e");
+      SnackbarUtils.showAttractiveSnackbar("Error", "Update failed: $e", isError: true);
     }
   }
 
@@ -126,10 +153,10 @@ class AdminController extends GetxController {
           .doc(studentId)
           .delete();
 
-      Get.snackbar("Success", "Student deleted successfully");
+      SnackbarUtils.showAttractiveSnackbar("Success", "Student deleted successfully");
       fetchStats(); // Refresh stats
     } catch (e) {
-      Get.snackbar("Error", "Delete failed: $e");
+      SnackbarUtils.showAttractiveSnackbar("Error", "Delete failed: $e", isError: true);
     }
   }
 
@@ -163,10 +190,10 @@ class AdminController extends GetxController {
       // 4. Update local state
       users.removeWhere((u) => u['uid'] == userId);
       
-      Get.snackbar("Success", "User and all associated data deleted");
+      SnackbarUtils.showAttractiveSnackbar("Success", "User and all associated data deleted");
       fetchStats(); // Update dashboard stats
     } catch (e) {
-      Get.snackbar("Error", "Failed to delete user: $e");
+      SnackbarUtils.showAttractiveSnackbar("Error", "Failed to delete user: $e", isError: true);
     }
   }
 }

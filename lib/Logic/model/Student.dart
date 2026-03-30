@@ -16,7 +16,6 @@ class StudentModel {
   final String batchType;
   final DateTime joinDate;
   final String source;
-  final String status; // 'Active' or 'Inactive'
 
   StudentModel({
     this.id,
@@ -29,7 +28,6 @@ class StudentModel {
     required this.monthlyFee,
     required this.joinDate,
     this.source = 'Unknown',
-    this.status = 'Active',
     Timestamp? createdAt,
   }) : createdAt = createdAt ?? Timestamp.now();
 
@@ -52,7 +50,6 @@ class StudentModel {
         'batchType': batchType,
         'joinDate': Timestamp.fromDate(joinDate),
         'source': source,
-        'status': status,
       },
       'createdAt': createdAt,
     };
@@ -78,7 +75,6 @@ class StudentModel {
       monthlyFee: (payment['monthlyFee'] ?? 0).toDouble(),
       joinDate: (studentDetail['joinDate'] as Timestamp?)?.toDate() ?? DateTime.now(),
       source: studentDetail['source'] ?? 'Unknown',
-      status: studentDetail['status'] ?? 'Active',
       createdAt: map['createdAt'] as Timestamp?,
     );
   }

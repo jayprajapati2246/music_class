@@ -72,7 +72,6 @@ class UserServicesController extends GetxController {
               // Migrate to subcollection automatically
               await _firestore.collection('users').doc(uid).collection('services').add({
                 'course': c,
-                'status': 'Active',
                 'updatedAt': FieldValue.serverTimestamp(),
               });
             }
@@ -82,7 +81,6 @@ class UserServicesController extends GetxController {
               tempBatches.add(b);
               await _firestore.collection('users').doc(uid).collection('services').add({
                 'batch': b,
-                'status': 'Active',
                 'updatedAt': FieldValue.serverTimestamp(),
               });
             }
@@ -92,7 +90,6 @@ class UserServicesController extends GetxController {
               tempFees.add(f);
               await _firestore.collection('users').doc(uid).collection('services').add({
                 'fee': double.tryParse(f) ?? 0.0,
-                'status': 'Active',
                 'updatedAt': FieldValue.serverTimestamp(),
               });
             }
@@ -133,7 +130,6 @@ class UserServicesController extends GetxController {
         // Add to subcollection as a separate document
         await _firestore.collection('users').doc(uid).collection('services').add({
           'course': course,
-          'status': 'Active',
           'updatedAt': FieldValue.serverTimestamp(),
         });
       }
@@ -167,7 +163,6 @@ class UserServicesController extends GetxController {
         // Add to subcollection as a separate document
         await _firestore.collection('users').doc(uid).collection('services').add({
           'batch': batch,
-          'status': 'Active',
           'updatedAt': FieldValue.serverTimestamp(),
         });
       }
@@ -186,6 +181,39 @@ class UserServicesController extends GetxController {
         Colors.red,
         Icons.history_toggle_off_rounded,
       );
+    }
+  }
+
+  Future<void> addFee() async {
+    String feeStr = feeController.text.trim();
+    if (feeStr.isEmpty) return;
+
+    double? fee = double.tryParse(feeStr);
+    if (fee == null) {
+      showTopSnackbar("Error", "Invalid fee amount", Colors.red, Icons.error_outline);
+      return;
+    }
+
+    try {
+      String uid = _auth.currentUser!.uid;
+      
+      if (!fees.contains(feeStr)) {
+        fees.add(feeStr);
+        await _firestore.collection('users').doc(uid).collection('services').add({
+          'fee': fee,
+          'updatedAt': FieldValue.serverTimestamp(),
+        });
+      }
+      
+      feeController.clear();
+      showTopSnackbar(
+        "Success",
+        "Fee structure added",
+        Colors.green,
+        Icons.check_circle,
+      );
+    } catch (e) {
+      showTopSnackbar("Error", "Failed to add fee: $e", Colors.red, Icons.error_outline);
     }
   }
 
@@ -310,6 +338,29 @@ class UserServicesController extends GetxController {
       );
     } catch (e) {
       Get.snackbar("Error", "Failed to clear batches: $e");
+    }
+  }
+
+  Future<void> clearFees() async {
+    try {
+      String uid = _auth.currentUser!.uid;
+      fees.clear();
+      
+      var snapshots = await _firestore
+          .collection('users')
+          .doc(uid)
+          .collection('services')
+          .get();
+      
+      for (var doc in snapshots.docs) {
+        if (doc.data().containsKey('fee')) {
+          await doc.reference.delete();
+        }
+      }
+
+      showTopSnackbar("Success", "All fees cleared", Colors.green, Icons.check_circle);
+    } catch (e) {
+      Get.snackbar("Error", "Failed to clear fees: $e");
     }
   }
 

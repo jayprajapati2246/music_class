@@ -167,12 +167,18 @@ class UserDetailsPage extends StatelessWidget {
                             Colors.blueAccent,
                           ),
                           const SizedBox(width: 15),
-                          _buildStatCard(
-                            context,
-                            "Status",
-                            "Active",
-                            Icons.verified_rounded,
-                            Colors.green,
+                          FutureBuilder<double>(
+                            future: controller.getTotalCollectedForUser(user['uid']),
+                            builder: (context, feeSnapshot) {
+                              final totalCollected = feeSnapshot.data ?? 0.0;
+                              return _buildStatCard(
+                                context,
+                                "Total Collected",
+                                "₹${totalCollected.toStringAsFixed(0)}",
+                                Icons.account_balance_wallet_rounded,
+                                Colors.green,
+                              );
+                            },
                           ),
                         ],
                       );
@@ -221,7 +227,6 @@ class UserDetailsPage extends StatelessWidget {
                       final services = snapshot.data ?? [];
                       final courses = services.map((s) => s.course).toSet().toList();
                       final batches = services.map((s) => s.batch).toSet().toList();
-                      final fees = services.map((s) => "₹${s.fee}").toSet().toList();
 
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -257,19 +262,6 @@ class UserDetailsPage extends StatelessWidget {
                                 Icons.alarm_rounded,
                                 Colors.orangeAccent,
                               ),
-                              if (fees.isNotEmpty) ...[
-                                const Padding(
-                                  padding: EdgeInsets.symmetric(vertical: 12),
-                                  child: Divider(height: 1, thickness: 0.5),
-                                ),
-                                _buildServiceTags(
-                                  context,
-                                  "Fee structures",
-                                  fees,
-                                  Icons.account_balance_wallet_rounded,
-                                  Colors.tealAccent,
-                                ),
-                              ],
                             ],
                           ),
                         ],

@@ -89,12 +89,36 @@ class AuthController extends GetxController {
     }
   }
 
+  // Helper for attractive snackbars
+  void _showSnackbar(String title, String message, {bool isError = false}) {
+    Get.snackbar(
+      title,
+      message,
+      snackPosition: SnackPosition.TOP,
+      backgroundColor: isError ? Colors.red.withOpacity(0.9) : const Color(0xff6A5AE0).withOpacity(0.9),
+      colorText: Colors.white,
+      margin: const EdgeInsets.all(15),
+      borderRadius: 15,
+      icon: Icon(
+        isError ? Icons.error_outline : Icons.check_circle_outline,
+        color: Colors.white,
+      ),
+      duration: const Duration(seconds: 3),
+      boxShadows: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.2),
+          blurRadius: 10,
+          offset: const Offset(0, 5),
+        ),
+      ],
+    );
+  }
+
   // --- NEW: Email-based Forgot Password (Direct Flow) ---
 
   Future<void> checkEmailAndNavigate(String email) async {
     if (email.isEmpty || !GetUtils.isEmail(email)) {
-      Get.snackbar("Error", "Please enter a valid email address",
-          backgroundColor: Colors.orange, colorText: Colors.white);
+      _showSnackbar("Error", "Please enter a valid email address", isError: true);
       return;
     }
 
@@ -108,8 +132,7 @@ class AuthController extends GetxController {
           .get();
 
       if (query.docs.isEmpty) {
-        Get.snackbar("Not Found", "No account registered with this email.",
-            backgroundColor: Colors.red, colorText: Colors.white);
+        _showSnackbar("Not Found", "No account registered with this email.", isError: true);
         return;
       }
 
@@ -117,8 +140,7 @@ class AuthController extends GetxController {
       Get.to(() => const ResetPasswordScreen());
       
     } catch (e) {
-      Get.snackbar("Error", e.toString(),
-          backgroundColor: Colors.red, colorText: Colors.white);
+      _showSnackbar("Error", e.toString(), isError: true);
     } finally {
       isLoading.value = false;
     }
@@ -128,25 +150,17 @@ class AuthController extends GetxController {
     try {
       isLoading.value = true;
       
-      // Note: Firebase Auth does not allow updating password for an arbitrary email
-      // without being logged in or using an OOB code (Email Link/OTP).
-      // The standard secure way is sendPasswordResetEmail.
-      
       await _auth.sendPasswordResetEmail(email: resetEmail.value);
       
-      Get.snackbar(
+      _showSnackbar(
         "Reset Link Sent", 
-        "For security, Firebase requires password resets via email. A link has been sent to ${resetEmail.value}",
-        backgroundColor: Colors.green, 
-        colorText: Colors.white,
-        duration: const Duration(seconds: 5)
+        "A password reset link has been sent to ${resetEmail.value}",
       );
       
       Future.delayed(const Duration(seconds: 2), () => Get.offAll(() => const LoginScreen()));
       
     } catch (e) {
-      Get.snackbar("Error", e.toString(),
-          backgroundColor: Colors.red, colorText: Colors.white);
+      _showSnackbar("Error", e.toString(), isError: true);
     } finally {
       isLoading.value = false;
     }
@@ -157,8 +171,7 @@ class AuthController extends GetxController {
   Future<void> register(String name, String email, String password, String role, {required String phone}) async {
     final phoneRegex = RegExp(r'^\+[0-9]{1,4}[0-9]{10}$');
     if (!phoneRegex.hasMatch(phone)) {
-      Get.snackbar("Invalid Phone", "Please enter country code (+) followed by 10 digits",
-          backgroundColor: Colors.red, colorText: Colors.white);
+      _showSnackbar("Invalid Phone", "Please enter country code (+) followed by 10 digits", isError: true);
       return;
     }
 
@@ -180,12 +193,10 @@ class AuthController extends GetxController {
       };
       await _firestore.collection('users').doc(credential.user?.uid).set(userMap);
       userData.value = userMap;
-      Get.snackbar("Success", "Account created successfully",
-          backgroundColor: Colors.green, colorText: Colors.white);
+      _showSnackbar("Success", "Account created successfully");
       _initialScreen(credential.user);
     } catch (e) {
-      Get.snackbar("Error", e.toString(),
-          backgroundColor: Colors.red, colorText: Colors.white);
+      _showSnackbar("Error", e.toString(), isError: true);
     } finally {
       isLoading.value = false;
     }
@@ -198,8 +209,7 @@ class AuthController extends GetxController {
       await getUserDetails(credential.user!.uid);
       _initialScreen(credential.user);
     } catch (e) {
-      Get.snackbar("Login Failed", e.toString(),
-          backgroundColor: Colors.red, colorText: Colors.white);
+      _showSnackbar("Login Failed", e.toString(), isError: true);
     } finally {
       isLoading.value = false;
     }
@@ -238,8 +248,7 @@ class AuthController extends GetxController {
         }
       }
     } catch (e) {
-      Get.snackbar("Google Sign In Failed", e.toString(),
-          backgroundColor: Colors.red, colorText: Colors.white);
+      _showSnackbar("Google Sign In Failed", e.toString(), isError: true);
     } finally {
       isLoading.value = false;
     }

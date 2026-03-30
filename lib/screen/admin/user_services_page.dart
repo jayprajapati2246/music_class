@@ -227,21 +227,6 @@ class UserServicesPage extends StatelessWidget {
                     ],
                   ),
                 ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: (student.status == 'Active' ? Colors.green : Colors.red).withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    student.status,
-                    style: TextStyle(
-                      color: student.status == 'Active' ? Colors.green : Colors.red,
-                      fontSize: 11,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
                 const SizedBox(width: 8),
                 _buildActionMenu(context, student),
               ],

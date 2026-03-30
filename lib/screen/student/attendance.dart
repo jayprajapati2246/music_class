@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../Logic/controller/user/attendance.dart';
-import '../Logic/controller/user/showstudent.dart';
-import '../Logic/model/Student.dart';
+import '../../Logic/controller/user/attendance.dart';
+import '../../Logic/controller/user/showstudent.dart';
+import '../../Logic/model/Student.dart';
 
 class Attendance extends StatefulWidget {
   const Attendance({super.key});

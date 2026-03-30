@@ -36,7 +36,6 @@ class _AddnstudentState extends State<Addnstudent> {
           DateFormat('dd/MM/yyyy').format(widget.student!.joinDate);
       controller.amountController.text = widget.student!.monthlyFee.toString();
       controller.sourceController.text = widget.student!.source;
-      controller.selectedStatus = widget.student!.status;
     }
   }
 
@@ -140,25 +139,7 @@ class _AddnstudentState extends State<Addnstudent> {
                     ],
                   ),
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _label(context, "Status"),
-                      commonDropdown<String>(
-                        context: context,
-                        hintText: "Active",
-                        items: controller.statuses,
-                        value: controller.selectedStatus,
-                        itemLabel: (e) => e,
-                        onChanged: (value) {
-                          setState(() => controller.selectedStatus = value ?? 'Active');
-                        },
-                      ),
-                    ],
-                  ),
-                ),
+
               ],
             ),
             SizedBox(height: height * 0.02),
@@ -187,7 +168,8 @@ class _AddnstudentState extends State<Addnstudent> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _label(context, "Monthly Fee"),
+
+                      _label(context, "Total Fee"),
                       commonTextField(
                         context: context,
                         hintText: "Enter amount",
@@ -209,7 +191,7 @@ class _AddnstudentState extends State<Addnstudent> {
               },
             ),
             SizedBox(height: height * 0.02),
-            _label(context, "Source"),
+            _label(context, "Referral"),
             commonTextField(
               context: context,
               hintText: "e.g. Google, Friend, Instagram",

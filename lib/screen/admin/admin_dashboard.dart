@@ -94,7 +94,6 @@ class AdminDashboardPage extends StatelessWidget {
 
             const SizedBox(height: 25),
 
-            // ===== QUICK ACTION TITLE =====
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Row(
