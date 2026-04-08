@@ -26,7 +26,7 @@ class UserServicesController extends GetxController {
     try {
       isLoading.value = true;
       String uid = _auth.currentUser!.uid;
-      
+
       // 1. Try to fetch from the new subcollection structure
       QuerySnapshot snapshot = await _firestore
           .collection('users')
@@ -60,7 +60,7 @@ class UserServicesController extends GetxController {
         Map<String, dynamic> data = userDoc.data() as Map<String, dynamic>;
         if (data['services'] != null) {
           Map<String, dynamic> servicesField = data['services'];
-          
+
           List<String> oldCourses = List<String>.from(servicesField['courses'] ?? []);
           List<String> oldBatches = List<String>.from(servicesField['batchTimes'] ?? []);
           List<String> oldFees = List<String>.from(servicesField['fees'] ?? []);
@@ -124,7 +124,7 @@ class UserServicesController extends GetxController {
 
     try {
       String uid = _auth.currentUser!.uid;
-      
+
       if (!courses.contains(course)) {
         courses.add(course);
         // Add to subcollection as a separate document
@@ -133,7 +133,7 @@ class UserServicesController extends GetxController {
           'updatedAt': FieldValue.serverTimestamp(),
         });
       }
-      
+
       courseController.clear();
       showTopSnackbar(
         "Success",
@@ -157,7 +157,7 @@ class UserServicesController extends GetxController {
 
     try {
       String uid = _auth.currentUser!.uid;
-      
+
       if (!batchTimes.contains(batch)) {
         batchTimes.add(batch);
         // Add to subcollection as a separate document
@@ -166,7 +166,7 @@ class UserServicesController extends GetxController {
           'updatedAt': FieldValue.serverTimestamp(),
         });
       }
-      
+
       batchController.clear();
       showTopSnackbar(
         "Success",
@@ -196,7 +196,7 @@ class UserServicesController extends GetxController {
 
     try {
       String uid = _auth.currentUser!.uid;
-      
+
       if (!fees.contains(feeStr)) {
         fees.add(feeStr);
         await _firestore.collection('users').doc(uid).collection('services').add({
@@ -204,7 +204,7 @@ class UserServicesController extends GetxController {
           'updatedAt': FieldValue.serverTimestamp(),
         });
       }
-      
+
       feeController.clear();
       showTopSnackbar(
         "Success",
@@ -222,7 +222,7 @@ class UserServicesController extends GetxController {
       String uid = _auth.currentUser!.uid;
       String courseName = courses[index];
       courses.removeAt(index);
-      
+
       // Delete documents with this course name in subcollection
       var snapshots = await _firestore
           .collection('users')
@@ -230,7 +230,7 @@ class UserServicesController extends GetxController {
           .collection('services')
           .where('course', isEqualTo: courseName)
           .get();
-      
+
       for (var doc in snapshots.docs) {
         await doc.reference.delete();
       }
@@ -244,7 +244,7 @@ class UserServicesController extends GetxController {
       String uid = _auth.currentUser!.uid;
       String batchName = batchTimes[index];
       batchTimes.removeAt(index);
-      
+
       // Delete documents with this batch name in subcollection
       var snapshots = await _firestore
           .collection('users')
@@ -252,7 +252,7 @@ class UserServicesController extends GetxController {
           .collection('services')
           .where('batch', isEqualTo: batchName)
           .get();
-      
+
       for (var doc in snapshots.docs) {
         await doc.reference.delete();
       }
@@ -266,7 +266,7 @@ class UserServicesController extends GetxController {
       String uid = _auth.currentUser!.uid;
       String feeValue = fees[index];
       fees.removeAt(index);
-      
+
       double? feeNum = double.tryParse(feeValue);
       if (feeNum != null) {
         var snapshots = await _firestore
@@ -275,7 +275,7 @@ class UserServicesController extends GetxController {
             .collection('services')
             .where('fee', isEqualTo: feeNum)
             .get();
-        
+
         for (var doc in snapshots.docs) {
           await doc.reference.delete();
         }
@@ -289,13 +289,13 @@ class UserServicesController extends GetxController {
     try {
       String uid = _auth.currentUser!.uid;
       courses.clear();
-      
+
       var snapshots = await _firestore
           .collection('users')
           .doc(uid)
           .collection('services')
           .get();
-      
+
       for (var doc in snapshots.docs) {
         if (doc.data().containsKey('course')) {
           await doc.reference.delete();
@@ -303,8 +303,8 @@ class UserServicesController extends GetxController {
       }
 
       showTopSnackbar(
-          "Success",
-          "All courses cleared",
+        "Success",
+        "All courses cleared",
         Colors.green,
         Icons.check_circle,
       );
@@ -317,13 +317,13 @@ class UserServicesController extends GetxController {
     try {
       String uid = _auth.currentUser!.uid;
       batchTimes.clear();
-      
+
       var snapshots = await _firestore
           .collection('users')
           .doc(uid)
           .collection('services')
           .get();
-      
+
       for (var doc in snapshots.docs) {
         if (doc.data().containsKey('batch')) {
           await doc.reference.delete();
@@ -345,13 +345,13 @@ class UserServicesController extends GetxController {
     try {
       String uid = _auth.currentUser!.uid;
       fees.clear();
-      
+
       var snapshots = await _firestore
           .collection('users')
           .doc(uid)
           .collection('services')
           .get();
-      
+
       for (var doc in snapshots.docs) {
         if (doc.data().containsKey('fee')) {
           await doc.reference.delete();
@@ -370,13 +370,13 @@ class UserServicesController extends GetxController {
       courses.clear();
       batchTimes.clear();
       fees.clear();
-      
+
       var snapshots = await _firestore
           .collection('users')
           .doc(uid)
           .collection('services')
           .get();
-      
+
       for (var doc in snapshots.docs) {
         await doc.reference.delete();
       }

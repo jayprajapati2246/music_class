@@ -58,7 +58,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
             ),
           ),
-          
+
           SafeArea(
             child: SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 24.0),
@@ -123,9 +123,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       ],
                     ),
                   ),
-                  
+
                   const SizedBox(height: 40),
-                  
+
                   // Login Form Card
                   Container(
                     width: double.infinity,
@@ -151,7 +151,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         const SizedBox(height: 10),
                         const Text("Please sign in to continue", style: TextStyle(color: Colors.grey)),
                         const SizedBox(height: 30),
-                        
+
                         _buildInputField(
                           controller: emailController,
                           label: "Email",
@@ -168,7 +168,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           obscureText: _obscurePassword,
                           onToggle: () => setState(() => _obscurePassword = !_obscurePassword),
                         ),
-                        
+
                         Align(
                           alignment: Alignment.centerRight,
                           child: TextButton(
@@ -179,13 +179,13 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           ),
                         ),
-                        
+
                         const SizedBox(height: 20),
-                        
+
                         Obx(() => GestureDetector(
-                          onTap: authController.isLoading.value 
-                            ? null 
-                            : () => authController.login(emailController.text.trim(), passwordController.text.trim()),
+                          onTap: authController.isLoading.value
+                              ? null
+                              : () => authController.login(emailController.text.trim(), passwordController.text.trim()),
                           child: Container(
                             height: 60,
                             width: double.infinity,
@@ -204,20 +204,20 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                             child: Center(
                               child: authController.isLoading.value
-                                ? const CircularProgressIndicator(color: Colors.white)
-                                : const Text(
-                                    "SIGN IN",
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                      letterSpacing: 1.2,
-                                    ),
-                                  ),
+                                  ? const CircularProgressIndicator(color: Colors.white)
+                                  : const Text(
+                                "SIGN IN",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 1.2,
+                                ),
+                              ),
                             ),
                           ),
                         )),
-                        
+
                         const SizedBox(height: 25),
                         Row(
                           children: [
@@ -230,7 +230,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ],
                         ),
                         const SizedBox(height: 25),
-                        
+
                         // Google Sign In Button
                         Obx(() => OutlinedButton(
                           onPressed: authController.isLoading.value ? null : () => authController.signInWithGoogle(),
@@ -266,9 +266,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       ],
                     ),
                   ),
-                  
+
                   const SizedBox(height: 40),
-                  
+
                   // Footer section
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -328,11 +328,11 @@ class _LoginScreenState extends State<LoginScreen> {
               hintStyle: TextStyle(color: Colors.grey.shade400, fontWeight: FontWeight.normal),
               prefixIcon: Icon(icon, color: const Color(0xFF6A5AE0).withOpacity(0.7)),
               suffixIcon: isPassword
-                ? IconButton(
-                    icon: Icon(obscureText ? Icons.visibility_off : Icons.visibility, color: Colors.grey),
-                    onPressed: onToggle,
-                  )
-                : null,
+                  ? IconButton(
+                icon: Icon(obscureText ? Icons.visibility_off : Icons.visibility, color: Colors.grey),
+                onPressed: onToggle,
+              )
+                  : null,
               border: InputBorder.none,
               contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
             ),

@@ -158,9 +158,9 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
           prefixIcon: Icon(icon, color: const Color(0xFF6A5AE0).withOpacity(0.8), size: 22),
           suffixIcon: isPassword
               ? IconButton(
-                  icon: Icon(obscureText ? Icons.visibility_off : Icons.visibility, color: Colors.white38),
-                  onPressed: toggleVisibility,
-                )
+            icon: Icon(obscureText ? Icons.visibility_off : Icons.visibility, color: Colors.white38),
+            onPressed: toggleVisibility,
+          )
               : null,
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),

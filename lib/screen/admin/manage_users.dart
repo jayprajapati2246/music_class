@@ -131,12 +131,12 @@ class _ManageUsersPageState extends State<ManageUsersPage> {
                         onTap: () {
                           if (widget.isServiceFlow) {
                             Get.to(
-                              () => UserServicesPage(user: user),
+                                  () => UserServicesPage(user: user),
                               transition: Transition.cupertino,
                             );
                           } else {
                             Get.to(
-                              () => UserDetailsPage(user: user),
+                                  () => UserDetailsPage(user: user),
                               transition: Transition.cupertino,
                             );
                           }
@@ -154,11 +154,11 @@ class _ManageUsersPageState extends State<ManageUsersPage> {
                                   radius: 28,
                                   backgroundColor: primaryColor.withOpacity(0.1),
                                   backgroundImage: user['profileImage'] != null &&
-                                          user['profileImage'].isNotEmpty
+                                      user['profileImage'].isNotEmpty
                                       ? NetworkImage(user['profileImage'])
                                       : null,
                                   child: user['profileImage'] == null ||
-                                          user['profileImage'].isEmpty
+                                      user['profileImage'].isEmpty
                                       ? Icon(Icons.person, color: primaryColor)
                                       : null,
                                 ),

@@ -9,7 +9,7 @@ class UserServicesService {
 
   Future<Map<String, dynamic>?> fetchServices() async {
     if (_uid == null) return null;
-    
+
     // Fetch from subcollection
     QuerySnapshot snapshot = await _firestore
         .collection('users')
@@ -45,11 +45,11 @@ class UserServicesService {
 
   Future<void> updateServices(Map<String, dynamic> services) async {
     if (_uid == null) return;
-    
+
     // This method seems to be used for bulk update. 
     // In subcollection structure, we should handle items individually or clear and re-add.
     // For now, let's implement a replacement logic to maintain compatibility.
-    
+
     // 1. Clear existing subcollection
     var existing = await _firestore.collection('users').doc(_uid).collection('services').get();
     for (var doc in existing.docs) {
@@ -74,7 +74,7 @@ class UserServicesService {
         'updatedAt': FieldValue.serverTimestamp(),
       });
     }
-    
+
     // 3. Ensure old field is removed
     await _firestore.collection('users').doc(_uid).update({
       'services': FieldValue.delete(),
@@ -83,7 +83,7 @@ class UserServicesService {
 
   Future<void> clearServices() async {
     if (_uid == null) return;
-    
+
     var existing = await _firestore.collection('users').doc(_uid).collection('services').get();
     for (var doc in existing.docs) {
       await doc.reference.delete();

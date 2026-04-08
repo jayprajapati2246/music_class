@@ -22,7 +22,7 @@ class _MainscreenState extends State<Mainscreen> {
     setState(() {
       selectedIndex = index;
     });
-    
+
 
     if (index == 0) {
       try {
@@ -81,7 +81,7 @@ class _MainscreenState extends State<Mainscreen> {
             label: "Attendance",
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.payment_outlined), 
+            icon: Icon(Icons.payment_outlined),
             activeIcon: Icon(Icons.payment_rounded),
             label: "Payment",
           ),

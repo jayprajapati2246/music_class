@@ -168,7 +168,7 @@ class AdminController extends GetxController {
           .doc(userId)
           .collection('students')
           .get();
-      
+
       for (var doc in studentDocs.docs) {
         await doc.reference.delete();
       }
@@ -186,10 +186,10 @@ class AdminController extends GetxController {
 
       // 3. Delete the user document
       await _firestore.collection('users').doc(userId).delete();
-      
+
       // 4. Update local state
       users.removeWhere((u) => u['uid'] == userId);
-      
+
       SnackbarUtils.showAttractiveSnackbar("Success", "User and all associated data deleted");
       fetchStats(); // Update dashboard stats
     } catch (e) {

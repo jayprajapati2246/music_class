@@ -57,7 +57,7 @@ class HomeController extends GetxController {
   // Combined refresh method
   Future<void> refreshData() async {
     if (_userId == null) return;
-    
+
     // Re-trigger listeners
     _setupListeners();
 
@@ -77,11 +77,11 @@ class HomeController extends GetxController {
           .doc(_userId)
           .collection('students')
           .get();
-      
+
       totalStudents.value = studentDocs.docs.length;
 
       double totalPaymentsToday = 0;
-      
+
       DateTime now = DateTime.now();
       DateTime startOfDay = DateTime(now.year, now.month, now.day);
       DateTime endOfDay = DateTime(now.year, now.month, now.day, 23, 59, 59);
@@ -93,7 +93,7 @@ class HomeController extends GetxController {
             .where('date', isGreaterThanOrEqualTo: Timestamp.fromDate(startOfDay))
             .where('date', isLessThanOrEqualTo: Timestamp.fromDate(endOfDay))
             .get();
-        
+
         for (var p in payments.docs) {
           totalPaymentsToday += (p.data()['amount'] ?? 0).toDouble();
         }

@@ -12,15 +12,15 @@ import 'screen/auth/splash_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   // Initialize Firebase
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  
+
   // Initialize Ads
   await MobileAds.instance.initialize();
-  
+
   // Initialize Controllers permanently
   Get.put(ThemeController(), permanent: true);
   Get.put(AuthController(), permanent: true);
@@ -36,16 +36,16 @@ class MusicClassApp extends StatelessWidget {
   Widget build(BuildContext context) {
     // Use put here as a fail-safe to ensure the instance is available for the Obx
     final themeController = Get.put(ThemeController(), permanent: true);
-    
+
     return Obx(() => GetMaterialApp(
       title: 'MelodyMaster',
       debugShowCheckedModeBanner: false,
-      
+
       // Theme configuration
       theme: lightTheme,
       darkTheme: darkTheme,
       themeMode: themeController.theme,
-      
+
       home: const SplashScreen(),
     ));
   }

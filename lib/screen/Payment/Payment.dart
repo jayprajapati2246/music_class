@@ -88,10 +88,10 @@ class _PaymentState extends State<Payment> {
     todayTotal = _allPayments
         .where(
           (p) =>
-              p.date.day == now.day &&
-              p.date.month == now.month &&
-              p.date.year == now.year,
-        )
+      p.date.day == now.day &&
+          p.date.month == now.month &&
+          p.date.year == now.year,
+    )
         .fold(0.0, (sum, p) => sum + p.amount);
 
     return Scaffold(
@@ -109,8 +109,8 @@ class _PaymentState extends State<Payment> {
             Text(
               "₹${todayTotal.toStringAsFixed(0)} collected today",
               style: TextStyle(
-                color: isDark ? Colors.white60 : Colors.grey.shade400,
-                fontSize: 13
+                  color: isDark ? Colors.white60 : Colors.grey.shade400,
+                  fontSize: 13
               ),
             ),
           ],
@@ -119,69 +119,69 @@ class _PaymentState extends State<Payment> {
       body: _isLoading
           ? Center(child: CircularProgressIndicator(color: theme.primaryColor))
           : _allPayments.isEmpty
-              ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.payment_rounded, size: 64, color: isDark ? Colors.white24 : Colors.grey.shade300),
-                      const SizedBox(height: 16),
-                      Text(
-                        "No payments recorded yet.",
-                        style: TextStyle(color: isDark ? Colors.white38 : Colors.grey),
-                      ),
-                    ],
-                  ),
-                )
-              : RefreshIndicator(
-                  onRefresh: _loadData,
-                  child: ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                    itemCount: _allPayments.length,
-                    itemBuilder: (context, index) {
-                      final payment = _allPayments[index];
-                      final studentName = _studentNames[payment.studentId] ?? "Unknown";
-                      
-                      return Card(
-                        margin: const EdgeInsets.only(bottom: 12),
-                        color: theme.cardColor,
-                        elevation: 2,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: ListTile(
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                          leading: CircleAvatar(
-                            radius: 22,
-                            backgroundColor: theme.primaryColor.withOpacity(0.1),
-                            child: Icon(Icons.person, color: theme.primaryColor),
-                          ),
-                          title: Text(
-                            studentName,
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: theme.colorScheme.onSurface,
-                            ),
-                          ),
-                          subtitle: Padding(
-                            padding: const EdgeInsets.only(top: 4),
-                            child: Text(
-                              "${payment.month} • ${DateFormat('dd MMM yyyy').format(payment.date)}",
-                              style: TextStyle(color: isDark ? Colors.white60 : Colors.black54),
-                            ),
-                          ),
-                          trailing: Text(
-                            "₹${payment.amount.toStringAsFixed(0)}",
-                            style: const TextStyle(
-                              fontWeight: FontWeight.w900,
-                              color: Colors.green,
-                              fontSize: 18,
-                            ),
-                          ),
-                        ),
-                      );
-                    },
+          ? Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.payment_rounded, size: 64, color: isDark ? Colors.white24 : Colors.grey.shade300),
+            const SizedBox(height: 16),
+            Text(
+              "No payments recorded yet.",
+              style: TextStyle(color: isDark ? Colors.white38 : Colors.grey),
+            ),
+          ],
+        ),
+      )
+          : RefreshIndicator(
+        onRefresh: _loadData,
+        child: ListView.builder(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          itemCount: _allPayments.length,
+          itemBuilder: (context, index) {
+            final payment = _allPayments[index];
+            final studentName = _studentNames[payment.studentId] ?? "Unknown";
+
+            return Card(
+              margin: const EdgeInsets.only(bottom: 12),
+              color: theme.cardColor,
+              elevation: 2,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: ListTile(
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                leading: CircleAvatar(
+                  radius: 22,
+                  backgroundColor: theme.primaryColor.withOpacity(0.1),
+                  child: Icon(Icons.person, color: theme.primaryColor),
+                ),
+                title: Text(
+                  studentName,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: theme.colorScheme.onSurface,
                   ),
                 ),
+                subtitle: Padding(
+                  padding: const EdgeInsets.only(top: 4),
+                  child: Text(
+                    "${payment.month} • ${DateFormat('dd MMM yyyy').format(payment.date)}",
+                    style: TextStyle(color: isDark ? Colors.white60 : Colors.black54),
+                  ),
+                ),
+                trailing: Text(
+                  "₹${payment.amount.toStringAsFixed(0)}",
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w900,
+                    color: Colors.green,
+                    fontSize: 18,
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           final result = await Get.to(() => const AddPaymentPage());

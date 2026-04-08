@@ -17,13 +17,11 @@ class _SignupScreenState extends State<SignupScreen> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   final confirmPasswordController = TextEditingController();
-  
+
   final AuthController authController = Get.find();
-  
+
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
-  String selectedRole = "Student";
-  final List<String> roles = ["Student", "Admin"];
 
   @override
   Widget build(BuildContext context) {
@@ -99,9 +97,9 @@ class _SignupScreenState extends State<SignupScreen> {
                     "Fill in your details to get started",
                     style: TextStyle(color: Colors.white70, fontSize: 14),
                   ),
-                  
+
                   const SizedBox(height: 30),
-                  
+
                   // Signup Form Card
                   Container(
                     width: double.infinity,
@@ -146,42 +144,7 @@ class _SignupScreenState extends State<SignupScreen> {
                           keyboardType: TextInputType.emailAddress,
                         ),
                         const SizedBox(height: 18),
-                        
-                        // Role Dropdown
-                        const Text(
-                          "Select Role",
-                          style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: Colors.black54),
-                        ),
-                        const SizedBox(height: 8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
-                          decoration: BoxDecoration(
-                            color: Colors.grey.shade100,
-                            borderRadius: BorderRadius.circular(15),
-                          ),
-                          child: DropdownButtonHideUnderline(
-                            child: DropdownButton<String>(
-                              value: selectedRole,
-                              isExpanded: true,
-                              icon: const Icon(Icons.keyboard_arrow_down_rounded),
-                              items: roles.map((String role) {
-                                return DropdownMenuItem(
-                                  value: role,
-                                  child: Text(role, style: const TextStyle(fontWeight: FontWeight.w600)),
-                                );
-                              }).toList(),
-                              onChanged: (String? newValue) {
-                                if (newValue != null) {
-                                  setState(() {
-                                    selectedRole = newValue;
-                                  });
-                                }
-                              },
-                            ),
-                          ),
-                        ),
-                        
-                        const SizedBox(height: 18),
+
                         _buildInputField(
                           controller: passwordController,
                           label: "Password",
@@ -201,36 +164,36 @@ class _SignupScreenState extends State<SignupScreen> {
                           obscureText: _obscureConfirmPassword,
                           onToggle: () => setState(() => _obscureConfirmPassword = !_obscureConfirmPassword),
                         ),
-                        
-                        const SizedBox(height: 40),
-                        
-                        Obx(() => GestureDetector(
-                          onTap: authController.isLoading.value 
-                            ? null 
-                            : () {
-                                if (passwordController.text != confirmPasswordController.text) {
-                                  Get.snackbar("Error", "Passwords do not match",
-                                      backgroundColor: Colors.red.withOpacity(0.8),
-                                      colorText: Colors.white);
-                                  return;
-                                }
-                                
-                                String phone = phoneController.text.trim();
-                                if (!phone.startsWith('+') || phone.length < 11) {
-                                   Get.snackbar("Error", "Enter country code (+) followed by 10 digits",
-                                      backgroundColor: Colors.red.withOpacity(0.8),
-                                      colorText: Colors.white);
-                                  return;
-                                }
 
-                                authController.register(
-                                  nameController.text.trim(),
-                                  emailController.text.trim(),
-                                  passwordController.text.trim(),
-                                  selectedRole,
-                                  phone: phone,
-                                );
-                              },
+                        const SizedBox(height: 40),
+
+                        Obx(() => GestureDetector(
+                          onTap: authController.isLoading.value
+                              ? null
+                              : () {
+                            if (passwordController.text != confirmPasswordController.text) {
+                              Get.snackbar("Error", "Passwords do not match",
+                                  backgroundColor: Colors.red.withOpacity(0.8),
+                                  colorText: Colors.white);
+                              return;
+                            }
+
+                            String phone = phoneController.text.trim();
+                            if (!phone.startsWith('+') || phone.length < 11) {
+                              Get.snackbar("Error", "Enter country code (+) followed by 10 digits",
+                                  backgroundColor: Colors.red.withOpacity(0.8),
+                                  colorText: Colors.white);
+                              return;
+                            }
+
+                            authController.register(
+                              nameController.text.trim(),
+                              emailController.text.trim(),
+                              passwordController.text.trim(),
+                              "Student", // Default role
+                              phone: phone,
+                            );
+                          },
                           child: Container(
                             height: 60,
                             width: double.infinity,
@@ -249,25 +212,25 @@ class _SignupScreenState extends State<SignupScreen> {
                             ),
                             child: Center(
                               child: authController.isLoading.value
-                                ? const CircularProgressIndicator(color: Colors.white)
-                                : const Text(
-                                    "CREATE ACCOUNT",
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                      letterSpacing: 1.2,
-                                    ),
-                                  ),
+                                  ? const CircularProgressIndicator(color: Colors.white)
+                                  : const Text(
+                                "CREATE ACCOUNT",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 1.2,
+                                ),
+                              ),
                             ),
                           ),
                         )),
                       ],
                     ),
                   ),
-                  
+
                   const SizedBox(height: 30),
-                  
+
                   // Footer section
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -331,11 +294,11 @@ class _SignupScreenState extends State<SignupScreen> {
               hintStyle: TextStyle(color: Colors.grey.shade400, fontWeight: FontWeight.normal),
               prefixIcon: Icon(icon, color: const Color(0xFF6A5AE0).withOpacity(0.7)),
               suffixIcon: isPassword
-                ? IconButton(
-                    icon: Icon(obscureText ? Icons.visibility_off : Icons.visibility, color: Colors.grey),
-                    onPressed: onToggle,
-                  )
-                : null,
+                  ? IconButton(
+                icon: Icon(obscureText ? Icons.visibility_off : Icons.visibility, color: Colors.grey),
+                onPressed: onToggle,
+              )
+                  : null,
               border: InputBorder.none,
               contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
             ),

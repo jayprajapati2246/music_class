@@ -86,18 +86,18 @@ class UserDetailsPage extends StatelessWidget {
                                   ? theme.cardColor
                                   : Colors.white,
                               backgroundImage:
-                                  user['profileImage'] != null &&
-                                      user['profileImage'].isNotEmpty
+                              user['profileImage'] != null &&
+                                  user['profileImage'].isNotEmpty
                                   ? NetworkImage(user['profileImage'])
                                   : null,
                               child:
-                                  user['profileImage'] == null ||
-                                      user['profileImage'].isEmpty
+                              user['profileImage'] == null ||
+                                  user['profileImage'].isEmpty
                                   ? Icon(
-                                      Icons.person,
-                                      size: 55,
-                                      color: primaryColor,
-                                    )
+                                Icons.person,
+                                size: 55,
+                                color: primaryColor,
+                              )
                                   : null,
                             ),
                           ),
@@ -458,12 +458,12 @@ class UserDetailsPage extends StatelessWidget {
   }
 
   Widget _buildStatCard(
-    BuildContext context,
-    String label,
-    String value,
-    IconData icon,
-    Color color,
-  ) {
+      BuildContext context,
+      String label,
+      String value,
+      IconData icon,
+      Color color,
+      ) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
@@ -541,12 +541,12 @@ class UserDetailsPage extends StatelessWidget {
   }
 
   Widget _buildServiceTags(
-    BuildContext context,
-    String title,
-    List<String> tags,
-    IconData icon,
-    Color color,
-  ) {
+      BuildContext context,
+      String title,
+      List<String> tags,
+      IconData icon,
+      Color color,
+      ) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
@@ -571,46 +571,46 @@ class UserDetailsPage extends StatelessWidget {
         const SizedBox(height: 14),
         tags.isEmpty
             ? Text(
-                "No $title configured",
-                style: TextStyle(
-                  fontSize: 13,
-                  fontStyle: FontStyle.italic,
-                  color: theme.colorScheme.onSurface.withValues(alpha: 0.3),
-                ),
-              )
+          "No $title configured",
+          style: TextStyle(
+            fontSize: 13,
+            fontStyle: FontStyle.italic,
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.3),
+          ),
+        )
             : Wrap(
-                spacing: 10,
-                runSpacing: 10,
-                children: tags
-                    .map(
-                      (tag) => Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 14,
-                          vertical: 8,
-                        ),
-                        decoration: BoxDecoration(
-                          color: isDark
-                              ? color.withValues(alpha: 0.15)
-                              : color.withValues(alpha: 0.08),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: color.withValues(alpha: isDark ? 0.3 : 0.2),
-                          ),
-                        ),
-                        child: Text(
-                          tag,
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700,
-                            color: isDark
-                                ? color
-                                : color.withValues(alpha: 0.9),
-                          ),
-                        ),
-                      ),
-                    )
-                    .toList(),
+          spacing: 10,
+          runSpacing: 10,
+          children: tags
+              .map(
+                (tag) => Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 14,
+                vertical: 8,
               ),
+              decoration: BoxDecoration(
+                color: isDark
+                    ? color.withValues(alpha: 0.15)
+                    : color.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: color.withValues(alpha: isDark ? 0.3 : 0.2),
+                ),
+              ),
+              child: Text(
+                tag,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  color: isDark
+                      ? color
+                      : color.withValues(alpha: 0.9),
+                ),
+              ),
+            ),
+          )
+              .toList(),
+        ),
       ],
     );
   }

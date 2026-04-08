@@ -37,8 +37,8 @@ class SettingsPage extends StatelessWidget {
               child: Row(
                 children: [
                   Icon(
-                    themeController.isDarkMode 
-                        ? Icons.dark_mode_rounded 
+                    themeController.isDarkMode
+                        ? Icons.dark_mode_rounded
                         : Icons.light_mode_rounded,
                     color: Theme.of(context).primaryColor,
                   ),

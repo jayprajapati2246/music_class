@@ -63,15 +63,15 @@ class _userprofileState extends State<userprofile> {
                       gradient: LinearGradient(
                         colors: isDark
                             ? [
-                                const Color(0xFF1A1A2E),
-                                const Color(0xFF16213E),
-                                const Color(0xFF0F3460),
-                              ]
+                          const Color(0xFF1A1A2E),
+                          const Color(0xFF16213E),
+                          const Color(0xFF0F3460),
+                        ]
                             : [
-                                const Color(0xff6A5AE0),
-                                const Color(0xff8E54E9),
-                                const Color(0xff92278F),
-                              ],
+                          const Color(0xff6A5AE0),
+                          const Color(0xff8E54E9),
+                          const Color(0xff92278F),
+                        ],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
@@ -141,10 +141,10 @@ class _userprofileState extends State<userprofile> {
                             : null,
                         child: profileImg.isEmpty
                             ? Icon(
-                                Icons.person_rounded,
-                                size: 85,
-                                color: theme.primaryColor,
-                              )
+                          Icons.person_rounded,
+                          size: 85,
+                          color: theme.primaryColor,
+                        )
                             : null,
                       ),
                     ),
@@ -396,11 +396,11 @@ class _userprofileState extends State<userprofile> {
   }
 
   Widget _buildInfoRow(
-    BuildContext context,
-    IconData icon,
-    String title,
-    String value,
-  ) {
+      BuildContext context,
+      IconData icon,
+      String title,
+      String value,
+      ) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 

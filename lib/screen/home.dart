@@ -52,9 +52,9 @@ class _HomePageState extends State<HomePage> {
                 padding: const EdgeInsets.fromLTRB(20, 50, 20, 30),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: isDark 
-                      ? [const Color(0xff1E1E1E), const Color(0xff2C2C2C)]
-                      : [const Color(0xff6A5AE0), const Color(0xff8E54E9)],
+                    colors: isDark
+                        ? [const Color(0xff1E1E1E), const Color(0xff2C2C2C)]
+                        : [const Color(0xff6A5AE0), const Color(0xff8E54E9)],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
@@ -89,9 +89,9 @@ class _HomePageState extends State<HomePage> {
                                   : null,
                               child: (profileImage == null || profileImage.isEmpty)
                                   ? const Icon(
-                                      Icons.person,
-                                      color: Colors.white,
-                                    )
+                                Icons.person,
+                                color: Colors.white,
+                              )
                                   : null,
                             ),
                           ),
@@ -122,7 +122,7 @@ class _HomePageState extends State<HomePage> {
                     }),
                     const SizedBox(height: 25),
                     Obx(
-                      () => Row(
+                          () => Row(
                         children: [
                           Expanded(
                             child: topCard(
@@ -153,7 +153,7 @@ class _HomePageState extends State<HomePage> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Obx(
-                  () => Row(
+                      () => Row(
                     children: [
                       Expanded(
                         child: paymentCard(
@@ -304,12 +304,12 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget topCard(
-    String value,
-    String title,
-    IconData icon,
-    BuildContext context, {
-    VoidCallback? onTap,
-  }) {
+      String value,
+      String title,
+      IconData icon,
+      BuildContext context, {
+        VoidCallback? onTap,
+      }) {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(20),
@@ -344,12 +344,12 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget paymentCard(
-    String amount,
-    String title,
-    Color iconColor,
-    BuildContext context,
-    VoidCallback onTap,
-  ) {
+      String amount,
+      String title,
+      Color iconColor,
+      BuildContext context,
+      VoidCallback onTap,
+      ) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
@@ -376,7 +376,7 @@ class _HomePageState extends State<HomePage> {
             Text(
               amount,
               style: TextStyle(
-                fontSize: 18, 
+                fontSize: 18,
                 fontWeight: FontWeight.bold,
                 color: theme.colorScheme.onSurface,
               ),
@@ -385,7 +385,7 @@ class _HomePageState extends State<HomePage> {
             Text(
               title,
               style: TextStyle(
-                fontSize: 12, 
+                fontSize: 12,
                 color: isDark ? Colors.white60 : Colors.grey,
               ),
             ),
@@ -396,12 +396,12 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget actionButton(
-    String title,
-    IconData icon,
-    Color color,
-    BuildContext context,
-    VoidCallback onTap,
-  ) {
+      String title,
+      IconData icon,
+      Color color,
+      BuildContext context,
+      VoidCallback onTap,
+      ) {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(14),

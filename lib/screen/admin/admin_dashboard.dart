@@ -28,9 +28,9 @@ class AdminDashboardPage extends StatelessWidget {
               ),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: isDark 
-                    ? [const Color(0xFF1A1A2E), const Color(0xFF16213E), const Color(0xFF0F3460)]
-                    : [const Color(0xFF6A5AE0), const Color(0xFF8E54E9), const Color(0xFF92278F)],
+                  colors: isDark
+                      ? [const Color(0xFF1A1A2E), const Color(0xFF16213E), const Color(0xFF0F3460)]
+                      : [const Color(0xFF6A5AE0), const Color(0xFF8E54E9), const Color(0xFF92278F)],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
@@ -70,7 +70,7 @@ class AdminDashboardPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 25),
                   Obx(
-                    () => Row(
+                        () => Row(
                       children: [
                         Expanded(
                           child: _statCard(
@@ -101,9 +101,9 @@ class AdminDashboardPage extends StatelessWidget {
                   Text(
                     "Quick Actions",
                     style: TextStyle(
-                      fontSize: 20, 
-                      fontWeight: FontWeight.bold,
-                      color: theme.colorScheme.onSurface
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: theme.colorScheme.onSurface
                     ),
                   ),
                 ],
@@ -124,7 +124,7 @@ class AdminDashboardPage extends StatelessWidget {
                 children: [
                   GestureDetector(
                     onTap: () => Get.to(
-                      () => ManageUsersPage(
+                          () => ManageUsersPage(
                         appBarTitle: "Users Student",
                         isServiceFlow: true,
                       ),
@@ -138,7 +138,7 @@ class AdminDashboardPage extends StatelessWidget {
                   ),
                   GestureDetector(
                     onTap: () => Get.to(
-                      () => ManageUsersPage(
+                          () => ManageUsersPage(
                         appBarTitle: "Manage Users",
                         isServiceFlow: false,
                       ),

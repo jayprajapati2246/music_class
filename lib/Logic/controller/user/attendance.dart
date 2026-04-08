@@ -29,10 +29,10 @@ class AttendanceController extends GetxController {
   Future<void> fetchAttendanceForSelectedDate() async {
     if (_userId == null) return;
     attendanceStatus.clear();
-    
+
     try {
       final dateStr = formattedDate;
-      
+
       final snapshot = await _firestore
           .collection('users')
           .doc(_userId)

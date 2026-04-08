@@ -7,7 +7,7 @@ class ThemeController extends GetxController {
 
 
   final _themeModeStr = 'system'.obs;
-  
+
   String get currentThemeModeStr => _themeModeStr.value;
 
   /// Map string to ThemeMode
@@ -45,7 +45,7 @@ class ThemeController extends GetxController {
   }
 
   /// Helper for toggle (switches between light and dark, or moves away from system)
-  bool get isDarkMode => _themeModeStr.value == 'dark' || 
+  bool get isDarkMode => _themeModeStr.value == 'dark' ||
       (_themeModeStr.value == 'system' && Get.isPlatformDarkMode);
 
   void toggleTheme() {

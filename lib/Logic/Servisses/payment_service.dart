@@ -26,7 +26,7 @@ class PaymentService {
     return _paymentCollection(studentId)
         .snapshots()
         .map((snapshot) => snapshot.docs
-            .map((doc) => PaymentModel.fromMap(doc.data() as Map<String, dynamic>, doc.id))
-            .toList());
+        .map((doc) => PaymentModel.fromMap(doc.data() as Map<String, dynamic>, doc.id))
+        .toList());
   }
 }

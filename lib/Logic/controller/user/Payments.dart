@@ -36,13 +36,13 @@ class PaymentController {
         .snapshots()
         .map(
           (snapshot) => snapshot.docs
-              .map((doc) => PaymentModel.fromMap(doc.data() as Map<String, dynamic>, doc.id))
-              .toList(),
-        );
+          .map((doc) => PaymentModel.fromMap(doc.data() as Map<String, dynamic>, doc.id))
+          .toList(),
+    );
   }
 
-  // Get all payments (This is expensive in a nested schema without Collection Group)
-  // For now, if needed, we'd have to use a Collection Group query.
-  // If your app heavily relies on "all payments" across all students, 
-  // you might need to set up a Firestore Index for a Collection Group query on 'payments'.
+// Get all payments (This is expensive in a nested schema without Collection Group)
+// For now, if needed, we'd have to use a Collection Group query.
+// If your app heavily relies on "all payments" across all students,
+// you might need to set up a Firestore Index for a Collection Group query on 'payments'.
 }

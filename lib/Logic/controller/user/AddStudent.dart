@@ -41,7 +41,7 @@ class Addstudentcontroller extends GetxController {
   Future<void> fetchUserServices() async {
     try {
       String uid = targetUserId ?? _auth.currentUser!.uid;
-      
+
       // Fetch from the new services subcollectio
       QuerySnapshot snapshot = await _firestore
           .collection('users')
@@ -73,7 +73,7 @@ class Addstudentcontroller extends GetxController {
           Map<String, dynamic> services = data['services'];
           List<String> oldCourses = List<String>.from(services['courses'] ?? []);
           List<String> oldBatches = List<String>.from(services['batchTimes'] ?? []);
-          
+
           for (var c in oldCourses) {
             if (!userCourses.contains(c)) userCourses.add(c);
           }
@@ -85,7 +85,7 @@ class Addstudentcontroller extends GetxController {
 
       courses.value = userCourses.toSet().toList();
       batchTime.value = userBatches.toSet().toList();
-      
+
     } catch (e) {
       debugPrint("Error fetching user services: $e");
     }

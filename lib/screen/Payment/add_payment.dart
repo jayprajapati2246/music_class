@@ -20,7 +20,7 @@ class _AddPaymentPageState extends State<AddPaymentPage> {
   final TextEditingController noteController = TextEditingController();
   final PaymentController _paymentController = PaymentController();
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  
+
   List<StudentModel> _students = [];
   bool _isLoadingStudents = true;
   String selectedMonth = DateFormat('MMMM yyyy').format(DateTime.now());
@@ -41,7 +41,7 @@ class _AddPaymentPageState extends State<AddPaymentPage> {
           .doc(userId)
           .collection('students')
           .get();
-          
+
       setState(() {
         _students = snapshot.docs
             .map((doc) => StudentModel.fromMap(doc.data(), doc.id))
@@ -90,7 +90,7 @@ class _AddPaymentPageState extends State<AddPaymentPage> {
           ),
         ),
       ),
-      body: _isLoadingStudents 
+      body: _isLoadingStudents
           ? Center(child: CircularProgressIndicator(color: theme.primaryColor))
           : SafeArea(
         child: SingleChildScrollView(
@@ -154,8 +154,8 @@ class _AddPaymentPageState extends State<AddPaymentPage> {
                     icon: Icon(Icons.calendar_month, color: theme.primaryColor),
                     items: _getMonthsList().map((month) {
                       return DropdownMenuItem(
-                        value: month, 
-                        child: Text(month, style: TextStyle(color: theme.colorScheme.onSurface))
+                          value: month,
+                          child: Text(month, style: TextStyle(color: theme.colorScheme.onSurface))
                       );
                     }).toList(),
                     onChanged: (val) {

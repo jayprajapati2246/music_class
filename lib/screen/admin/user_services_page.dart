@@ -40,9 +40,9 @@ class UserServicesPage extends StatelessWidget {
         children: [
           // User Info Section
           _buildUserHeader(context, isDark),
-          
+
           const SizedBox(height: 10),
-          
+
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
             child: Row(
@@ -52,9 +52,9 @@ class UserServicesPage extends StatelessWidget {
                 Text(
                   "Assigned Services",
                   style: TextStyle(
-                    fontSize: 18, 
-                    fontWeight: FontWeight.bold,
-                    color: theme.colorScheme.onSurface
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: theme.colorScheme.onSurface
                   ),
                 ),
               ],
@@ -97,9 +97,9 @@ class UserServicesPage extends StatelessWidget {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: isDark 
-            ? [const Color(0xFF2C2C44), const Color(0xFF1A1A2E)]
-            : [const Color(0xFF6A5AE0).withOpacity(0.9), const Color(0xFF8E54E9).withOpacity(0.9)],
+          colors: isDark
+              ? [const Color(0xFF2C2C44), const Color(0xFF1A1A2E)]
+              : [const Color(0xFF6A5AE0).withOpacity(0.9), const Color(0xFF8E54E9).withOpacity(0.9)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -232,7 +232,7 @@ class UserServicesPage extends StatelessWidget {
               ],
             ),
           ),
-          
+
           Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -304,7 +304,7 @@ class UserServicesPage extends StatelessWidget {
       onSelected: (value) async {
         if (value == "edit") {
           await Get.to(
-            () => Addnstudent(
+                () => Addnstudent(
               student: student,
               userId: user['uid'],
             ),
@@ -345,25 +345,25 @@ class UserServicesPage extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(
-            Icons.layers_clear_outlined, 
-            size: 80, 
-            color: isDark ? Colors.white12 : Colors.grey.shade300
+              Icons.layers_clear_outlined,
+              size: 80,
+              color: isDark ? Colors.white12 : Colors.grey.shade300
           ),
           const SizedBox(height: 16),
           Text(
             "No services assigned yet",
             style: TextStyle(
-              fontSize: 18, 
-              fontWeight: FontWeight.w500,
-              color: isDark ? Colors.white38 : Colors.grey
+                fontSize: 18,
+                fontWeight: FontWeight.w500,
+                color: isDark ? Colors.white38 : Colors.grey
             ),
           ),
           const SizedBox(height: 8),
           Text(
             "Add services to see them here",
             style: TextStyle(
-              fontSize: 14, 
-              color: isDark ? Colors.white24 : Colors.grey.shade400
+                fontSize: 14,
+                color: isDark ? Colors.white24 : Colors.grey.shade400
             ),
           ),
         ],

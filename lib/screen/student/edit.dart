@@ -43,7 +43,7 @@ class EditDetail extends StatelessWidget {
           IconButton(
             onPressed: () async {
               final result = await Get.to(
-                () => Addnstudent(student: controller.student.value),
+                    () => Addnstudent(student: controller.student.value),
               );
 
               if (result == true) {
@@ -98,7 +98,7 @@ class EditDetail extends StatelessWidget {
   Widget _buildHeader(BuildContext context, StudentModel student) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -127,17 +127,17 @@ class EditDetail extends StatelessWidget {
                 Text(
                   student.name,
                   style: TextStyle(
-                    fontSize: 20, 
-                    fontWeight: FontWeight.bold,
-                    color: theme.colorScheme.onSurface
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: theme.colorScheme.onSurface
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   "Joined on ${DateFormat('MMM d, yyyy').format(student.joinDate)}",
                   style: TextStyle(
-                    fontSize: 14, 
-                    color: isDark ? Colors.white60 : Colors.black54
+                      fontSize: 14,
+                      color: isDark ? Colors.white60 : Colors.black54
                   ),
                 ),
               ],
@@ -197,26 +197,26 @@ class EditDetail extends StatelessWidget {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     return Obx(() => Container(
-          padding: const EdgeInsets.all(6),
-          decoration: BoxDecoration(
-            color: theme.cardColor,
-            borderRadius: BorderRadius.circular(30),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(isDark ? 0.2 : 0.05),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
-              ),
-            ],
+      padding: const EdgeInsets.all(6),
+      decoration: BoxDecoration(
+        color: theme.cardColor,
+        borderRadius: BorderRadius.circular(30),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(isDark ? 0.2 : 0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
           ),
-          child: Row(
-            children: [
-              _tabItem(context, "Attendance", 0),
-              _tabItem(context, "Payments", 1),
-              _tabItem(context, "Add Pay", 2),
-            ],
-          ),
-        ));
+        ],
+      ),
+      child: Row(
+        children: [
+          _tabItem(context, "Attendance", 0),
+          _tabItem(context, "Payments", 1),
+          _tabItem(context, "Add Pay", 2),
+        ],
+      ),
+    ));
   }
 
   Widget _tabItem(BuildContext context, String title, int index) {
@@ -231,7 +231,7 @@ class EditDetail extends StatelessWidget {
           duration: const Duration(milliseconds: 300),
           padding: const EdgeInsets.symmetric(vertical: 12),
           decoration: BoxDecoration(
-            color: isSelected 
+            color: isSelected
                 ? theme.primaryColor
                 : Colors.transparent,
             borderRadius: BorderRadius.circular(25),
@@ -242,7 +242,7 @@ class EditDetail extends StatelessWidget {
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.bold,
-                color: isSelected 
+                color: isSelected
                     ? Colors.white
                     : (isDark ? Colors.white38 : Colors.grey.shade600),
               ),
@@ -280,12 +280,12 @@ class EditDetail extends StatelessWidget {
         }
 
         final allRecords = snapshot.data ?? [];
-        
+
         return Obx(() {
           final focusedMonth = controller.focusedDay.value;
-          final focusedMonthRecords = allRecords.where((r) => 
-            r.date.month == focusedMonth.month && 
-            r.date.year == focusedMonth.year
+          final focusedMonthRecords = allRecords.where((r) =>
+          r.date.month == focusedMonth.month &&
+              r.date.year == focusedMonth.year
           ).toList();
 
           final presentCount = focusedMonthRecords.where((e) => e.status == 'present').length;
@@ -372,7 +372,7 @@ class EditDetail extends StatelessWidget {
   void _showMarkAttendanceDialog(BuildContext context, DateTime date) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    
+
     Get.bottomSheet(
       Container(
         padding: const EdgeInsets.all(24),

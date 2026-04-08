@@ -5,11 +5,11 @@ class StudentModel {
   // Profile field group
   final String name;
   final String phone;
-  
+
   // Payment field group
   final String paymentType;
   final double monthlyFee;
-  
+
   // StudentDetail field group
   final String course;
   final String batchTime;

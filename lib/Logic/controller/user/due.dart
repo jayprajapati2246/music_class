@@ -42,7 +42,7 @@ class DueController {
 
   Future<Map<String, dynamic>> calculateStudentDue(StudentModel student) async {
     double totalPaid = 0;
-    
+
     // Get payments from the nested collection
     QuerySnapshot paymentSnapshot = await _studentCollection
         .doc(student.id)

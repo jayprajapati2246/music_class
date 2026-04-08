@@ -19,7 +19,6 @@ class SplashScreen extends StatelessWidget {
         child: Stack(
           alignment: Alignment.center,
           children: [
-            // Centered Content
             Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,

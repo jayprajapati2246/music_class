@@ -3,7 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class ServiceModel {
   final String? id;
   final String course;
-  final String batch; 
+  final String batch;
   final List<String> batchTimes;
   final double fee;
 

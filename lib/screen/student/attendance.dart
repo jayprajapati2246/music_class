@@ -43,8 +43,8 @@ class _AttendanceState extends State<Attendance> {
             Text(
               "Mark daily attendance",
               style: TextStyle(
-                color: isDark ? Colors.white70 : Colors.grey.shade400,
-                fontSize: 13
+                  color: isDark ? Colors.white70 : Colors.grey.shade400,
+                  fontSize: 13
               ),
             ),
           ],
@@ -90,21 +90,21 @@ class _AttendanceState extends State<Attendance> {
                       Column(
                         children: [
                           Text(
-                            weekday,
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: theme.colorScheme.onSurface
-                            )
+                              weekday,
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: theme.colorScheme.onSurface
+                              )
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            formattedDate,
-                            style: TextStyle(fontSize: 12, color: isDark ? Colors.white60 : Colors.grey)
+                              formattedDate,
+                              style: TextStyle(fontSize: 12, color: isDark ? Colors.white60 : Colors.grey)
                           ),
                           if (isToday)
                             Text(
-                              "Today", 
-                              style: TextStyle(fontSize: 10, color: theme.primaryColor, fontWeight: FontWeight.bold)
+                                "Today",
+                                style: TextStyle(fontSize: 10, color: theme.primaryColor, fontWeight: FontWeight.bold)
                             )
                         ],
                       ),
@@ -149,11 +149,11 @@ class _AttendanceState extends State<Attendance> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        "Today's Summary",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: theme.colorScheme.onSurface
-                        )
+                          "Today's Summary",
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: theme.colorScheme.onSurface
+                          )
                       ),
                       const SizedBox(height: 15),
                       Row(
@@ -185,12 +185,12 @@ class _AttendanceState extends State<Attendance> {
         ),
         const SizedBox(width: 8),
         Text(
-          text, 
-          style: TextStyle(
-            fontSize: 12, 
-            fontWeight: FontWeight.w500,
-            color: isDark ? Colors.white70 : Colors.black87
-          )
+            text,
+            style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                color: isDark ? Colors.white70 : Colors.black87
+            )
         ),
       ],
     );
@@ -207,25 +207,25 @@ class _AttendanceState extends State<Attendance> {
           color: theme.cardColor,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
-            color: status == 'present' 
-              ? Colors.green.withOpacity(0.3) 
-              : status == 'absent' 
-                ? Colors.red.withOpacity(0.3) 
-                : Colors.transparent
+              color: status == 'present'
+                  ? Colors.green.withOpacity(0.3)
+                  : status == 'absent'
+                  ? Colors.red.withOpacity(0.3)
+                  : Colors.transparent
           ),
         ),
         child: Row(
           children: [
             Expanded(
               child: Text(
-                student.name,
-                style: TextStyle(
-                  fontWeight: FontWeight.w600,
-                  color: theme.colorScheme.onSurface
-                )
+                  student.name,
+                  style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      color: theme.colorScheme.onSurface
+                  )
               ),
             ),
-            
+
             // Present Toggle
             GestureDetector(
               onTap: () async => await controller.markPresent(student.id!, student.name),
@@ -243,9 +243,9 @@ class _AttendanceState extends State<Attendance> {
                 ),
               ),
             ),
-            
+
             const SizedBox(width: 12),
-            
+
             // Absent Toggle
             GestureDetector(
               onTap: () async => await controller.markAbsent(student.id!, student.name),

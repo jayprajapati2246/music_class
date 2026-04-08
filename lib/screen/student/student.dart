@@ -36,8 +36,8 @@ class _StudentState extends State<Student> {
             Text(
               "${showController.students.length} enrolled",
               style: TextStyle(
-                color: isDark ? Colors.white70: Colors.grey.shade400,
-                fontSize: 13
+                  color: isDark ? Colors.white70: Colors.grey.shade400,
+                  fontSize: 13
               ),
             ),
           ],
@@ -77,7 +77,7 @@ class _StudentState extends State<Student> {
                 ),
               ),
             ),
-            
+
             Expanded(
               child: Obx(() {
                 if (showController.isLoading.value) {
@@ -122,15 +122,15 @@ class _StudentState extends State<Student> {
                                 "Add your first student to get started with managing your music classes",
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
-                                  color: isDark ? Colors.white60 : Colors.grey, 
-                                  fontSize: 14
+                                    color: isDark ? Colors.white60 : Colors.grey,
+                                    fontSize: 14
                                 ),
                               ),
                             ),
                             const SizedBox(height: 20),
                             ElevatedButton(
                               onPressed: () async {
-                                await Get.to(() => const Addnstudent());
+                                await Get.to(() => Addnstudent());
                                 showController.fetchStudents();
                               },
                               style: ElevatedButton.styleFrom(
@@ -175,7 +175,7 @@ class _StudentState extends State<Student> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          await Get.to(() => const Addnstudent());
+          await Get.to(() => Addnstudent());
           showController.fetchStudents();
         },
         backgroundColor: theme.primaryColor,
@@ -287,7 +287,7 @@ class _StudentState extends State<Student> {
                         vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        color: hasDue 
+                        color: hasDue
                             ? Colors.redAccent.withOpacity(0.1)
                             : Colors.green.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(12),
@@ -302,9 +302,9 @@ class _StudentState extends State<Student> {
                       ),
                     ),
                     Icon(
-                      Icons.chevron_right, 
-                      color: isDark ? Colors.white38 : Colors.grey, 
-                      size: 20
+                        Icons.chevron_right,
+                        color: isDark ? Colors.white38 : Colors.grey,
+                        size: 20
                     ),
                   ],
                 ),

@@ -32,9 +32,9 @@ class UserServicesPage extends StatelessWidget {
               background: Container(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: isDark 
-                      ? [const Color(0xFF1A1A2E), const Color(0xFF16213E)]
-                      : [const Color(0xff6A5AE0), const Color(0xff8E54E9)],
+                    colors: isDark
+                        ? [const Color(0xFF1A1A2E), const Color(0xFF16213E)]
+                        : [const Color(0xff6A5AE0), const Color(0xff8E54E9)],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
@@ -96,7 +96,7 @@ class UserServicesPage extends StatelessWidget {
 
                     const SizedBox(height: 30),
 
-                   
+
                     Row(
                       children: [
                         Expanded(
@@ -106,9 +106,9 @@ class UserServicesPage extends StatelessWidget {
                             icon: Icons.layers_clear_rounded,
                             color: Colors.blueAccent,
                             onPressed: () => _showSectionClearConfirmation(
-                              context, 
-                              "Courses", 
-                              controller.clearCourses
+                                context,
+                                "Courses",
+                                controller.clearCourses
                             ),
                           ),
                         ),
@@ -120,9 +120,9 @@ class UserServicesPage extends StatelessWidget {
                             icon: Icons.history_toggle_off_rounded,
                             color: Colors.green.shade600,
                             onPressed: () => _showSectionClearConfirmation(
-                              context, 
-                              "Batches", 
-                              controller.clearBatches
+                                context,
+                                "Batches",
+                                controller.clearBatches
                             ),
                           ),
                         ),
@@ -376,12 +376,12 @@ class UserServicesPage extends StatelessWidget {
         boxShadow: isOutlined
             ? null
             : [
-                BoxShadow(
-                  color: theme.primaryColor.withOpacity(isDark ? 0.2 : 0.3),
-                  blurRadius: 15,
-                  offset: const Offset(0, 8),
-                ),
-              ],
+          BoxShadow(
+            color: theme.primaryColor.withOpacity(isDark ? 0.2 : 0.3),
+            blurRadius: 15,
+            offset: const Offset(0, 8),
+          ),
+        ],
       ),
       child: ElevatedButton.icon(
         onPressed: onPressed,
@@ -391,8 +391,8 @@ class UserServicesPage extends StatelessWidget {
           style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
         ),
         style: ElevatedButton.styleFrom(
-          backgroundColor: isOutlined 
-              ? theme.cardColor 
+          backgroundColor: isOutlined
+              ? theme.cardColor
               : theme.primaryColor,
           foregroundColor: isOutlined ? Colors.red : Colors.white,
           elevation: 0,
