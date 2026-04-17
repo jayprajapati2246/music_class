@@ -288,7 +288,7 @@ class _SignupScreenState extends State<SignupScreen> {
             obscureText: obscureText,
             keyboardType: keyboardType,
             inputFormatters: inputFormatters,
-            style: const TextStyle(fontWeight: FontWeight.w600),
+            style: const TextStyle(fontWeight: FontWeight.w600,color: Colors.black),
             decoration: InputDecoration(
               hintText: hint,
               hintStyle: TextStyle(color: Colors.grey.shade400, fontWeight: FontWeight.normal),

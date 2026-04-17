@@ -6,7 +6,6 @@ import 'package:music_class/Logic/model/attundance.dart';
 import 'package:music_class/Logic/model/payment.dart';
 import 'package:music_class/screen/student/addnewstudent.dart';
 import 'package:table_calendar/table_calendar.dart';
-
 import '../../Logic/controller/user/edit.dart';
 
 class EditDetail extends StatelessWidget {
@@ -14,7 +13,7 @@ class EditDetail extends StatelessWidget {
   final StudentDetailController controller;
 
   EditDetail({super.key, required this.student})
-      : controller = Get.put(StudentDetailController(student), tag: student.id);
+    : controller = Get.put(StudentDetailController(student), tag: student.id);
 
   @override
   Widget build(BuildContext context) {
@@ -43,23 +42,29 @@ class EditDetail extends StatelessWidget {
           IconButton(
             onPressed: () async {
               final result = await Get.to(
-                    () => Addnstudent(student: controller.student.value),
+                () => Addnstudent(student: controller.student.value),
               );
 
               if (result == true) {
                 controller.refreshStudent();
               }
             },
-            icon: Icon(Icons.edit, color: theme.primaryColor),
+            icon: Icon(Icons.edit, color: theme.iconTheme.color),
           ),
           IconButton(
             onPressed: () {
               Get.defaultDialog(
                 backgroundColor: theme.cardColor,
                 title: "Delete Student",
-                titleStyle: TextStyle(color: theme.colorScheme.onSurface, fontWeight: FontWeight.bold),
-                middleText: "Are you sure you want to delete ${controller.student.value.name}?",
-                middleTextStyle: TextStyle(color: isDark ? Colors.white70 : Colors.black87),
+                titleStyle: TextStyle(
+                  color: theme.colorScheme.onSurface,
+                  fontWeight: FontWeight.bold,
+                ),
+                middleText:
+                    "Are you sure you want to delete ${controller.student.value.name}?",
+                middleTextStyle: TextStyle(
+                  color: isDark ? Colors.white70 : Colors.black87,
+                ),
                 textConfirm: "Delete",
                 textCancel: "Cancel",
                 confirmTextColor: Colors.white,
@@ -127,17 +132,17 @@ class EditDetail extends StatelessWidget {
                 Text(
                   student.name,
                   style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: theme.colorScheme.onSurface
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: theme.colorScheme.onSurface,
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   "Joined on ${DateFormat('MMM d, yyyy').format(student.joinDate)}",
                   style: TextStyle(
-                      fontSize: 14,
-                      color: isDark ? Colors.white60 : Colors.black54
+                    fontSize: 14,
+                    color: isDark ? Colors.white60 : Colors.black54,
                   ),
                 ),
               ],
@@ -154,11 +159,21 @@ class EditDetail extends StatelessWidget {
         Row(
           children: [
             Expanded(
-              child: _infoCard(context, Icons.music_note_rounded, "Course", student.course),
+              child: _infoCard(
+                context,
+                Icons.music_note_rounded,
+                "Course",
+                student.course,
+              ),
             ),
             const SizedBox(width: 12),
             Expanded(
-              child: _infoCard(context, Icons.access_time_filled_rounded, "Batch", student.batchTime),
+              child: _infoCard(
+                context,
+                Icons.access_time_filled_rounded,
+                "Batch",
+                student.batchTime,
+              ),
             ),
           ],
         ),
@@ -190,33 +205,41 @@ class EditDetail extends StatelessWidget {
   }
 
   Widget _buildCallCard(BuildContext context, StudentModel student) {
-    return _infoCard(context, Icons.phone_android_rounded, "Contact Number", student.phone, fullWidth: true);
+    return _infoCard(
+      context,
+      Icons.phone_android_rounded,
+      "Contact Number",
+      student.phone,
+      fullWidth: true,
+    );
   }
 
   Widget _buildTabBar(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    return Obx(() => Container(
-      padding: const EdgeInsets.all(6),
-      decoration: BoxDecoration(
-        color: theme.cardColor,
-        borderRadius: BorderRadius.circular(30),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(isDark ? 0.2 : 0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
+    return Obx(
+      () => Container(
+        padding: const EdgeInsets.all(6),
+        decoration: BoxDecoration(
+          color: theme.cardColor,
+          borderRadius: BorderRadius.circular(30),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(isDark ? 0.2 : 0.05),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            _tabItem(context, "Attendance", 0),
+            _tabItem(context, "Payments", 1),
+            _tabItem(context, "Add Pay", 2),
+          ],
+        ),
       ),
-      child: Row(
-        children: [
-          _tabItem(context, "Attendance", 0),
-          _tabItem(context, "Payments", 1),
-          _tabItem(context, "Add Pay", 2),
-        ],
-      ),
-    ));
+    );
   }
 
   Widget _tabItem(BuildContext context, String title, int index) {
@@ -231,9 +254,7 @@ class EditDetail extends StatelessWidget {
           duration: const Duration(milliseconds: 300),
           padding: const EdgeInsets.symmetric(vertical: 12),
           decoration: BoxDecoration(
-            color: isSelected
-                ? theme.primaryColor
-                : Colors.transparent,
+            color: isSelected ? theme.primaryColor : Colors.transparent,
             borderRadius: BorderRadius.circular(25),
           ),
           child: Center(
@@ -283,21 +304,36 @@ class EditDetail extends StatelessWidget {
 
         return Obx(() {
           final focusedMonth = controller.focusedDay.value;
-          final focusedMonthRecords = allRecords.where((r) =>
-          r.date.month == focusedMonth.month &&
-              r.date.year == focusedMonth.year
-          ).toList();
+          final focusedMonthRecords = allRecords
+              .where(
+                (r) =>
+                    r.date.month == focusedMonth.month &&
+                    r.date.year == focusedMonth.year,
+              )
+              .toList();
 
-          final presentCount = focusedMonthRecords.where((e) => e.status == 'present').length;
-          final absentCount = focusedMonthRecords.where((e) => e.status == 'absent').length;
+          final presentCount = focusedMonthRecords
+              .where((e) => e.status == 'present')
+              .length;
+          final absentCount = focusedMonthRecords
+              .where((e) => e.status == 'absent')
+              .length;
 
           return Column(
             children: [
               Row(
                 children: [
-                  Expanded(child: _attendanceCard(presentCount, "Present", Colors.green)),
+                  Expanded(
+                    child: _attendanceCard(
+                      presentCount,
+                      "Present",
+                      Colors.green,
+                    ),
+                  ),
                   const SizedBox(width: 12),
-                  Expanded(child: _attendanceCard(absentCount, "Absent", Colors.red)),
+                  Expanded(
+                    child: _attendanceCard(absentCount, "Absent", Colors.red),
+                  ),
                 ],
               ),
               const SizedBox(height: 20),
@@ -321,36 +357,72 @@ class EditDetail extends StatelessWidget {
                   headerStyle: HeaderStyle(
                     formatButtonVisible: false,
                     titleCentered: true,
-                    titleTextStyle: TextStyle(color: theme.colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 16),
-                    leftChevronIcon: Icon(Icons.chevron_left, color: theme.primaryColor),
-                    rightChevronIcon: Icon(Icons.chevron_right, color: theme.primaryColor),
+                    titleTextStyle: TextStyle(
+                      color: theme.colorScheme.onSurface,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                    leftChevronIcon: Icon(
+                      Icons.chevron_left,
+                      color: theme.primaryColor,
+                    ),
+                    rightChevronIcon: Icon(
+                      Icons.chevron_right,
+                      color: theme.primaryColor,
+                    ),
                   ),
                   daysOfWeekStyle: DaysOfWeekStyle(
-                    weekdayStyle: TextStyle(color: isDark ? Colors.white70 : Colors.black87, fontWeight: FontWeight.w600),
-                    weekendStyle: TextStyle(color: theme.primaryColor, fontWeight: FontWeight.w600),
+                    weekdayStyle: TextStyle(
+                      color: isDark ? Colors.white70 : Colors.black87,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    weekendStyle: TextStyle(
+                      color: theme.primaryColor,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                   calendarStyle: CalendarStyle(
-                    defaultTextStyle: TextStyle(color: theme.colorScheme.onSurface),
+                    defaultTextStyle: TextStyle(
+                      color: theme.colorScheme.onSurface,
+                    ),
                     weekendTextStyle: TextStyle(color: theme.primaryColor),
-                    outsideTextStyle: TextStyle(color: isDark ? Colors.white24 : Colors.grey.shade400),
-                    todayDecoration: BoxDecoration(color: theme.primaryColor.withOpacity(0.2), shape: BoxShape.circle),
-                    todayTextStyle: TextStyle(color: theme.primaryColor, fontWeight: FontWeight.bold),
+                    outsideTextStyle: TextStyle(
+                      color: isDark ? Colors.white24 : Colors.grey.shade400,
+                    ),
+                    todayDecoration: BoxDecoration(
+                      color: theme.primaryColor.withOpacity(0.2),
+                      shape: BoxShape.circle,
+                    ),
+                    todayTextStyle: TextStyle(
+                      color: theme.primaryColor,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   onPageChanged: (focusedDay) {
                     controller.focusedDay.value = focusedDay;
                   },
                   calendarBuilders: CalendarBuilders(
                     defaultBuilder: (context, day, focusedDay) {
-                      final record = allRecords.firstWhereOrNull((r) => isSameDay(r.date, day));
+                      final record = allRecords.firstWhereOrNull(
+                        (r) => isSameDay(r.date, day),
+                      );
                       if (record != null) {
                         return Container(
                           margin: const EdgeInsets.all(6),
                           alignment: Alignment.center,
                           decoration: BoxDecoration(
-                            color: record.status == 'present' ? Colors.green.withOpacity(0.8) : Colors.red.withOpacity(0.8),
+                            color: record.status == 'present'
+                                ? Colors.green.withOpacity(0.8)
+                                : Colors.red.withOpacity(0.8),
                             shape: BoxShape.circle,
                           ),
-                          child: Text('${day.day}', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                          child: Text(
+                            '${day.day}',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         );
                       }
                       return null;
@@ -383,32 +455,79 @@ class EditDetail extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Container(width: 40, height: 4, decoration: BoxDecoration(color: isDark ? Colors.white12 : Colors.grey.shade300, borderRadius: BorderRadius.circular(2))),
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: isDark ? Colors.white12 : Colors.grey.shade300,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
             const SizedBox(height: 20),
             Text(
               "Mark Attendance",
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: theme.colorScheme.onSurface),
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: theme.colorScheme.onSurface,
+              ),
             ),
             const SizedBox(height: 8),
-            Text(DateFormat('EEEE, dd MMMM yyyy').format(date), style: TextStyle(color: isDark ? Colors.white60 : Colors.black54)),
+            Text(
+              DateFormat('EEEE, dd MMMM yyyy').format(date),
+              style: TextStyle(color: isDark ? Colors.white60 : Colors.black54),
+            ),
             const SizedBox(height: 30),
             Row(
               children: [
                 Expanded(
                   child: ElevatedButton.icon(
-                    onPressed: () { controller.markAttendance(date, 'present'); Get.back(); },
-                    icon: const Icon(Icons.check_circle_rounded, color: Colors.white),
-                    label: const Text("Present", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                    style: ElevatedButton.styleFrom(backgroundColor: Colors.green, padding: const EdgeInsets.symmetric(vertical: 14), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15))),
+                    onPressed: () {
+                      controller.markAttendance(date, 'present');
+                      Get.back();
+                    },
+                    icon: const Icon(
+                      Icons.check_circle_rounded,
+                      color: Colors.white,
+                    ),
+                    label: const Text(
+                      "Present",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                    ),
                   ),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
                   child: ElevatedButton.icon(
-                    onPressed: () { controller.markAttendance(date, 'absent'); Get.back(); },
+                    onPressed: () {
+                      controller.markAttendance(date, 'absent');
+                      Get.back();
+                    },
                     icon: const Icon(Icons.cancel_rounded, color: Colors.white),
-                    label: const Text("Absent", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                    style: ElevatedButton.styleFrom(backgroundColor: Colors.red, padding: const EdgeInsets.symmetric(vertical: 14), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15))),
+                    label: const Text(
+                      "Absent",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                    ),
                   ),
                 ),
               ],
@@ -427,9 +546,16 @@ class EditDetail extends StatelessWidget {
     return StreamBuilder<List<PaymentModel>>(
       stream: controller.paymentStream,
       builder: (context, snapshot) {
-        if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
+        if (!snapshot.hasData)
+          return const Center(child: CircularProgressIndicator());
         final payments = snapshot.data!;
-        if (payments.isEmpty) return Center(child: Text("No payment history found.", style: TextStyle(color: isDark ? Colors.white38 : Colors.grey)));
+        if (payments.isEmpty)
+          return Center(
+            child: Text(
+              "No payment history found.",
+              style: TextStyle(color: isDark ? Colors.white38 : Colors.grey),
+            ),
+          );
 
         return ListView.builder(
           shrinkWrap: true,
@@ -443,22 +569,59 @@ class EditDetail extends StatelessWidget {
               decoration: BoxDecoration(
                 color: theme.cardColor,
                 borderRadius: BorderRadius.circular(15),
-                boxShadow: [BoxShadow(color: Colors.black.withOpacity(isDark ? 0.2 : 0.05), blurRadius: 8, offset: const Offset(0, 3))],
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(isDark ? 0.2 : 0.05),
+                    blurRadius: 8,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
               ),
               child: Row(
                 children: [
-                  Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: Colors.green.withOpacity(0.1), shape: BoxShape.circle), child: const Icon(Icons.check_rounded, color: Colors.green, size: 20)),
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: Colors.green.withOpacity(0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.check_rounded,
+                      color: Colors.green,
+                      size: 20,
+                    ),
+                  ),
                   const SizedBox(width: 16),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text("Fees Paid", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: theme.colorScheme.onSurface)),
-                        Text(DateFormat('dd MMM yyyy').format(p.date), style: TextStyle(fontSize: 13, color: isDark ? Colors.white60 : Colors.black54)),
+                        Text(
+                          "Fees Paid",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 15,
+                            color: theme.colorScheme.onSurface,
+                          ),
+                        ),
+                        Text(
+                          DateFormat('dd MMM yyyy').format(p.date),
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: isDark ? Colors.white60 : Colors.black54,
+                          ),
+                        ),
                       ],
                     ),
                   ),
-                  Text("₹${p.amount.toStringAsFixed(0)}", style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 18, color: Colors.green)),
+                  Text(
+                    "₹${p.amount.toStringAsFixed(0)}",
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w900,
+                      fontSize: 18,
+                      color: Colors.green,
+                    ),
+                  ),
                 ],
               ),
             );
@@ -476,16 +639,37 @@ class EditDetail extends StatelessWidget {
         TextField(
           controller: controller.paymentAmountController,
           keyboardType: TextInputType.number,
-          style: TextStyle(color: theme.colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 18),
+          style: TextStyle(
+            color: theme.colorScheme.onSurface,
+            fontWeight: FontWeight.bold,
+            fontSize: 18,
+          ),
           decoration: InputDecoration(
             labelText: "Payment Amount",
-            labelStyle: TextStyle(color: theme.primaryColor, fontWeight: FontWeight.w600),
-            prefixIcon: Icon(Icons.currency_rupee_rounded, color: theme.primaryColor),
+            labelStyle: TextStyle(
+              color: theme.primaryColor,
+              fontWeight: FontWeight.w600,
+            ),
+            prefixIcon: Icon(
+              Icons.currency_rupee_rounded,
+              color: theme.primaryColor,
+            ),
             filled: true,
             fillColor: theme.cardColor,
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(18), borderSide: BorderSide.none),
-            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(18), borderSide: BorderSide(color: isDark ? Colors.white12 : Colors.black12)),
-            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(18), borderSide: BorderSide(color: theme.primaryColor, width: 2)),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(18),
+              borderSide: BorderSide.none,
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(18),
+              borderSide: BorderSide(
+                color: isDark ? Colors.white12 : Colors.black12,
+              ),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(18),
+              borderSide: BorderSide(color: theme.primaryColor, width: 2),
+            ),
           ),
         ),
         const SizedBox(height: 20),
@@ -496,15 +680,31 @@ class EditDetail extends StatelessWidget {
             backgroundColor: theme.primaryColor,
             foregroundColor: Colors.white,
             elevation: 4,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(18),
+            ),
           ),
-          child: const Text("SAVE PAYMENT", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900, letterSpacing: 1.2)),
+          child: const Text(
+            "SAVE PAYMENT",
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w900,
+              letterSpacing: 1.2,
+            ),
+          ),
         ),
       ],
     );
   }
 
-  Widget _infoCard(BuildContext context, IconData icon, String title, String value, {bool isBalance = false, bool fullWidth = false}) {
+  Widget _infoCard(
+    BuildContext context,
+    IconData icon,
+    String title,
+    String value, {
+    bool isBalance = false,
+    bool fullWidth = false,
+  }) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
@@ -514,21 +714,47 @@ class EditDetail extends StatelessWidget {
       decoration: BoxDecoration(
         color: isBalance ? Colors.red.withOpacity(0.08) : theme.cardColor,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: isBalance ? Colors.red.withOpacity(0.2) : Colors.transparent),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(isDark ? 0.2 : 0.05), blurRadius: 10, offset: const Offset(0, 4))],
+        border: Border.all(
+          color: isBalance ? Colors.red.withOpacity(0.2) : Colors.transparent,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(isDark ? 0.2 : 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(icon, size: 18, color: isBalance ? Colors.red : theme.primaryColor),
+              Icon(
+                icon,
+                size: 18,
+                color: isBalance ? Colors.red : theme.primaryColor,
+              ),
               const SizedBox(width: 8),
-              Text(title, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: isDark ? Colors.white38 : Colors.grey.shade600)),
+              Text(
+                title,
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: isDark ? Colors.white38 : Colors.grey.shade600,
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 8),
-          Text(value, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: isBalance ? Colors.red : theme.colorScheme.onSurface)),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: isBalance ? Colors.red : theme.colorScheme.onSurface,
+            ),
+          ),
         ],
       ),
     );
@@ -544,8 +770,22 @@ class EditDetail extends StatelessWidget {
       ),
       child: Column(
         children: [
-          Text("$count", style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: color)),
-          Text(label, style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: color)),
+          Text(
+            "$count",
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.w900,
+              color: color,
+            ),
+          ),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.bold,
+              color: color,
+            ),
+          ),
         ],
       ),
     );

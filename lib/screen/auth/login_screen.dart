@@ -244,10 +244,10 @@ class _LoginScreenState extends State<LoginScreen> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Image.network(
-                                'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/1200px-Google_%22G%22_logo.svg.png',
+                                'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTne1WTynbZs2Lo2wnKRIsxwELeBVjC2bqdOQ&s',
                                 height: 24,
                               ),
-                              const SizedBox(width: 12),
+                              const SizedBox(width: 10),
                               const Expanded(
                                 child: Text(
                                   "Continue with Google",
@@ -322,10 +322,11 @@ class _LoginScreenState extends State<LoginScreen> {
           child: TextField(
             controller: controller,
             obscureText: obscureText,
-            style: const TextStyle(fontWeight: FontWeight.w600),
+            style: const TextStyle(fontWeight: FontWeight.w600,color: Colors.black),
             decoration: InputDecoration(
               hintText: hint,
               hintStyle: TextStyle(color: Colors.grey.shade400, fontWeight: FontWeight.normal),
+
               prefixIcon: Icon(icon, color: const Color(0xFF6A5AE0).withOpacity(0.7)),
               suffixIcon: isPassword
                   ? IconButton(
